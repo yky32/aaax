@@ -83,8 +83,10 @@ public class SecurityConfig {
                                 "/actuator/info",
                                 "/error",
                                 "/v1/accounts/register",
-                                "/v1/otp/**")
+                                "/v1/otp/**",
+                                "/v1/auth/**")
                         .permitAll()
+                        .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/v1/**"))
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
@@ -124,7 +126,6 @@ public class SecurityConfig {
         return AuthorizationServerSettings.builder().issuer(issuer).build();
     }
 
-    /** Shared factory for the demo client definition (seed + tests). */
     public static RegisteredClient demoClient(PasswordEncoder passwordEncoder) {
         return RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("aaax-demo")

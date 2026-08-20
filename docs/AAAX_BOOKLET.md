@@ -6,14 +6,14 @@
 |--|--|
 | **Status** | Source of truth for product + eng docs |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.2.0-SNAPSHOT` |
+| **Version** | `0.3.0-SNAPSHOT` |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
 
 > **This file is the single booklet.**  
 > Root `README.md` is the shop window.  
-> `VISION.md` / `ROADMAP.md` / `SECURITY.md` / `docs/HAPPY_PATH.md` are short pointers here — edit **this** file first, then sync pointers if needed.
+> `VISION.md` / `ROADMAP.md` / `SECURITY.md` / `docs/HAPPY_PATH.md` point here.
 
 ---
 
@@ -24,7 +24,7 @@
 3. [Competitive frame](#3-competitive-frame)
 4. [Principles](#4-principles)
 5. [Scope (v1)](#5-scope-v1)
-6. [Current status (0.2)](#6-current-status-02)
+6. [Current status (0.3)](#6-current-status-03)
 7. [Architecture](#7-architecture)
 8. [Repo map](#8-repo-map)
 9. [Stack & run](#9-stack--run)
@@ -34,9 +34,10 @@
 13. [OAuth2 / OIDC](#13-oauth2--oidc)
 14. [Happy path (curl)](#14-happy-path-curl)
 15. [Security posture](#15-security-posture)
-16. [Roadmap](#16-roadmap)
-17. [Dev workflow](#17-dev-workflow)
-18. [Glossary](#18-glossary)
+16. [Deploy checklist](#16-deploy-checklist)
+17. [Roadmap](#17-roadmap)
+18. [Dev workflow](#18-dev-workflow)
+19. [Glossary](#19-glossary)
 
 ---
 
@@ -44,8 +45,7 @@
 
 > **AAAX** — open AAA with experiences: own your identity stack without giving up UX/DX.
 
-Most auth stacks stop at Accounts / Authentication / Authorization.  
-**X is the product bet:** self-host *and* feel good to integrate — not a dump of enterprise XML.
+**X is the product bet:** self-host *and* feel good to integrate.
 
 ---
 
@@ -54,9 +54,9 @@ Most auth stacks stop at Accounts / Authentication / Authorization.
 | | | |
 |--|--|--|
 | **A** | **Accounts** | People, orgs, profiles, identity records |
-| **A** | **Authentication** | Prove who you are (password, OTP, OAuth, sessions, tokens) |
-| **A** | **Authorization** | What you may do (roles, permissions, clients, scopes) |
-| **X** | **eXperiences** | UX for humans + DX for builders |
+| **A** | **Authentication** | Password, OTP, OAuth, sessions, tokens |
+| **A** | **Authorization** | Roles, permissions, clients, scopes |
+| **X** | **eXperiences** | UX + DX |
 
 ---
 
@@ -64,95 +64,79 @@ Most auth stacks stop at Accounts / Authentication / Authorization.
 
 | | Strength | AAAX angle |
 |--|----------|------------|
-| **Clerk** | Hosted UX, polish | Self-host + control + no seat tax |
-| **better-auth** | TS/Next DX | JVM/Spring-first + OIDC-grade server |
-| **Logto** | OIDC + self-host | Clearer DX + ops defaults from production scars |
-
-We do **not** win by cloning Clerk’s dashboard day one.  
-We win by **trust + run-your-own + fewer footguns**.
+| **Clerk** | Hosted UX | Self-host, no seat tax |
+| **better-auth** | TS/Next DX | JVM/Spring + OIDC server |
+| **Logto** | OIDC self-host | Clearer DX + ops defaults |
 
 ---
 
 ## 4. Principles
 
-1. **Self-host first** — your keys, your DB, your region  
-2. **OIDC-grade core** — clients, tokens, JWKS, refresh  
-3. **X is mandatory** — docs, quickstarts, sane defaults  
-4. **Greenfield honesty** — public tree is not a private monorepo dump  
-5. **Secrets never in git**  
-6. Product GitHub org later when name + scope are stable  
+1. Self-host first  
+2. OIDC-grade core  
+3. X is mandatory (docs/quickstarts)  
+4. Greenfield honesty  
+5. Secrets never in git  
+6. Product GH org later  
 
 ---
 
 ## 5. Scope (v1)
 
-### In
-
-- Accounts (register / basic profile hooks)
-- Authentication (password + OTP path, OAuth2/OIDC server)
-- Authorization (RBAC baseline + protected API sample)
-- DX: Compose, curl cookbook, English docs
-- UX: intentional login/OTP (not a full design system)
-
-### Out (later)
-
-- Full hosted admin dashboard  
-- Every social provider day one  
-- Passkeys / enterprise SSO packs  
-- Any Quinsic / tgt business APIs  
+**In:** Accounts, password+OTP, OAuth2/OIDC, RBAC baseline, Compose, curl docs.  
+**Out:** Full admin dashboard, every social, passkeys day-one, Quinsic business APIs.
 
 ---
 
-## 6. Current status (0.2)
+## 6. Current status (0.3)
 
 | Area | State |
 |------|--------|
-| Public greenfield repo | ✅ |
-| Spring Authorization Server | ✅ |
 | Accounts + register + DB login + roles | ✅ |
-| JDBC OAuth clients + authorization/consent | ✅ |
-| File-backed RSA JWK (stable across restarts) | ✅ |
-| OTP request/verify + pluggable `OtpSender` | ✅ (default = log) |
-| Protected API sample | ✅ `GET /v1/api/hello` |
-| CI + Docker Compose | ✅ |
-| Email/SMS OTP, Redis multi-node, passkeys | ⬜ v0.3+ |
+| JDBC OAuth clients + authorizations | ✅ |
+| File-backed RSA JWK | ✅ |
+| OTP request/verify | ✅ |
+| OTP channel `console` \| `mail` (SMTP) | ✅ |
+| Passwordless `POST /v1/auth/otp/login` | ✅ |
+| Admin clients CRUD `/v1/admin/clients` | ✅ |
+| Protected API `GET /v1/api/hello` | ✅ |
+| `prod` profile (no demo seeds) | ✅ |
+| Deploy checklist (this §16) | ✅ |
+| Redis multi-node OTP | ⬜ |
+| Passkeys / social | ⬜ |
 
 ---
 
 ## 7. Architecture
 
 ```text
-                    ┌─────────────────────────────┐
-   Browser / SPA ──►│  Form login  /oauth2/*      │
-                    │  Authorization Server       │
-   API clients   ──►│  JWT resource (/v1/api/**)  │
-                    └─────────────┬───────────────┘
-                                  │
-              ┌───────────────────┼───────────────────┐
-              ▼                   ▼                   ▼
-        accounts (JPA)   oauth2_* (JDBC)      aaax-jwk.json (file)
-              │                   │
-              ▼                   ▼
-         H2 (dev) / PostgreSQL (Compose / prod path)
+ Browser / SPA ──► Form login + /oauth2/* (AS)
+ API clients  ──► JWT /v1/api/**
+ Admin (session ROLE_ADMIN) ──► /v1/admin/clients
+ OTP ──► OtpSender (console | mail)
+        │
+ accounts (JPA) · oauth2_* (JDBC) · aaax-jwk.json (file)
+        │
+ H2 (dev) / PostgreSQL (Compose)
 ```
 
-### Security filter chains (order)
+### Filter chains
 
 | Order | Matcher | Role |
 |------:|---------|------|
-| 1 | AS defaults | `/oauth2/**`, OIDC, token, jwks |
-| 2 | `/v1/api/**` | JWT resource server · `SCOPE_api.read` / `ROLE_ADMIN` |
-| 3 | everything else | Form login · session · public register/otp/health |
+| 1 | AS | token, authorize, jwks, OIDC |
+| 2 | `/v1/api/**` | JWT · `SCOPE_api.read` / admin JWT role |
+| 3 | default | session · register/otp/auth public · `/v1/admin/**` needs `ROLE_ADMIN` |
 
-### Packages (`com.aaax`)
+### Packages
 
-| Package | Responsibility |
-|---------|----------------|
-| `account` | Entity, register, `UserDetailsService`, demo seed |
-| `client` | Demo OAuth client seed (JDBC) |
-| `config` | Security chains, JWK file loader |
-| `otp` | OTP store/service + `OtpSender` SPI |
-| `web` | REST controllers + exception handler |
+| Package | |
+|---------|--|
+| `account` | Entity, register, UserDetails, seeds |
+| `client` | Demo client seed + admin client service |
+| `config` | Security, JWK file |
+| `otp` | Store, service, Logging/Mail senders |
+| `web` | REST + errors |
 
 ---
 
@@ -160,50 +144,30 @@ We win by **trust + run-your-own + fewer footguns**.
 
 ```text
 aaax/
-├── docs/
-│   ├── AAAX_BOOKLET.md      ← YOU ARE HERE (source of truth)
-│   └── HAPPY_PATH.md        ← pointer → §14
+├── docs/AAAX_BOOKLET.md     ← source of truth
 ├── src/main/java/com/aaax/
 ├── src/main/resources/
 │   ├── application.yml
-│   └── schema.sql           ← OAuth2 JDBC tables
-├── src/test/
-├── docker-compose.yml       ← Postgres + Redis + app
-├── Dockerfile
-├── pom.xml
+│   ├── application-prod.yml
+│   └── schema.sql
+├── docker-compose.yml
 ├── .env.example
-├── README.md                ← short entry
-├── VISION.md                ← pointer → §1–6
-├── ROADMAP.md               ← pointer → §16
-├── SECURITY.md              ← policy + pointer → §15
-└── LICENSE                  ← Apache-2.0
+└── README.md
 ```
 
 ---
 
 ## 9. Stack & run
 
-### Stack
-
-- Java 17 · Spring Boot **3.3.5** · Spring Authorization Server  
-- Spring Security · JPA · Validation · Actuator  
-- H2 (default local/tests) · PostgreSQL (Compose)  
-- JDBC OAuth2 registered client + authorization services  
-- File RSA JWK  
-
-### Local (fastest)
+- Java 17 · Spring Boot 3.3 · Authorization Server · Mail  
+- JPA Accounts · JDBC OAuth · File JWK · H2 / Postgres  
 
 ```bash
-cd ~/Documents/git/personal/aaax
 mvn test
 mvn spring-boot:run
+# prod-ish local:
+# mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ```
-
-- Meta: http://localhost:8081/  
-- Health: http://localhost:8081/actuator/health  
-- OIDC: http://localhost:8081/.well-known/openid-configuration  
-
-### Docker
 
 ```bash
 cp .env.example .env
@@ -211,148 +175,77 @@ mvn -DskipTests package
 docker compose up --build
 ```
 
-App publishes `8081`. JWK volume: `aaax_jwk` → `/data/aaax-jwk.json`.
-
 ---
 
 ## 10. Configuration
 
-### Important keys (`application.yml` / env)
+| Env | Default | |
+|-----|---------|--|
+| `AAAX_ISSUER` | `http://localhost:8081` | Issuer URL |
+| `AAAX_JWK_PATH` | `./data/aaax-jwk.json` | Signing key file |
+| `AAAX_OTP_CHANNEL` | `console` | `console` or `mail` |
+| `MAIL_HOST` / `PORT` / `USERNAME` / `PASSWORD` | empty | SMTP |
+| `AAAX_OTP_MAIL_FROM` | `noreply@aaax.local` | From header |
+| `AAAX_DEMO_SEED_*` | `true` | **false in prod** |
+| `DB_*` | H2 mem | Postgres in Compose |
 
-| Key / env | Default | Meaning |
-|-----------|---------|---------|
-| `SERVER_PORT` | `8081` | HTTP port |
-| `AAAX_ISSUER` | `http://localhost:8081` | OIDC issuer URL |
-| `AAAX_JWK_PATH` | `./data/aaax-jwk.json` | RSA JWK file (private+public) |
-| `DB_URL` | H2 mem | JDBC URL |
-| `DB_USERNAME` / `DB_PASSWORD` | `sa` / empty | DB auth |
-| `DB_DRIVER` | `org.h2.Driver` | Use `org.postgresql.Driver` with Postgres |
-| `AAAX_OTP_TTL_SECONDS` | `300` | OTP lifetime |
-| `AAAX_OTP_LENGTH` | `6` | OTP digits |
-| `AAAX_DEMO_SEED_CLIENT` | `true` | Seed `aaax-demo` |
-| `AAAX_DEMO_SEED_ACCOUNT` | `true` | Seed `demo` + `admin` |
-
-Full template: `.env.example`.
-
-### Data that must not be committed
-
-- `.env`  
-- `./data/` (JWK)  
-- Any real cloud credentials  
+`application-prod.yml`: seeds off, `ddl-auto=validate`, sql init never.
 
 ---
 
-## 11. Demo credentials
+## 11. Demo credentials (local seeds only)
 
-| Kind | Value | Notes |
-|------|--------|--------|
-| User | `demo` / `demo` | `ROLE_USER` · seeded if missing |
-| Admin | `admin` / `admin12345` | `ROLE_USER,ADMIN` |
-| OAuth client | `aaax-demo` / `aaax-demo-secret` | code + refresh + client_credentials |
-| Scopes | `openid` `profile` `api.read` | |
-| Redirect | `http://127.0.0.1:3000/login/oauth2/code/aaax` | (+ localhost variant) |
-
-**Local only.** Change before any shared environment.
+| | |
+|--|--|
+| User | `demo` / `demo` |
+| Admin | `admin` / `admin12345` (`ROLE_ADMIN`) |
+| Client | `aaax-demo` / `aaax-demo-secret` |
 
 ---
 
 ## 12. HTTP API
 
-Base: `http://localhost:8081`
+| Method | Path | Auth |
+|--------|------|------|
+| GET | `/` | public |
+| POST | `/v1/accounts/register` | public |
+| GET | `/v1/accounts/me` | session |
+| POST | `/v1/otp/request` | public |
+| POST | `/v1/otp/verify` | public |
+| POST | `/v1/auth/otp/login` | public → **sets session** |
+| GET/POST/DELETE | `/v1/admin/clients` | session **ROLE_ADMIN** |
+| GET | `/v1/api/hello` | Bearer `SCOPE_api.read` |
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| `GET` | `/` | public | Product meta JSON |
-| `GET` | `/actuator/health` | public | Liveness |
-| `POST` | `/v1/accounts/register` | public | Create account |
-| `GET` | `/v1/accounts/me` | session | Current account |
-| `POST` | `/v1/otp/request` | public | Issue OTP (sender) |
-| `POST` | `/v1/otp/verify` | public | Check OTP |
-| `GET` | `/v1/api/hello` | Bearer JWT · `SCOPE_api.read` | Protected sample |
-| `GET` | `/v1/api/admin/ping` | Bearer JWT · `ROLE_ADMIN` | Admin sample |
-
-### Register body
+### Admin create client body
 
 ```json
 {
-  "username": "alice",
-  "email": "alice@example.com",
-  "password": "password123"
+  "clientId": "my-app",
+  "clientName": "My App",
+  "redirectUris": ["http://127.0.0.1:4000/callback"],
+  "scopes": ["openid", "profile", "api.read"],
+  "grantTypes": ["authorization_code", "refresh_token", "client_credentials"]
 }
 ```
 
-Rules: username `3–64` `[a-zA-Z0-9._-]`; password `8–128`; email optional unique.
-
-### Register response (201)
-
-```json
-{
-  "id": "…",
-  "username": "alice",
-  "email": "alice@example.com",
-  "roles": ["USER"],
-  "enabled": true,
-  "createdAt": "…"
-}
-```
-
-Never returns password hashes.
-
-### Errors
-
-JSON from `ApiExceptionHandler`:
-
-```json
-{
-  "timestamp": "…",
-  "status": 409,
-  "error": "Conflict",
-  "message": "username already taken"
-}
-```
-
-Validation failures: `400` + `fields` map.
+Response includes one-time `clientSecret` (save it).
 
 ---
 
 ## 13. OAuth2 / OIDC
 
-| Endpoint | Notes |
-|----------|--------|
+| Endpoint | |
+|----------|--|
 | `/.well-known/openid-configuration` | Discovery |
-| `/oauth2/jwks` | Public JWKS |
+| `/oauth2/jwks` | JWKS |
 | `/oauth2/token` | code / refresh / client_credentials |
-| `/oauth2/authorize` | Authorization code (browser + login) |
-| `/login` | Form login (DB accounts) |
-
-### Persistence
-
-| Store | Impl |
-|-------|------|
-| Registered clients | `JdbcRegisteredClientRepository` |
-| Authorizations | `JdbcOAuth2AuthorizationService` |
-| Consents | `JdbcOAuth2AuthorizationConsentService` |
-| Schema | `src/main/resources/schema.sql` |
-
-### Signing keys
-
-- Generated once into `aaax.jwk.path` if missing  
-- Same file reused → tokens remain verifiable across restarts  
-- Protect file permissions in real deploys; **new key per environment**
+| `/oauth2/authorize` | Auth code |
 
 ---
 
 ## 14. Happy path (curl)
 
-### 0. Start
-
-```bash
-mvn spring-boot:run
-# or
-mvn -DskipTests package && docker compose up --build
-```
-
-### 1. Register
+### Register
 
 ```bash
 curl -sS -X POST http://localhost:8081/v1/accounts/register \
@@ -360,146 +253,131 @@ curl -sS -X POST http://localhost:8081/v1/accounts/register \
   -d '{"username":"alice","email":"alice@example.com","password":"password123"}' | jq
 ```
 
-### 2. Client credentials → protected API
+### Client credentials → API
 
 ```bash
 TOKEN=$(curl -sS -u 'aaax-demo:aaax-demo-secret' \
   -X POST http://localhost:8081/oauth2/token \
   -d 'grant_type=client_credentials&scope=api.read' | jq -r .access_token)
-
-curl -sS http://localhost:8081/v1/api/hello \
-  -H "Authorization: Bearer $TOKEN" | jq
+curl -sS http://localhost:8081/v1/api/hello -H "Authorization: Bearer $TOKEN" | jq
 ```
 
-### 3. OTP (dev: code in server logs)
+### OTP passwordless login (cookie jar)
 
 ```bash
-curl -sS -X POST http://localhost:8081/v1/otp/request \
-  -H 'content-type: application/json' \
-  -d '{"username":"demo"}' | jq
-
-# log line: AAAX OTP for demo@aaax.local => ######
-curl -sS -X POST http://localhost:8081/v1/otp/verify \
+curl -sS -c /tmp/aaax.cj -X POST http://localhost:8081/v1/otp/request \
+  -H 'content-type: application/json' -d '{"username":"demo"}' | jq
+# read code from logs (console) or email (mail)
+curl -sS -c /tmp/aaax.cj -b /tmp/aaax.cj -X POST http://localhost:8081/v1/auth/otp/login \
   -H 'content-type: application/json' \
   -d '{"username":"demo","code":"PASTE"}' | jq
+curl -sS -b /tmp/aaax.cj http://localhost:8081/v1/accounts/me | jq
 ```
 
-### 4. Authorization code (browser)
+### Admin clients (login as admin first)
 
-1. Login: http://localhost:8081/login → `demo` / `demo`  
-2. Open:
+```bash
+# form login session, or OTP login as admin then:
+curl -sS -b /tmp/aaax.cj http://localhost:8081/v1/admin/clients | jq
+```
+
+### Authorization code
+
+Login http://localhost:8081/login then:
 
 ```text
-http://localhost:8081/oauth2/authorize?response_type=code&client_id=aaax-demo&redirect_uri=http://127.0.0.1:3000/login/oauth2/code/aaax&scope=openid%20profile%20api.read&state=xyz
-```
-
-3. Exchange:
-
-```bash
-curl -sS -u 'aaax-demo:aaax-demo-secret' \
-  -X POST http://localhost:8081/oauth2/token \
-  -d 'grant_type=authorization_code' \
-  -d 'code=PASTE_CODE' \
-  -d 'redirect_uri=http://127.0.0.1:3000/login/oauth2/code/aaax' | jq
-```
-
-### 5. Discovery / JWKS
-
-```bash
-curl -sS http://localhost:8081/.well-known/openid-configuration | jq
-curl -sS http://localhost:8081/oauth2/jwks | jq
+/oauth2/authorize?response_type=code&client_id=aaax-demo&redirect_uri=http://127.0.0.1:3000/login/oauth2/code/aaax&scope=openid%20profile%20api.read&state=xyz
 ```
 
 ---
 
 ## 15. Security posture
 
-### Report
-
-GitHub Security Advisories on this repo, or maintainer contact on GitHub profile.  
-Do **not** open public issues for active exploits.
-
-### Supported
-
-| Version | Supported |
-|---------|-----------|
-| `main` (`0.2.x-SNAPSHOT`) | Yes — best effort |
-
-### Hard truths (pre-1.0)
-
-- Demo users/clients are **toys**  
-- Default `OtpSender` **logs codes** — swap before shared envs  
-- JWK file holds **private** key material  
-- No multi-node OTP store yet (in-memory)  
-- Secrets only via env — never commit `.env`  
-
-### If leaked
-
-Rotate immediately (DB, OAuth secrets, JWK, any provider keys).
+- Report via GitHub Security Advisories  
+- Demo seeds are toys — disable in prod  
+- `console` OTP logs codes; use `mail` + real SMTP for shared envs  
+- Protect `AAAX_JWK_PATH` file (private key)  
+- OTP store is in-memory (single node)  
 
 ---
 
-## 16. Roadmap
+## 16. Deploy checklist
 
-### Done (0.2)
+### Before first real deploy
 
-- [x] Public repo + Apache-2.0  
-- [x] Greenfield `com.aaax`  
-- [x] Authorization Server  
-- [x] Accounts + roles + register + DB login  
-- [x] JDBC clients / authorizations / consents  
-- [x] Stable JWK file  
-- [x] OTP SPI + log sender  
-- [x] Protected API sample  
-- [x] Curl happy path + this booklet  
-- [x] CI + Compose  
+- [ ] Fresh host / VM / K8s namespace  
+- [ ] Postgres reachable; set `DB_URL` / user / password / `DB_DRIVER=org.postgresql.Driver`  
+- [ ] Run schema: app starts with `sql.init` **or** apply `schema.sql` + JPA entities manually when using `prod` (`ddl-auto=validate` → migrate first)  
+- [ ] Set `AAAX_ISSUER` to **public** URL (https)  
+- [ ] Generate/store JWK path on **persistent volume**; mode `600`  
+- [ ] `AAAX_DEMO_SEED_CLIENT=false` · `AAAX_DEMO_SEED_ACCOUNT=false`  
+- [ ] Activate profile `prod` (`SPRING_PROFILES_ACTIVE=prod`)  
+- [ ] `AAAX_OTP_CHANNEL=mail` + working SMTP (`MAIL_*`)  
+- [ ] Create first admin account out-of-band (SQL or temporary seed once)  
+- [ ] Create OAuth clients via `/v1/admin/clients` — store secrets in a vault  
+- [ ] TLS terminator in front; cookies Secure/HttpOnly in real browser apps  
+- [ ] Backup Postgres + JWK file  
+- [ ] Smoke: health, discovery, client_credentials, register, otp login  
 
-### Next (0.3+)
+### Compose smoke (dev)
 
-- [ ] Email / SMS `OtpSender` implementations  
-- [ ] Redis OTP / authorization option (multi-node)  
-- [ ] Passwordless OTP login grant  
-- [ ] Admin client management API  
-- [ ] Passkeys / social packs  
-- [ ] v1.0 stranger cold-path polish  
+```bash
+mvn -DskipTests package
+docker compose up --build -d
+curl -sf http://localhost:8081/actuator/health
+curl -sf http://localhost:8081/.well-known/openid-configuration | head
+docker compose down
+```
+
+---
+
+## 17. Roadmap
+
+### Done
+
+- [x] 0.2 greenfield core  
+- [x] 0.3 mail OTP channel + console fallback  
+- [x] 0.3 passwordless OTP session login  
+- [x] 0.3 admin clients API  
+- [x] 0.3 prod profile + deploy checklist  
+
+### Next
+
+- [ ] SMS `OtpSender`  
+- [ ] Redis OTP / multi-node  
+- [ ] First admin bootstrap endpoint (one-time token)  
+- [ ] Passkeys / social  
+- [ ] Sample BFF app  
+- [ ] v1.0 stranger cold path  
 
 ### Non-goals (v1)
 
 - Clerk dashboard clone  
-- Shipping Quinsic/tgt business APIs inside this repo  
+- Quinsic business APIs in-repo  
 
 ---
 
-## 17. Dev workflow
+## 18. Dev workflow
 
-| Rule | |
+| | |
+|--|--|
+| Solo | Push `main` directly |
+| Docs | Edit **this booklet** first |
+| Tests | `mvn test` before push |
+| Lane | 🧪 CTO · aaax · not WIP primary |
+
+---
+
+## 19. Glossary
+
+| Term | |
 |------|--|
-| Solo / pre-users | **Push `main` directly** — no PR required |
-| Later (users/collab) | Resume branch + PR |
-| Commits | Conventional-ish: `feature(aaax): …` / `docs(aaax): …` |
-| Tests | `mvn test` before push when touching Java |
-| Docs | **Edit this booklet first** |
-
-### Lane
-
-WY Limited: **🧪 CTO · aaax** (Telegram topic).  
-Not indie main-ship (primary remains elsewhere until CEO gate).
+| AS | Authorization Server |
+| JWK | Signing key material |
+| OtpSender | Delivery SPI (`console` / `mail`) |
+| Registered client | OAuth app row |
+| `SCOPE_api.read` | JWT authority for `/v1/api/**` |
 
 ---
 
-## 18. Glossary
-
-| Term | Meaning |
-|------|---------|
-| **AAAX** | Product name (always four letters) |
-| **AS** | OAuth2 Authorization Server |
-| **JWK / JWKS** | JSON Web Key / Key Set (signing) |
-| **OIDC** | OpenID Connect (identity layer on OAuth2) |
-| **Registered client** | OAuth application (e.g. `aaax-demo`) |
-| **Scope `api.read`** | Required authority on `/v1/api/**` as `SCOPE_api.read` |
-| **OtpSender** | Pluggable interface for delivering OTP codes |
-
----
-
-*AAAX booklet — one place for product, architecture, API, security, and ops.*  
-*When docs drift, fix this file.*
+*AAAX booklet — fix drift here first.*

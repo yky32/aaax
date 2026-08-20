@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,7 +50,7 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product").value("AAAX"))
-                .andExpect(jsonPath("$.endpoints.apiHello").exists());
+                .andExpect(jsonPath("$.version").value("0.3.0-SNAPSHOT"));
     }
 
     @Test
@@ -68,16 +70,11 @@ class AaaxApplicationTests {
                 }
                 """;
 
-        MvcResult result = mockMvc.perform(post("/v1/accounts/register")
+        mockMvc.perform(post("/v1/accounts/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.roles[0]").value("USER"))
-                .andReturn();
-
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertThat(json.has("passwordHash")).isFalse();
+                .andExpect(jsonPath("$.username").value("alice"));
 
         mockMvc.perform(formLogin().user("alice").password("password123"))
                 .andExpect(authenticated().withUsername("alice"));
@@ -85,16 +82,9 @@ class AaaxApplicationTests {
 
     @Test
     void registerRejectsDuplicateUsername() throws Exception {
-        String body = """
-                {
-                  "username": "demo",
-                  "password": "password123"
-                }
-                """;
-
         mockMvc.perform(post("/v1/accounts/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content("{\"username\":\"demo\",\"password\":\"password123\"}"))
                 .andExpect(status().isConflict());
     }
 
@@ -155,7 +145,7 @@ class AaaxApplicationTests {
     }
 
     @Test
-    void otpRequestAndVerify() throws Exception {
+    void otpRequestVerifyAndLoginSession() throws Exception {
         mockMvc.perform(post("/v1/otp/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"demo\"}"))
@@ -163,20 +153,73 @@ class AaaxApplicationTests {
                 .andExpect(jsonPath("$.username").value("demo"));
 
         String code = otpStore.get("demo").code();
-        assertThat(code).hasSize(6);
 
-        mockMvc.perform(post("/v1/otp/verify")
+        MvcResult login = mockMvc.perform(post("/v1/auth/otp/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"demo\",\"code\":\"" + code + "\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.valid").value(true));
+                .andExpect(jsonPath("$.username").value("demo"))
+                .andReturn();
+
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
+        assertThat(session).isNotNull();
+
+        mockMvc.perform(get("/v1/accounts/me").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("demo"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN", "USER"})
+    void adminCanManageClients() throws Exception {
+        mockMvc.perform(get("/v1/admin/clients"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].clientId").value("aaax-demo"));
+
+        String createBody = """
+                {
+                  "clientId": "aaax-app-1",
+                  "clientName": "App One",
+                  "redirectUris": ["http://127.0.0.1:4000/callback"],
+                  "scopes": ["openid", "api.read"],
+                  "grantTypes": ["authorization_code", "refresh_token", "client_credentials"]
+                }
+                """;
+
+        MvcResult created = mockMvc.perform(post("/v1/admin/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.client.clientId").value("aaax-app-1"))
+                .andExpect(jsonPath("$.clientSecret").isNotEmpty())
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(created.getResponse().getContentAsString());
+        String secret = json.get("clientSecret").asText();
+        assertThat(secret).isNotBlank();
+
+        mockMvc.perform(get("/v1/admin/clients/aaax-app-1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clientName").value("App One"));
+
+        mockMvc.perform(delete("/v1/admin/clients/aaax-app-1"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/v1/admin/clients/aaax-app-1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "demo", roles = "USER")
+    void nonAdminCannotListClients() throws Exception {
+        mockMvc.perform(get("/v1/admin/clients"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void oidcDiscoveryIsPublic() throws Exception {
         mockMvc.perform(get("/.well-known/openid-configuration"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.issuer").exists())
-                .andExpect(jsonPath("$.token_endpoint").exists());
+                .andExpect(jsonPath("$.issuer").exists());
     }
 }

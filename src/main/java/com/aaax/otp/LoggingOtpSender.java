@@ -2,12 +2,14 @@ package com.aaax.otp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Default pluggable sender — logs OTP (swap for email/SMS provider later).
+ * Default OTP channel — prints to logs (local / CI).
  */
 @Component
+@ConditionalOnProperty(name = "aaax.otp.channel", havingValue = "console", matchIfMissing = true)
 public class LoggingOtpSender implements OtpSender {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingOtpSender.class);

@@ -27,6 +27,17 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:true}
 
 server:
   port: ${SERVER_PORT:8081}
@@ -38,6 +49,11 @@ aaax:
   otp:
     ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
     length: ${AAAX_OTP_LENGTH:6}
+    # console | mail  (mail falls back to console if host empty)
+    channel: ${AAAX_OTP_CHANNEL:console}
+    mail:
+      from: ${AAAX_OTP_MAIL_FROM:noreply@aaax.local}
+      subject: ${AAAX_OTP_MAIL_SUBJECT:Your AAAX code}
   demo:
     seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
     seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
@@ -52,6 +68,8 @@ management:
       show-details: when_authorized
   health:
     redis:
+      enabled: false
+    mail:
       enabled: false
 
 logging:
