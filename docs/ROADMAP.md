@@ -11,13 +11,14 @@ Honest backlog — not a commitment schedule.
 - Passkeys (webauthn4j) **opt-in**
 
 ### v0.6-SNAPSHOT (in progress)
-- **QR code login** — desktop QR / code → phone approve → consume ([QR_LOGIN.md](./QR_LOGIN.md))
+- **QR code login** — [QR_LOGIN.md](./QR_LOGIN.md)
+- **Trusted devices** — remember browser / skip TOTP — [TRUSTED_DEVICES.md](./TRUSTED_DEVICES.md)
 
 ## Not built (needs product `go`)
 
 | Item | Notes |
 |------|--------|
-| **Device binding (policy)** | Trusted device registry, MFA skip, force re-auth. Distinct from passkeys / QR. |
+| **Strict device allow-list only** | Current trust is remember/skip-MFA, not “block unknown devices” |
 | Multi-tenant **orgs** | Single-realm only today. |
 | **SAML IdP** | SP only. |
 | Official **React / Next SDK** | Hosted pages + JWT RS example only. |

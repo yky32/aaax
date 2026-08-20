@@ -106,13 +106,18 @@ $("#passwordForm").addEventListener("submit", async (e) => {
   const fd = new FormData(e.target);
   const r = await api("/v1/auth/login", {
     method: "POST",
-    body: JSON.stringify({ username: fd.get("username"), password: fd.get("password") }),
+    body: JSON.stringify({
+      username: fd.get("username"),
+      password: fd.get("password"),
+      rememberDevice: fd.get("rememberDevice") === "on",
+    }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) return msg(j.message || "Sign in failed");
   if (j.mfaRequired) {
     $("#passwordForm").classList.add("hidden");
     $("#mfaForm").classList.remove("hidden");
+    window.__aaaxRememberDevice = fd.get("rememberDevice") === "on";
     ok("Enter authenticator code");
     return;
   }
@@ -124,7 +129,10 @@ $("#mfaForm").addEventListener("submit", async (e) => {
   const fd = new FormData(e.target);
   const r = await api("/v1/auth/mfa/totp", {
     method: "POST",
-    body: JSON.stringify({ code: fd.get("code") }),
+    body: JSON.stringify({
+      code: fd.get("code"),
+      rememberDevice: window.__aaaxRememberDevice === true,
+    }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) return msg(j.message || "Invalid code");

@@ -4,6 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### Trusted devices
+- Cookie `AAAX_DEVICE` + hashed store; optional skip TOTP on password login
+- `/v1/devices` CRUD; sign-in checkbox; `/user/` management
+- Docs: `docs/TRUSTED_DEVICES.md`
+
 ### QR code login
 - `POST/GET /v1/auth/qr/sessions/*` + approve/consume
 - Hosted `/sign-in/` QR tab + `qr-approve.html`

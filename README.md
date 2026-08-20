@@ -40,7 +40,7 @@ sequenceDiagram
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Code map](./docs/CODEMAP.md) · [QR login](./docs/QR_LOGIN.md) · [Passkeys](./docs/PASSKEYS.md) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [QR login](./docs/QR_LOGIN.md) · [Trusted devices](./docs/TRUSTED_DEVICES.md) · [Passkeys](./docs/PASSKEYS.md) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) · [Kafka notify](./examples/compose-kafka-notify/) · [**Resource server**](./examples/resource-server-boot4/) · [Redis OTP](./examples/redis-otp-store.md) |
 | **Version** | **`v0.5.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |

@@ -43,6 +43,7 @@ public class MetaController {
         docs.put("booklet", "docs/AAAX_BOOKLET.md");
         docs.put("codemap", "docs/CODEMAP.md");
         docs.put("passkeys", "docs/PASSKEYS.md");
+        docs.put("trustedDevices", "docs/TRUSTED_DEVICES.md");
         docs.put("qrLogin", "docs/QR_LOGIN.md");
         docs.put("roadmap", "docs/ROADMAP.md");
         docs.put("events", "docs/IDENTITY_EVENTS.md");
@@ -63,6 +64,7 @@ public class MetaController {
         body.put("features", Map.of(
                 "passkeys", passkeysEnabled ? "webauthn4j" : "disabled",
                 "qrLogin", true,
+                "trustedDevices", true,
                 "otpStore", "memory|redis",
                 "eventBus", true));
         body.put("endpoints", endpoints);

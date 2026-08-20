@@ -125,7 +125,7 @@ public class AdminSettingsController {
                 Map.of("id", "orgs_multi", "question", "Multi-tenant organizations (Clerk Orgs) — still single-realm"),
                 Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP) — SP done; full IdP later?"),
                 Map.of("id", "qr_login", "question", "QR login — shipped (in-memory); multi-node store later?"),
-                Map.of("id", "device_binding", "question", "Policy device trust (not passkeys) — see ROADMAP"),
+                Map.of("id", "device_binding", "question", "Strict device allow-list (block unknown) — trust/skip-MFA shipped"),
                 Map.of("id", "react_sdk", "question", "Official React/Next SDK — hosted pages first")));
         return m;
     }
@@ -160,6 +160,7 @@ public class AdminSettingsController {
                 : "disabled");
         f.put("magicLink", true);
         f.put("qrLogin", true);
+        f.put("trustedDevices", true);
         f.put("otpStore", environment.getProperty("aaax.otp.store", "memory"));
         f.put("hostedExperiences", true);
         f.put("sessions", true);

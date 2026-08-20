@@ -41,6 +41,9 @@ class AaaxApplicationTests {
     @Autowired
     OtpCodeStore otpStore;
 
+    @Autowired
+    com.aaax.mfa.TotpService totpService;
+
     @Test
     void contextLoads() {
     }
@@ -313,6 +316,70 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/v1/admin/events").session(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].type").value("com.aaax.auth.login"));
+    }
+
+    @Test
+    void trustedDeviceRegisterAndSkipTotp() throws Exception {
+        MvcResult login = mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"password\":\"demo1234\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
+
+        MvcResult setup = mockMvc.perform(post("/v1/accounts/me/mfa/totp/setup").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.secret").exists())
+                .andReturn();
+        String secret = objectMapper.readTree(setup.getResponse().getContentAsString()).get("secret").asText();
+        String code = totpService.generateCode(secret, System.currentTimeMillis() / 1000L / 30L);
+        mockMvc.perform(post("/v1/accounts/me/mfa/totp/confirm")
+                        .session(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"" + code + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaEnabled").value(true));
+
+        // login requires MFA
+        mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"password\":\"demo1234\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaRequired").value(true));
+
+        // complete MFA with rememberDevice
+        MvcResult pending = mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"password\":\"demo1234\",\"rememberDevice\":true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaRequired").value(true))
+                .andReturn();
+        MockHttpSession mfaSession = (MockHttpSession) pending.getRequest().getSession();
+        String code2 = totpService.generateCode(secret, System.currentTimeMillis() / 1000L / 30L);
+        MvcResult done = mockMvc.perform(post("/v1/auth/mfa/totp")
+                        .session(mfaSession)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"" + code2 + "\",\"rememberDevice\":true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.account.username").value("demo"))
+                .andExpect(jsonPath("$.trustedDevice").value(true))
+                .andReturn();
+        var deviceCookie = done.getResponse().getCookie("AAAX_DEVICE");
+        assertThat(deviceCookie).isNotNull();
+        assertThat(deviceCookie.getValue()).isNotBlank();
+
+        // next login skips MFA with cookie
+        mockMvc.perform(post("/v1/auth/login")
+                        .cookie(deviceCookie)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"password\":\"demo1234\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaSkipped").value(true))
+                .andExpect(jsonPath("$.account.username").value("demo"));
+
+        mockMvc.perform(get("/v1/devices").session((MockHttpSession) done.getRequest().getSession()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").exists());
     }
 
     @Test

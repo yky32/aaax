@@ -55,6 +55,9 @@ aaax:
     rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}
   magic:
     ttl-seconds: ${AAAX_MAGIC_TTL_SECONDS:900}
+  devices:
+    ttl-days: ${AAAX_DEVICES_TTL_DAYS:30}
+    cookie-secure: ${AAAX_DEVICES_COOKIE_SECURE:false}
   qr:
     # desktop QR login session TTL (seconds)
     ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}

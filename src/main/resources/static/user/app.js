@@ -42,6 +42,7 @@ async function boot() {
     .map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`)
     .join("");
   await loadSessions();
+  await loadDevices();
 
   let passkeysOn = false;
   try {
@@ -56,6 +57,42 @@ async function boot() {
     await loadPasskeys();
   }
 }
+
+async function loadDevices() {
+  const r = await api("/v1/devices");
+  if (!r.ok) {
+    $("#devices").innerHTML = `<div class="small">Could not load devices</div>`;
+    return;
+  }
+  const rows = await r.json();
+  $("#devices").innerHTML =
+    rows
+      .map(
+        (d) => `<div class="row">
+      <div><strong>${d.label || "Device"}</strong><div class="small">${(d.userAgent || "").slice(0, 40)} · exp ${d.expiresAt || ""}</div></div>
+      <button type="button" class="btn ghost" style="width:auto;padding:.35rem .6rem" data-dev="${d.id}">Revoke</button>
+    </div>`
+      )
+      .join("") || `<div class="small">No trusted devices</div>`;
+  document.querySelectorAll("[data-dev]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await api(`/v1/devices/${b.dataset.dev}`, { method: "DELETE" });
+      await loadDevices();
+    })
+  );
+}
+
+$("#trustDevice")?.addEventListener("click", async () => {
+  msg("");
+  const r = await api("/v1/devices", { method: "POST", body: JSON.stringify({ label: "This browser" }) });
+  if (!r.ok) return msg("Could not trust device");
+  await loadDevices();
+});
+
+$("#revokeDevices")?.addEventListener("click", async () => {
+  await api("/v1/devices/revoke-all", { method: "POST" });
+  await loadDevices();
+});
 
 async function loadSessions() {
   const r = await api("/v1/sessions");

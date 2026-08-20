@@ -54,7 +54,7 @@ Legend: ✅ in aaax · 🟡 partial · ❌ not in OSS aaax (by design or later) 
 | OTP passwordless session login | custom grants | ✅ `/v1/auth/otp/login` |
 | custom-password / encrypted / SMS / QR grants | ✅ many | 🟡 **QR login** `/v1/auth/qr/*` (not full grant zoo) |
 | Social (Google/Apple) | ✅ | 🟡 Google + GitHub optional (`profile=social`) |
-| Device binding | ✅ | ❌ policy binding — roadmap; passkeys = authenticator-bound when enabled |
+| Device binding | ✅ | 🟡 **trusted device** cookie skip-MFA — [TRUSTED_DEVICES.md](./TRUSTED_DEVICES.md); not full allow-list |
 | Passkeys / WebAuthn | 🔒 | 🟡 opt-in webauthn4j (`aaax.passkeys.enabled`) |
 | Redis multi-node OTP | ✅ prod | ✅ `aaax.otp.store=redis` |
 | Refresh token (OAuth) | ✅ | ✅ standard AS |

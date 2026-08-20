@@ -35,6 +35,9 @@
         <form id="passwordForm">
           <label class="field">Username <input name="username" value="demo" required autocomplete="username" /></label>
           <label class="field">Password <input name="password" type="password" value="demo1234" required autocomplete="current-password" /></label>
+          <label class="field" style="flex-direction:row;align-items:center;gap:.5rem">
+            <input type="checkbox" name="rememberDevice" /> Remember this device (skip TOTP next time)
+          </label>
           <button class="btn primary" type="submit">Continue</button>
         </form>
 

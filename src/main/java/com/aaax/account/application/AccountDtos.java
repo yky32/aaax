@@ -36,7 +36,13 @@ public final class AccountDtos {
     public record TotpSetupResponse(String secret, String otpauthUrl) {
     }
 
-    public record TotpCodeRequest(@NotBlank @Size(min = 6, max = 6) String code) {
+    public record TotpCodeRequest(
+            @NotBlank @Size(min = 6, max = 6) String code,
+            Boolean rememberDevice,
+            @Size(max = 128) String deviceLabel) {
+        public TotpCodeRequest(String code) {
+            this(code, null, null);
+        }
     }
 
     public record DisableTotpRequest(
