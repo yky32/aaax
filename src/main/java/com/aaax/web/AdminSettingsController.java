@@ -83,7 +83,7 @@ public class AdminSettingsController {
         boolean kafkaLive = kafkaTemplate.getIfAvailable() != null;
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("product", "AAAX");
-        m.put("version", "0.4.0");
+        m.put("version", "0.5.0-SNAPSHOT");
         m.put("issuer", issuer);
         m.put("otpChannel", otpChannel);
         m.put("orgsModel", "single");

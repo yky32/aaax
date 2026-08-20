@@ -47,7 +47,7 @@ public class MetaController {
                 "signUp", "/sign-up/",
                 "user", "/user/",
                 "admin", "/admin/"));
-        body.put("version", "0.4.0");
+        body.put("version", "0.5.0-SNAPSHOT");
         body.put("issuer", issuer);
         body.put("endpoints", endpoints);
         body.put("docs", docs);

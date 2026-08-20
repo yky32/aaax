@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- /**
  * Passkeys (WebAuthn) — experimental in v0.4.0 (not production MFA).
  * Stores credentials and issues PublicKeyCredential options.
  * Full assertion crypto verification is not claimed yet.

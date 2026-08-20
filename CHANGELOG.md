@@ -2,6 +2,10 @@
 
 All notable changes to **AAAX** are documented here.
 
+## [0.5.0-SNAPSHOT] — unreleased
+
+Development follows **v0.4.0**. Candidates: passkey crypto harden, resource-server starter, orgs decision.
+
 ## [0.4.0] — 2026-08-20
 
 **Release focus:** Identity Event Bus as primary product wedge + production-shaped Kafka path + honest v0.4 scope.
