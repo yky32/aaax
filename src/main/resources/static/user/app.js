@@ -42,7 +42,19 @@ async function boot() {
     .map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`)
     .join("");
   await loadSessions();
-  await loadPasskeys();
+
+  let passkeysOn = false;
+  try {
+    const meta = await fetch("/").then((x) => x.json());
+    passkeysOn = meta.features && meta.features.passkeys === "experimental";
+  } catch (_) {}
+  const pkSection = $("#passkeySection");
+  if (!passkeysOn) {
+    if (pkSection) pkSection.hidden = true;
+  } else {
+    if (pkSection) pkSection.hidden = false;
+    await loadPasskeys();
+  }
 }
 
 async function loadSessions() {
@@ -71,6 +83,10 @@ async function loadSessions() {
 
 async function loadPasskeys() {
   const r = await api("/v1/passkeys");
+  if (r.status === 404) {
+    $("#passkeys").innerHTML = `<div class="small">Passkeys disabled on this server</div>`;
+    return;
+  }
   if (!r.ok) {
     $("#passkeys").innerHTML = `<div class="small">Sign in required</div>`;
     return;
@@ -103,62 +119,63 @@ $("#logout").addEventListener("click", async () => {
   location.href = "/sign-in/";
 });
 
-$("#addPasskey").addEventListener("click", async () => {
-  msg("");
-  try {
-    const optR = await api("/v1/passkeys/register/options");
-    const opts = await optR.json();
-    if (!optR.ok) throw new Error(opts.message || "options failed");
+const addBtn = $("#addPasskey");
+if (addBtn) {
+  addBtn.addEventListener("click", async () => {
+    msg("");
+    try {
+      const optR = await api("/v1/passkeys/register/options");
+      const opts = await optR.json();
+      if (!optR.ok) throw new Error(opts.message || "options failed (passkeys may be disabled)");
 
-    if (!window.PublicKeyCredential) {
-      // Fallback store for environments without WebAuthn (dev/tests)
-      const fakeId = b64url(crypto.getRandomValues(new Uint8Array(16)));
-      const fakeKey = b64url(crypto.getRandomValues(new Uint8Array(32)));
+      if (!window.PublicKeyCredential) {
+        const fakeId = b64url(crypto.getRandomValues(new Uint8Array(16)));
+        const fakeKey = b64url(crypto.getRandomValues(new Uint8Array(32)));
+        const reg = await api("/v1/passkeys/register", {
+          method: "POST",
+          body: JSON.stringify({
+            credentialId: fakeId,
+            publicKeyCoseBase64: fakeKey,
+            label: "Dev passkey",
+          }),
+        });
+        if (!reg.ok) throw new Error("register failed");
+        await loadPasskeys();
+        return;
+      }
+
+      const publicKey = {
+        challenge: fromB64url(opts.challenge),
+        rp: opts.rp,
+        user: {
+          id: fromB64url(opts.user.id),
+          name: opts.user.name,
+          displayName: opts.user.displayName,
+        },
+        pubKeyCredParams: opts.pubKeyCredParams,
+        timeout: opts.timeout,
+        attestation: opts.attestation,
+        authenticatorSelection: opts.authenticatorSelection,
+      };
+      const cred = await navigator.credentials.create({ publicKey });
+      const att = cred.response;
       const reg = await api("/v1/passkeys/register", {
         method: "POST",
         body: JSON.stringify({
-          credentialId: fakeId,
-          publicKeyCoseBase64: fakeKey,
-          label: "Dev passkey",
+          credentialId: b64url(cred.rawId),
+          publicKeyCoseBase64: b64url(att.getPublicKey ? att.getPublicKey() : att.attestationObject),
+          label: "Passkey",
         }),
       });
-      if (!reg.ok) throw new Error("register failed");
+      if (!reg.ok) {
+        const j = await reg.json().catch(() => ({}));
+        throw new Error(j.message || "register failed");
+      }
       await loadPasskeys();
-      return;
+    } catch (e) {
+      msg(e.message || String(e));
     }
-
-    const publicKey = {
-      challenge: fromB64url(opts.challenge),
-      rp: opts.rp,
-      user: {
-        id: fromB64url(opts.user.id),
-        name: opts.user.name,
-        displayName: opts.user.displayName,
-      },
-      pubKeyCredParams: opts.pubKeyCredParams,
-      timeout: opts.timeout,
-      attestation: opts.attestation,
-      authenticatorSelection: opts.authenticatorSelection,
-    };
-    const cred = await navigator.credentials.create({ publicKey });
-    const att = cred.response;
-    // Store credential id + attestation public key bytes (COSE-ish payload from attestationObject tail — phase1)
-    const reg = await api("/v1/passkeys/register", {
-      method: "POST",
-      body: JSON.stringify({
-        credentialId: b64url(cred.rawId),
-        publicKeyCoseBase64: b64url(att.getPublicKey ? att.getPublicKey() : att.attestationObject),
-        label: "Passkey",
-      }),
-    });
-    if (!reg.ok) {
-      const j = await reg.json().catch(() => ({}));
-      throw new Error(j.message || "register failed");
-    }
-    await loadPasskeys();
-  } catch (e) {
-    msg(e.message || String(e));
-  }
-});
+  });
+}
 
 boot();

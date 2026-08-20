@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MetaController {
 
     private final String issuer;
+    private final boolean passkeysEnabled;
 
-    public MetaController(@Value("${aaax.issuer:http://localhost:8081}") String issuer) {
+    public MetaController(
+            @Value("${aaax.issuer:http://localhost:8081}") String issuer,
+            @Value("${aaax.passkeys.enabled:false}") boolean passkeysEnabled) {
         this.issuer = issuer;
+        this.passkeysEnabled = passkeysEnabled;
     }
 
     @GetMapping("/")
@@ -31,9 +35,13 @@ public class MetaController {
         endpoints.put("token", "POST /oauth2/token");
         endpoints.put("health", "/actuator/health");
         endpoints.put("oidc", issuer + "/.well-known/openid-configuration");
+        if (passkeysEnabled) {
+            endpoints.put("passkeys", "/v1/passkeys/* (experimental)");
+        }
 
         Map<String, Object> docs = new LinkedHashMap<>();
         docs.put("booklet", "docs/AAAX_BOOKLET.md");
+        docs.put("codemap", "docs/CODEMAP.md");
         docs.put("events", "docs/IDENTITY_EVENTS.md");
         docs.put("smsSaml", "docs/SMS_SAML.md");
 
@@ -49,6 +57,10 @@ public class MetaController {
                 "admin", "/admin/"));
         body.put("version", "0.5.0-SNAPSHOT");
         body.put("issuer", issuer);
+        body.put("features", Map.of(
+                "passkeys", passkeysEnabled ? "experimental" : "disabled",
+                "otpStore", "memory|redis",
+                "eventBus", true));
         body.put("endpoints", endpoints);
         body.put("docs", docs);
         return body;

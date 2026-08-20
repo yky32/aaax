@@ -223,7 +223,7 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 
 **In (supported):** Accounts; password + OTP + magic link; OAuth2/OIDC; TOTP MFA; sessions; Identity Event Bus; admin portal; clients/users; hosted sign-in/up/user; SAML SP (opt); Google/GitHub social (opt); SMS via kafka/webhook; Compose + kafka-notify example.  
 **Orgs:** **single-realm** only.  
-**Experimental:** Passkeys (ceremony + store — **not** production MFA until crypto verify).  
+**Experimental / off-by-default:** Passkeys — set `aaax.passkeys.enabled=true` for ceremony APIs; **not** production MFA until crypto verify.  
 **Out:** SAML IdP, multi-tenant orgs, React SDK, LDAP, every social.
 
 ---
@@ -250,7 +250,7 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 | Kafka notify compose example | ✅ `examples/compose-kafka-notify/` |
 | Orgs multi-tenant | ❌ single only |
 | SAML IdP | ❌ |
-| Passkeys | 🧪 experimental |
+| Passkeys | 🔒 disabled default · experimental if enabled |
 | Redis multi-node OTP | ⬜ |
 | Official JS/React SDK | ❌ |
 

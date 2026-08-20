@@ -23,7 +23,7 @@ Then optionally:
 | OAuth clients admin | `client/ClientAdminService.java` |
 | Social Google/GitHub | `config/SocialLoginConfig.java` |
 | SAML SP | `config/SamlSpConfig.java` |
-| Passkeys (experimental) | `passkey/PasskeyService.java` |
+| Passkeys (experimental) | `passkey/*` — **off unless** `aaax.passkeys.enabled=true` |
 | Hosted UI | `src/main/resources/static/sign-in/` · `admin/` |
 
 ## Package layout (screaming + simple)

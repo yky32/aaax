@@ -24,10 +24,12 @@
         <h2 style="margin:1.25rem 0 .5rem;font-size:1rem">Sessions</h2>
         <div id="sessions" class="list"></div>
         <button type="button" class="btn ghost" id="revokeAll">Revoke all sessions</button>
+        <div id="passkeySection">
         <h2 style="margin:1.25rem 0 .5rem;font-size:1rem">Passkeys</h2>
-        <p class="small">WebAuthn credentials on this account. Registration options API ready; browser ceremony stores credentialId + public key.</p>
+        <p class="small">Experimental WebAuthn (enable with <code>AAAX_PASSKEYS_ENABLED=true</code>). Not production MFA until crypto verify ships.</p>
         <div id="passkeys" class="list"></div>
-        <button type="button" class="btn primary" id="addPasskey" style="margin-top:.75rem">Add passkey (options → store)</button>
+        <button type="button" class="btn primary" id="addPasskey" style="margin-top:.75rem">Add passkey</button>
+        </div>
         <button type="button" class="btn ghost" id="logout">Sign out</button>
         <div class="foot"><a href="/sign-in/">Sign in</a> · <a href="/admin/">Admin</a></div>
         <p id="msg" class="err"></p>

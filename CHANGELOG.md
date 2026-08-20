@@ -4,6 +4,10 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.5.0-SNAPSHOT] — unreleased
 
+### Overnight batch D (2026-08-21) — passkeys honest gate
+- `aaax.passkeys.enabled=false` default; API 404 when off; `/user` hides section
+- Meta/settings report status; CLERK_PARITY / booklet updated
+
 ### Overnight batch C (2026-08-21) — resource-server DX
 - `examples/resource-server-boot4/` — Boot 4.1 JWT RS + `call.sh`
 - Fix curl hello script Bearer token; link from `resource-call.md`

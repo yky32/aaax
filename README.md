@@ -90,7 +90,7 @@ docker compose up --build
 
 | ✅ Supported | 🧪 Experimental | ❌ Out of 0.4 |
 |--------------|-----------------|---------------|
-| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (ceremony + store; crypto harden next) | Multi-tenant orgs |
+| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** until `AAAX_PASSKEYS_ENABLED=true`; no full crypto) | Multi-tenant orgs |
 | Accounts · password · OTP · magic link | — | SAML IdP |
 | TOTP MFA · sessions list/revoke | — | Official React SDK |
 | Identity Event Bus (log · audit · buffer · Kafka · webhook) | — | LDAP |
@@ -107,7 +107,7 @@ docker compose up --build
 ```text
 /sign-in/   password · magic · OTP · social
 /sign-up/
-/user/      profile · sessions · passkeys (experimental)
+/user/      profile · sessions · passkeys (if enabled)
 /admin/     ops console (admin / admin12345 demo)
 ```
 

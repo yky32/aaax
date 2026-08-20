@@ -153,7 +153,10 @@ public class AdminSettingsController {
         f.put("socialLogin", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id"))
                 || hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
         f.put("samlSp", samlEnabled);
-        f.put("passkeys", "experimental");
+        f.put("passkeys", environment.getProperty("aaax.passkeys.enabled", "false"));
+        f.put("passkeysStatus", "true".equalsIgnoreCase(environment.getProperty("aaax.passkeys.enabled", "false"))
+                ? "experimental"
+                : "disabled");
         f.put("magicLink", true);
         f.put("otpStore", environment.getProperty("aaax.otp.store", "memory"));
         f.put("hostedExperiences", true);
