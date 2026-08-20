@@ -70,9 +70,10 @@ We win by **trust + run-your-own + fewer footguns**.
 
 ## Where we are (now)
 
-Greenfield `aaax-server` skeleton:
+Greenfield `aaax-server`:
 - Spring Authorization Server boots
-- In-memory demo user + demo client
+- **Accounts** persisted (register API + DB login)
+- In-memory demo OAuth client
 - Ephemeral RSA JWK (dev)
 - Public product meta + health + OIDC discovery
 

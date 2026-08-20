@@ -1,29 +1,31 @@
 # AAAX roadmap
 
-Greenfield from `0.1.0-SNAPSHOT`. Detail lives here; product north star in [VISION.md](./VISION.md).
+Greenfield from `0.1.0-SNAPSHOT`. North star: [VISION.md](./VISION.md).
 
 ## Done
 
 - [x] Public repo + Apache-2.0 + SECURITY
-- [x] Brand-new codebase (`com.aaax`) — **no legacy UAA tree**
-- [x] Spring Boot 3 + Authorization Server boots
-- [x] Demo user/client, ephemeral JWK, health, OIDC discovery
+- [x] Brand-new `com.aaax` codebase
+- [x] Spring Authorization Server boots
+- [x] Demo OAuth client + ephemeral JWK + OIDC discovery
 - [x] `mvn test` + GitHub Actions CI
 - [x] Docker Compose (Postgres + Redis + app)
+- [x] **Accounts** table + `POST /v1/accounts/register`
+- [x] DB-backed form login (`AccountUserDetailsService`)
+- [x] `GET /v1/accounts/me`
 
-## Now → v0.2
+## Now → v0.2 continued
 
-- [ ] Persist **Accounts** (User entity + register API)
-- [ ] Persist **OAuth clients** (replace in-memory `RegisteredClientRepository`)
-- [ ] Password grant-alternative: authorization_code happy path documented (curl)
-- [ ] Stable issuer + JWKS across restarts (file or DB-backed keys)
+- [ ] Persist **OAuth clients** (replace in-memory repository)
+- [ ] authorization_code happy path documented (curl end-to-end)
+- [ ] Stable issuer JWKS across restarts (file or DB-backed keys)
 
 ## Next → v0.3
 
 - [ ] OTP path (email provider pluggable)
-- [ ] RBAC baseline + one protected resource API sample
-- [ ] Redis session / authorization service option
-- [ ] `docker compose up` cold path verified on clean machine
+- [ ] RBAC baseline + protected resource API sample
+- [ ] Redis-backed authorization service option
+- [ ] Cold `docker compose up` verified on clean machine
 
 ## Later
 
@@ -36,4 +38,4 @@ Greenfield from `0.1.0-SNAPSHOT`. Detail lives here; product north star in [VISI
 ## Non-goals (v1)
 
 - Clerk dashboard clone
-- Shipping any Quinsic/tgt business APIs inside this repo
+- Shipping Quinsic/tgt business APIs in this repo

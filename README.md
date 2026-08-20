@@ -14,33 +14,47 @@ Self-host identity that feels good to run and integrate.
 
 ## Status
 
-**Brand-new greenfield · `0.1.0-SNAPSHOT`**
-
-No legacy UAA dump. Clean Spring Boot 3 Authorization Server skeleton.
+**Greenfield · `0.1.0-SNAPSHOT`** — Accounts store + register API live.
 
 ## Quick start
 
 ```bash
-# requires JDK 17+
+# JDK 17+
 mvn test
 mvn spring-boot:run
 ```
 
-Open:
-- Product meta → http://localhost:8081/
-- Health → http://localhost:8081/actuator/health
-- OIDC discovery → http://localhost:8081/.well-known/openid-configuration
+| URL | |
+|-----|--|
+| Meta | http://localhost:8081/ |
+| Health | http://localhost:8081/actuator/health |
+| OIDC | http://localhost:8081/.well-known/openid-configuration |
 
-### Demo login (dev only)
+### Register an account
+
+```bash
+curl -sS -X POST http://localhost:8081/v1/accounts/register \
+  -H 'content-type: application/json' \
+  -d '{"username":"alice","email":"alice@example.com","password":"password123"}'
+```
+
+### Who am I (session)
+
+After browser form login at `/login`:
+
+```bash
+curl -sS http://localhost:8081/v1/accounts/me --cookie '...'
+```
+
+### Demo login (dev seed)
 
 | | |
 |--|--|
-| User | `demo` / `demo` |
-| Client | `aaax-demo` / `aaax-demo-secret` |
-| Grants | authorization_code, refresh_token, client_credentials |
+| User | `demo` / `demo` (seeded if DB empty) |
+| OAuth client | `aaax-demo` / `aaax-demo-secret` |
 | Redirect | `http://localhost:3000/login/oauth2/code/aaax` |
 
-### Docker (Postgres + Redis + app)
+### Docker
 
 ```bash
 cp .env.example .env
@@ -50,10 +64,10 @@ docker compose up --build
 
 ## Stack
 
-- Java 17 · Spring Boot 3.3 · Spring Authorization Server  
-- JPA · PostgreSQL (prod path) · H2 (default local/tests)  
-- RSA JWK generated in-process (dev)
+- Java 17 · Spring Boot 3.3 · Spring Authorization Server · JPA  
+- H2 default · Postgres via Compose/env  
+- Ephemeral RSA JWK (dev)
 
-## What comes next
+## Next
 
-See [ROADMAP.md](./ROADMAP.md) — Accounts store, real clients DB, OTP path, DX quickstarts.
+See [ROADMAP.md](./ROADMAP.md).
