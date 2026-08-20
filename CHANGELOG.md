@@ -4,6 +4,13 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.4.0-SNAPSHOT] — 2026-08-20
 
+### Clerk-class hosted experiences
+- `/sign-in/` · `/sign-up/` · `/user/` (same jar static UI)
+- Magic link `POST /v1/auth/magic/request|consume`
+- Sessions list/revoke `GET|DELETE /v1/sessions`
+- Passkeys ceremony + credential store `/v1/passkeys/*` (assertion crypto harden next)
+- Docs: `CLERK_PARITY.md`
+
 ### Social login pack
 - Google OIDC + GitHub OAuth2 via profile `social` (legacy `google` still works)
 - Console **Continue with …** buttons from `GET /v1/auth/social/providers`

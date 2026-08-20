@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in · AAAX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <div class="brand">
+        <div class="mark"></div>
+        <div>
+          <div class="logo">AAAX</div>
+          <div class="tag">Sign in</div>
+        </div>
+      </div>
+      <div class="card">
+        <h1>Welcome back</h1>
+        <p class="lede">Clerk-class hosted sign-in — self-host. Password, magic link, OTP, or social.</p>
+
+        <div id="social" class="hidden"></div>
+        <div id="socialDiv" class="divider hidden"><span>or</span></div>
+
+        <div class="tabs">
+          <button type="button" class="tab active" data-mode="password">Password</button>
+          <button type="button" class="tab" data-mode="magic">Magic link</button>
+          <button type="button" class="tab" data-mode="otp">OTP</button>
+        </div>
+
+        <form id="passwordForm">
+          <label class="field">Username <input name="username" value="demo" required autocomplete="username" /></label>
+          <label class="field">Password <input name="password" type="password" value="demo1234" required autocomplete="current-password" /></label>
+          <button class="btn primary" type="submit">Continue</button>
+        </form>
+
+        <form id="magicForm" class="hidden">
+          <label class="field">Email or username <input name="identifier" value="demo" required /></label>
+          <button class="btn primary" type="submit">Email magic link</button>
+          <p class="small">Dev: link appears in server log / response when OTP channel is console.</p>
+        </form>
+
+        <form id="otpForm" class="hidden">
+          <label class="field">Username <input name="username" value="demo" required /></label>
+          <button class="btn ghost" type="button" id="otpRequest">Send code</button>
+          <label class="field">Code <input name="code" inputmode="numeric" maxlength="8" required /></label>
+          <button class="btn primary" type="submit">Verify &amp; sign in</button>
+        </form>
+
+        <form id="mfaForm" class="hidden">
+          <label class="field">Authenticator code <input name="code" maxlength="6" required /></label>
+          <button class="btn primary" type="submit">Verify MFA</button>
+        </form>
+
+        <p id="msg" class="err"></p>
+        <p id="ok" class="ok"></p>
+        <div class="foot">No account? <a href="/sign-up/">Sign up</a> · <a href="/user/">Account</a> · <a href="/admin/">Admin</a></div>
+      </div>
+    </div>
+  </div>
+  <script src="/sign-in/app.js" type="module"></script>
+</body>
+</html>

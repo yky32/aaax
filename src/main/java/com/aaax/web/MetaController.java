@@ -42,6 +42,11 @@ public class MetaController {
         body.put("expand", "Accounts · Authentication · Authorization · eXperiences");
         body.put("tagline", "Identity you run. Signals you own.");
         body.put("wedge", "AAAX authenticates. Your mesh notifies.");
+        body.put("hosted", Map.of(
+                "signIn", "/sign-in/",
+                "signUp", "/sign-up/",
+                "user", "/user/",
+                "admin", "/admin/"));
         body.put("version", "0.4.0-SNAPSHOT");
         body.put("issuer", issuer);
         body.put("endpoints", endpoints);

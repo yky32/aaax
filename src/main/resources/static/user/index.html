@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account · AAAX</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell" style="width:min(520px,100%)">
+      <div class="brand">
+        <div class="mark"></div>
+        <div>
+          <div class="logo">AAAX</div>
+          <div class="tag">Account</div>
+        </div>
+      </div>
+      <div class="card">
+        <h1>Your account</h1>
+        <p class="lede">Profile, sessions, passkeys — Clerk-class user surface on self-host.</p>
+        <div id="profile" class="kv"></div>
+        <h2 style="margin:1.25rem 0 .5rem;font-size:1rem">Sessions</h2>
+        <div id="sessions" class="list"></div>
+        <button type="button" class="btn ghost" id="revokeAll">Revoke all sessions</button>
+        <h2 style="margin:1.25rem 0 .5rem;font-size:1rem">Passkeys</h2>
+        <p class="small">WebAuthn credentials on this account. Registration options API ready; browser ceremony stores credentialId + public key.</p>
+        <div id="passkeys" class="list"></div>
+        <button type="button" class="btn primary" id="addPasskey" style="margin-top:.75rem">Add passkey (options → store)</button>
+        <button type="button" class="btn ghost" id="logout">Sign out</button>
+        <div class="foot"><a href="/sign-in/">Sign in</a> · <a href="/admin/">Admin</a></div>
+        <p id="msg" class="err"></p>
+      </div>
+    </div>
+  </div>
+  <script src="/user/app.js" type="module"></script>
+</body>
+</html>

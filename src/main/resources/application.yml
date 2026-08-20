@@ -48,6 +48,11 @@ aaax:
     path: ${AAAX_JWK_PATH:./data/aaax-jwk.json}
   bootstrap:
     token: ${AAAX_BOOTSTRAP_TOKEN:}
+  passkeys:
+    rp-id: ${AAAX_PASSKEYS_RP_ID:localhost}
+    rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}
+  magic:
+    ttl-seconds: ${AAAX_MAGIC_TTL_SECONDS:900}
   # single-realm only (no multi-tenant orgs yet)
   orgs:
     model: single

@@ -158,7 +158,8 @@ class AaaxApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"demo\",\"code\":\"" + code + "\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("demo"))
+                .andExpect(jsonPath("$.account.username").value("demo"))
+                .andExpect(jsonPath("$.sessionId").exists())
                 .andReturn();
 
         MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
@@ -264,6 +265,26 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/v1/admin/users").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").exists());
+    }
+
+    @Test
+    void magicLinkRequestAndConsume() throws Exception {
+        MvcResult req = mockMvc.perform(post("/v1/auth/magic/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"identifier\":\"demo\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sent").value(true))
+                .andExpect(jsonPath("$.devLink").exists())
+                .andReturn();
+        String body = req.getResponse().getContentAsString();
+        String link = objectMapper.readTree(body).get("devLink").asText();
+        String token = link.substring(link.indexOf("magic=") + 6);
+        mockMvc.perform(post("/v1/auth/magic/consume")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"" + token + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.account.username").value("demo"))
+                .andExpect(jsonPath("$.sessionId").exists());
     }
 
     @Test

@@ -122,8 +122,10 @@ public class AdminSettingsController {
                 "eventsBuffered", eventBuffer.size()));
         m.put("features", featureMap(kafkaLive));
         m.put("decisionBlockers", List.of(
-                Map.of("id", "passkeys", "question", "Passkeys — deferred (later)"),
-                Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP) — SP done; full IdP later?")));
+                Map.of("id", "orgs_multi", "question", "Multi-tenant organizations (Clerk Orgs) — still single-realm"),
+                Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP) — SP done; full IdP later?"),
+                Map.of("id", "react_sdk", "question", "Official React/Next SDK — hosted pages first"),
+                Map.of("id", "passkey_crypto", "question", "Passkey assertion full WebAuthn crypto verify")));
         return m;
     }
 
@@ -151,13 +153,16 @@ public class AdminSettingsController {
         f.put("socialLogin", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id"))
                 || hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
         f.put("samlSp", samlEnabled);
-        f.put("orgs", false);
+        f.put("passkeys", true);
+        f.put("magicLink", true);
+        f.put("hostedExperiences", true);
+        f.put("sessions", true);
         f.put("orgsModel", "single");
         f.put("smsOtpWebhook", "sms".equalsIgnoreCase(otpChannel));
         f.put("smsOtpKafka", "kafka".equalsIgnoreCase(otpChannel));
         f.put("eventsKafka", kafkaLive || eventsKafkaEnabled);
         f.put("eventsWebhook", hasText(eventsWebhook));
-        f.put("passkeys", false);
+        f.put("orgs", false);
         return f;
     }
 
