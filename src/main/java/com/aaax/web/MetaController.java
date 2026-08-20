@@ -22,9 +22,13 @@ public class MetaController {
                 "expand", "Accounts · Authentication · Authorization · eXperiences",
                 "version", "0.1.0-SNAPSHOT",
                 "issuer", issuer,
+                "endpoints", Map.of(
+                        "register", "POST /v1/accounts/register",
+                        "me", "GET /v1/accounts/me",
+                        "health", "/actuator/health",
+                        "oidc", issuer + "/.well-known/openid-configuration"),
                 "docs", Map.of(
                         "vision", "VISION.md",
-                        "roadmap", "ROADMAP.md",
-                        "oidc", issuer + "/.well-known/openid-configuration"));
+                        "roadmap", "ROADMAP.md"));
     }
 }

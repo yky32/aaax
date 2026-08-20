@@ -17,12 +17,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -37,14 +36,15 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 /**
- * v0 security: Authorization Server + form login demo user.
- * Accounts/AuthZ persistence lands in later milestones — see ROADMAP.md.
+ * Authorization Server + form login backed by {@link com.aaax.account.AccountUserDetailsService}.
  */
 @Configuration
 @EnableWebSecurity
@@ -68,21 +68,22 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/actuator/health", "/actuator/info", "/error").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/error",
+                                "/v1/accounts/register")
+                        .permitAll()
                         .anyRequest().authenticated())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/v1/**"))
+                .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        new OrRequestMatcher(
+                                new AntPathRequestMatcher("/v1/**"),
+                                new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON))))
                 .formLogin(Customizer.withDefaults());
         return http.build();
-    }
-
-    @Bean
-    UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        // Dev-only demo user — replace with Account store (A1) soon.
-        var user = User.builder()
-                .username("demo")
-                .password(passwordEncoder.encode("demo"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
     }
 
     @Bean
