@@ -11,7 +11,8 @@ import com.aaax.account.AccountService.DisableTotpRequest;
 import com.aaax.account.AccountService.TotpCodeRequest;
 import com.aaax.account.AccountService.TotpSetupResponse;
 import com.aaax.account.AccountUserDetailsService;
-import com.aaax.audit.AuditService;
+import com.aaax.events.IdentityEvent;
+import com.aaax.events.IdentityEventBus;
 import com.aaax.otp.OtpService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +46,7 @@ public class AuthController {
     private final OtpService otpService;
     private final AccountService accountService;
     private final AccountUserDetailsService userDetailsService;
-    private final AuditService auditService;
+    private final IdentityEventBus events;
     private final String bootstrapToken;
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
@@ -54,12 +55,12 @@ public class AuthController {
             OtpService otpService,
             AccountService accountService,
             AccountUserDetailsService userDetailsService,
-            AuditService auditService,
+            IdentityEventBus events,
             @Value("${aaax.bootstrap.token:}") String bootstrapToken) {
         this.otpService = otpService;
         this.accountService = accountService;
         this.userDetailsService = userDetailsService;
-        this.auditService = auditService;
+        this.events = events;
         this.bootstrapToken = bootstrapToken;
     }
 
@@ -93,7 +94,8 @@ public class AuthController {
             return m;
         }
         establishSession(account.getUsername(), request, response);
-        auditService.record("auth.login", account.getUsername(), "password");
+        events.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "password",
+                java.util.Map.of("method", "password"));
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("mfaRequired", false);
         m.put("account", AccountResponse.from(account));
@@ -118,13 +120,17 @@ public class AuthController {
         session.removeAttribute(MFA_PENDING_USER);
         Account account = accountService.requireEntityByUsername(username);
         establishSession(username, request, response);
-        auditService.record("auth.login", username, "password+totp");
+        events.emit(IdentityEvent.Types.AUTH_LOGIN_MFA, username, "password+totp",
+                java.util.Map.of("method", "password+totp"));
         return AccountResponse.from(account);
     }
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response, java.security.Principal principal) {
+        if (principal != null) {
+            events.emit(IdentityEvent.Types.AUTH_LOGOUT, principal.getName(), java.util.Map.of());
+        }
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -139,7 +145,8 @@ public class AuthController {
             HttpServletResponse response) {
         Account account = otpService.verifyForLogin(body.username(), body.code());
         establishSession(account.getUsername(), request, response);
-        auditService.record("auth.login", account.getUsername(), "otp");
+        events.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "otp",
+                java.util.Map.of("method", "otp"));
         return AccountResponse.from(account);
     }
 

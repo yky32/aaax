@@ -2,12 +2,15 @@
 
 **Accounts · Authentication · Authorization · eXperiences**
 
-### Identity you run.
+### Identity you run. Signals you own.
 
-Self-host **OIDC-grade** auth for your apps — without SaaS seat tax, without Keycloak weight, without private Maven monorepos.
+Self-host **OIDC-grade** auth for your stack — without SaaS seat tax, without Keycloak weight, without private Maven monorepos.
+
+**Win wedge:** [Identity Event Bus](./docs/IDENTITY_EVENTS.md) — login/MFA/OTP/clients as CloudEvents → **your** Kafka / webhook / notification-service (you keep SMS).
 
 ```text
 clone → mvn test → spring-boot:run → token → call API
+                 ↘ events → your notify mesh
 ```
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
@@ -16,7 +19,7 @@ clone → mvn test → spring-boot:run → token → call API
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Parity](./docs/PARITY_QS_UAA.md) · [SMS/SAML](./docs/SMS_SAML.md) · [Changelog](./CHANGELOG.md) |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Parity](./docs/PARITY_QS_UAA.md) · [SMS/SAML](./docs/SMS_SAML.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) |
 | **Version** | `v0.4.0-SNAPSHOT` (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |

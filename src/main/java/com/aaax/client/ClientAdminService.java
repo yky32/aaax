@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.aaax.account.AccountException;
+import com.aaax.events.IdentityEvent;
+import com.aaax.events.IdentityEventBus;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -30,14 +32,17 @@ public class ClientAdminService {
     private final RegisteredClientRepository clients;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
+    private final IdentityEventBus events;
 
     public ClientAdminService(
             RegisteredClientRepository clients,
             PasswordEncoder passwordEncoder,
-            JdbcTemplate jdbcTemplate) {
+            JdbcTemplate jdbcTemplate,
+            IdentityEventBus events) {
         this.clients = clients;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTemplate = jdbcTemplate;
+        this.events = events;
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +102,8 @@ public class ClientAdminService {
                         .build());
 
         clients.save(builder.build());
+        events.emit(IdentityEvent.Types.CLIENT_CREATED, request.clientId().trim(),
+                java.util.Map.of("clientId", request.clientId().trim()));
         return new ClientCreatedResponse(ClientResponse.from(clients.findByClientId(request.clientId())), rawSecret);
     }
 
@@ -109,6 +116,7 @@ public class ClientAdminService {
         jdbcTemplate.update("DELETE FROM oauth2_authorization_consent WHERE registered_client_id = ?", client.getId());
         jdbcTemplate.update("DELETE FROM oauth2_authorization WHERE registered_client_id = ?", client.getId());
         jdbcTemplate.update("DELETE FROM oauth2_registered_client WHERE id = ?", client.getId());
+        events.emit(IdentityEvent.Types.CLIENT_DELETED, clientId, java.util.Map.of("clientId", clientId));
     }
 
     private static Set<AuthorizationGrantType> grantTypes(CreateClientRequest request) {

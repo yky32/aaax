@@ -180,6 +180,24 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 2. SAML IdP (open decision)  
 3. Official BFF/JS example + broader social  
 
+### 4.6 How we win (deliberate wedge)
+
+**Do not try to out-Clerk Clerk or out-Keycloak Keycloak.**
+
+| We double down | Why competitors are weaker here |
+|----------------|----------------------------------|
+| **Identity Event Bus** | CloudEvents-ish lifecycle → Kafka / webhook. Platform owns notification-service. |
+| **Caller-owned SMS** | `kafka` + `sms` webhook modes — no Twilio tax inside the IdP |
+| **Spring/JVM native AS** | Logto is Node; better-auth is app-lib; KC is heavy |
+| **Clone → token DX** | Central/public deps, booklet, `/admin`, examples |
+
+Primary story:
+
+> **AAAX authenticates. Your mesh notifies.**  
+> Best IdP for teams that already run Kafka + notification-service + Spring.
+
+Spec: [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md)
+
 Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity → [PARITY_QS_UAA.md](./PARITY_QS_UAA.md)
 
 ---

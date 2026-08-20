@@ -76,6 +76,14 @@ aaax:
   demo:
     seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
     seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
+  events:
+    # Competitive wedge: fan-out identity lifecycle to platform notification-service
+    kafka:
+      enabled: ${AAAX_EVENTS_KAFKA_ENABLED:false}
+      bootstrap-servers: ${AAAX_EVENTS_KAFKA_BOOTSTRAP:${aaax.otp.kafka.bootstrap-servers:localhost:9092}}
+      topic: ${AAAX_EVENTS_KAFKA_TOPIC:aaax.identity.events}
+    webhook-url: ${AAAX_EVENTS_WEBHOOK_URL:}
+    webhook-auth: ${AAAX_EVENTS_WEBHOOK_AUTH:}
 
 management:
   endpoints:

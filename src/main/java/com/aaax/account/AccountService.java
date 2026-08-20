@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import com.aaax.audit.AuditService;
+import com.aaax.events.IdentityEvent;
+import com.aaax.events.IdentityEventBus;
 import com.aaax.mfa.TotpService;
 import com.aaax.otp.InMemoryOtpStore;
 import com.aaax.otp.OtpSender;
@@ -26,7 +27,7 @@ public class AccountService {
     private final InMemoryOtpStore otpStore;
     private final OtpSender otpSender;
     private final TotpService totpService;
-    private final AuditService auditService;
+    private final IdentityEventBus events;
     private final int otpTtlSeconds;
     private final int otpLength;
     private final String issuer;
@@ -37,7 +38,7 @@ public class AccountService {
             InMemoryOtpStore otpStore,
             OtpSender otpSender,
             TotpService totpService,
-            AuditService auditService,
+            IdentityEventBus events,
             @Value("${aaax.otp.ttl-seconds:300}") int otpTtlSeconds,
             @Value("${aaax.otp.length:6}") int otpLength,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer) {
@@ -46,7 +47,7 @@ public class AccountService {
         this.otpStore = otpStore;
         this.otpSender = otpSender;
         this.totpService = totpService;
-        this.auditService = auditService;
+        this.events = events;
         this.otpTtlSeconds = otpTtlSeconds;
         this.otpLength = Math.max(4, Math.min(otpLength, 10));
         this.issuer = issuer;
@@ -67,7 +68,8 @@ public class AccountService {
 
         Account account = new Account(username, email, passwordEncoder.encode(password));
         Account saved = accountRepository.save(account);
-        auditService.record("account.register", username, "self-register");
+        events.emit(IdentityEvent.Types.ACCOUNT_REGISTERED, username, "self-register",
+                java.util.Map.of("email", email == null ? "" : email));
         return AccountResponse.from(saved);
     }
 
@@ -93,7 +95,8 @@ public class AccountService {
                 passwordEncoder.encode(password),
                 "USER,ADMIN");
         Account saved = accountRepository.save(account);
-        auditService.record("bootstrap.admin", saved.getUsername(), "first admin");
+        events.emit(IdentityEvent.Types.BOOTSTRAP_ADMIN, saved.getUsername(), "first admin",
+                java.util.Map.of("roles", "USER,ADMIN"));
         return AccountResponse.from(saved);
     }
 
@@ -133,7 +136,8 @@ public class AccountService {
                 .orElseThrow(() -> AccountException.notFound("account not found"));
         account.setEnabled(enabled);
         Account saved = accountRepository.save(account);
-        auditService.record("admin.user.status", actor, id + " enabled=" + enabled);
+        events.emit(IdentityEvent.Types.USER_STATUS, actor, id + " enabled=" + enabled,
+                java.util.Map.of("userId", id, "enabled", enabled));
         return AccountResponse.from(saved);
     }
 
@@ -146,7 +150,8 @@ public class AccountService {
         }
         account.setRoles(rolesCsv.trim().toUpperCase(Locale.ROOT));
         Account saved = accountRepository.save(account);
-        auditService.record("admin.user.roles", actor, id + " -> " + saved.getRoles());
+        events.emit(IdentityEvent.Types.USER_ROLES, actor, id + " -> " + saved.getRoles(),
+                java.util.Map.of("userId", id, "roles", saved.getRoles()));
         return AccountResponse.from(saved);
     }
 
@@ -161,7 +166,7 @@ public class AccountService {
         }
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
-        auditService.record("account.password.change", username, null);
+        events.emit(IdentityEvent.Types.PASSWORD_CHANGED, username, java.util.Map.of());
     }
 
     @Transactional(readOnly = true)
@@ -196,7 +201,7 @@ public class AccountService {
         }
         account.setTotpEnabled(true);
         Account saved = accountRepository.save(account);
-        auditService.record("mfa.totp.enable", username, null);
+        events.emit(IdentityEvent.Types.MFA_TOTP_ENABLED, username, java.util.Map.of());
         return AccountResponse.from(saved);
     }
 
@@ -212,7 +217,7 @@ public class AccountService {
         account.setTotpEnabled(false);
         account.setTotpSecret(null);
         Account saved = accountRepository.save(account);
-        auditService.record("mfa.totp.disable", username, null);
+        events.emit(IdentityEvent.Types.MFA_TOTP_DISABLED, username, java.util.Map.of());
         return AccountResponse.from(saved);
     }
 
@@ -273,7 +278,7 @@ public class AccountService {
         Account created = new Account(username, normalizeEmail(email), randomPass, "USER");
         linker.accept(created);
         Account saved = accountRepository.save(created);
-        auditService.record(auditAction, username, auditDetail);
+        events.emit(auditAction, username, auditDetail, java.util.Map.of("federation", auditDetail == null ? "" : auditDetail));
         return saved;
     }
 
@@ -308,7 +313,7 @@ public class AccountService {
         otpStore.remove(resetKey(account.getUsername()));
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
-        auditService.record("account.password.reset", username, null);
+        events.emit(IdentityEvent.Types.PASSWORD_RESET, username, java.util.Map.of());
     }
 
     public long countUsers() {
