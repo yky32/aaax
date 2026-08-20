@@ -36,13 +36,13 @@ sequenceDiagram
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](./pom.xml)
-[![Release](https://img.shields.io/badge/release-v0.4.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.4.0)
+[![Release](https://img.shields.io/badge/release-v0.5.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.5.0)
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [**Code map**](./docs/CODEMAP.md) · [Architecture](./docs/ARCHITECTURE.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Changelog](./CHANGELOG.md) |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [**Code map**](./docs/CODEMAP.md) · [Passkeys](./docs/PASSKEYS.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) · [Kafka notify](./examples/compose-kafka-notify/) · [**Resource server**](./examples/resource-server-boot4/) · [Redis OTP](./examples/redis-otp-store.md) |
-| **Version** | **`v0.4.0`** (Boot 4.1 / JDK 21) |
+| **Version** | **`v0.5.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 
 ---
@@ -54,7 +54,7 @@ sequenceDiagram
 ```bash
 git clone https://github.com/yky32/aaax.git
 cd aaax
-git checkout v0.4.0   # or main
+git checkout v0.5.0   # or main
 mvn test
 mvn spring-boot:run
 ```
@@ -86,11 +86,11 @@ docker compose up --build
 
 ---
 
-## What v0.4.0 commits to
+## What v0.5.0 commits to
 
-| ✅ Supported | 🧪 Experimental | ❌ Out of 0.4 |
+| ✅ Supported | 🧪 Opt-in | ❌ Out of 0.5 |
 |--------------|-----------------|---------------|
-| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** until `AAAX_PASSKEYS_ENABLED=true`; no full crypto) | Multi-tenant orgs |
+| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** default; `AAAX_PASSKEYS_ENABLED=true` → webauthn4j verify) | Multi-tenant orgs |
 | Accounts · password · OTP · magic link | — | SAML IdP |
 | TOTP MFA · sessions list/revoke | — | Official React SDK |
 | Identity Event Bus (log · audit · buffer · Kafka · webhook) | — | LDAP |

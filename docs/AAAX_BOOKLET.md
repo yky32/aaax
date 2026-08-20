@@ -7,7 +7,7 @@
 | **Status** | Source of truth for product + eng docs |
 | **qs/uaa parity** | [PARITY_QS_UAA.md](./PARITY_QS_UAA.md) |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | **`0.4.0`** (Boot **4.1** / JDK **21**) · tag `v0.4.0` |
+| **Version** | **`0.5.0`** (Boot **4.1** / JDK **21**) · tag `v0.5.0` |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
@@ -223,12 +223,12 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 
 **In (supported):** Accounts; password + OTP + magic link; OAuth2/OIDC; TOTP MFA; sessions; Identity Event Bus; admin portal; clients/users; hosted sign-in/up/user; SAML SP (opt); Google/GitHub social (opt); SMS via kafka/webhook; Compose + kafka-notify example.  
 **Orgs:** **single-realm** only.  
-**Experimental / off-by-default:** Passkeys — set `aaax.passkeys.enabled=true` for ceremony APIs; **not** production MFA until crypto verify.  
+**Opt-in passkeys:** `aaax.passkeys.enabled=true` — registration/assertion verified with **webauthn4j** (still treat as advanced ops; RP ID / origin must match).  
 **Out:** SAML IdP, multi-tenant orgs, React SDK, LDAP, every social.
 
 ---
 
-## 7. Current status (0.4.0)
+## 7. Current status (0.5.0)
 
 | Area | State |
 |------|--------|
@@ -250,8 +250,8 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 | Kafka notify compose example | ✅ `examples/compose-kafka-notify/` |
 | Orgs multi-tenant | ❌ single only |
 | SAML IdP | ❌ |
-| Passkeys | 🔒 disabled default · experimental if enabled |
-| Redis multi-node OTP | ⬜ |
+| Passkeys | 🔒 off default · webauthn4j when enabled |
+| Redis multi-node OTP | ✅ `aaax.otp.store=redis` |
 | Official JS/React SDK | ❌ |
 
 ---

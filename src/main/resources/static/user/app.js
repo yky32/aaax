@@ -46,7 +46,7 @@ async function boot() {
   let passkeysOn = false;
   try {
     const meta = await fetch("/").then((x) => x.json());
-    passkeysOn = meta.features && meta.features.passkeys === "experimental";
+    passkeysOn = meta.features && (meta.features.passkeys === "experimental" || meta.features.passkeys === "webauthn4j");
   } catch (_) {}
   const pkSection = $("#passkeySection");
   if (!passkeysOn) {
@@ -127,23 +127,9 @@ if (addBtn) {
       const optR = await api("/v1/passkeys/register/options");
       const opts = await optR.json();
       if (!optR.ok) throw new Error(opts.message || "options failed (passkeys may be disabled)");
-
       if (!window.PublicKeyCredential) {
-        const fakeId = b64url(crypto.getRandomValues(new Uint8Array(16)));
-        const fakeKey = b64url(crypto.getRandomValues(new Uint8Array(32)));
-        const reg = await api("/v1/passkeys/register", {
-          method: "POST",
-          body: JSON.stringify({
-            credentialId: fakeId,
-            publicKeyCoseBase64: fakeKey,
-            label: "Dev passkey",
-          }),
-        });
-        if (!reg.ok) throw new Error("register failed");
-        await loadPasskeys();
-        return;
+        throw new Error("WebAuthn not available in this browser");
       }
-
       const publicKey = {
         challenge: fromB64url(opts.challenge),
         rp: opts.rp,
@@ -162,8 +148,8 @@ if (addBtn) {
       const reg = await api("/v1/passkeys/register", {
         method: "POST",
         body: JSON.stringify({
-          credentialId: b64url(cred.rawId),
-          publicKeyCoseBase64: b64url(att.getPublicKey ? att.getPublicKey() : att.attestationObject),
+          clientDataJSON: b64url(att.clientDataJSON),
+          attestationObject: b64url(att.attestationObject),
           label: "Passkey",
         }),
       });

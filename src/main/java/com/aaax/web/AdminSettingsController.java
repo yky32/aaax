@@ -83,7 +83,7 @@ public class AdminSettingsController {
         boolean kafkaLive = kafkaTemplate.getIfAvailable() != null;
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("product", "AAAX");
-        m.put("version", "0.5.0-SNAPSHOT");
+        m.put("version", "0.5.0");
         m.put("issuer", issuer);
         m.put("otpChannel", otpChannel);
         m.put("orgsModel", "single");
@@ -155,7 +155,7 @@ public class AdminSettingsController {
         f.put("samlSp", samlEnabled);
         f.put("passkeys", environment.getProperty("aaax.passkeys.enabled", "false"));
         f.put("passkeysStatus", "true".equalsIgnoreCase(environment.getProperty("aaax.passkeys.enabled", "false"))
-                ? "experimental"
+                ? "webauthn4j-verified"
                 : "disabled");
         f.put("magicLink", true);
         f.put("otpStore", environment.getProperty("aaax.otp.store", "memory"));

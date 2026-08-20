@@ -55,10 +55,10 @@ public class MetaController {
                 "signUp", "/sign-up/",
                 "user", "/user/",
                 "admin", "/admin/"));
-        body.put("version", "0.5.0-SNAPSHOT");
+        body.put("version", "0.5.0");
         body.put("issuer", issuer);
         body.put("features", Map.of(
-                "passkeys", passkeysEnabled ? "experimental" : "disabled",
+                "passkeys", passkeysEnabled ? "webauthn4j" : "disabled",
                 "otpStore", "memory|redis",
                 "eventBus", true));
         body.put("endpoints", endpoints);

@@ -31,6 +31,9 @@ public class PasskeyCredential {
     @Column(name = "public_key_cose", nullable = false)
     private byte[] publicKeyCose;
 
+    @Column(name = "aaguid", length = 16)
+    private byte[] aaguid;
+
     @Column(name = "sign_count", nullable = false)
     private long signCount;
 
@@ -77,6 +80,14 @@ public class PasskeyCredential {
 
     public void setPublicKeyCose(byte[] publicKeyCose) {
         this.publicKeyCose = publicKeyCose;
+    }
+
+    public byte[] getAaguid() {
+        return aaguid;
+    }
+
+    public void setAaguid(byte[] aaguid) {
+        this.aaguid = aaguid;
     }
 
     public long getSignCount() {

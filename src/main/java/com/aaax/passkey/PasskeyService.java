@@ -1,6 +1,5 @@
 package com.aaax.passkey;
 
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +12,24 @@ import com.aaax.account.AccountRepository;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
+import com.webauthn4j.WebAuthnManager;
+import com.webauthn4j.authenticator.Authenticator;
+import com.webauthn4j.authenticator.AuthenticatorImpl;
+import com.webauthn4j.converter.util.ObjectConverter;
+import com.webauthn4j.data.AuthenticationData;
+import com.webauthn4j.data.AuthenticationParameters;
+import com.webauthn4j.data.AuthenticationRequest;
+import com.webauthn4j.data.RegistrationData;
+import com.webauthn4j.data.RegistrationParameters;
+import com.webauthn4j.data.RegistrationRequest;
+import com.webauthn4j.data.attestation.authenticator.AAGUID;
+import com.webauthn4j.data.attestation.authenticator.AttestedCredentialData;
+import com.webauthn4j.data.attestation.authenticator.COSEKey;
+import com.webauthn4j.data.client.Origin;
+import com.webauthn4j.data.client.challenge.DefaultChallenge;
+import com.webauthn4j.server.ServerProperty;
+import com.webauthn4j.verifier.exception.VerificationException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,9 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Passkeys (WebAuthn) — experimental in v0.4.0 (not production MFA).
- * Stores credentials and issues PublicKeyCredential options.
- * Full assertion crypto verification is not claimed yet.
+ * Passkeys (WebAuthn) with <b>webauthn4j</b> attestation/assertion verify.
+ * Still gated by {@code aaax.passkeys.enabled} (default false).
  */
 @Service
 public class PasskeyService {
@@ -33,7 +49,8 @@ public class PasskeyService {
     private final String rpId;
     private final String rpName;
     private final String origin;
-    private final SecureRandom random = new SecureRandom();
+    private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
+    private final ObjectConverter objectConverter = new ObjectConverter();
     private final Map<String, Challenge> challenges = new ConcurrentHashMap<>();
 
     public PasskeyService(
@@ -54,16 +71,16 @@ public class PasskeyService {
     public Map<String, Object> registrationOptions(String username) {
         Account account = accounts.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        String challenge = randomChallenge();
-        challenges.put("reg:" + username, new Challenge(challenge, username, System.currentTimeMillis() + 300_000));
+        byte[] challengeBytes = new DefaultChallenge().getValue();
+        String challenge = b64Url(challengeBytes);
+        challenges.put("reg:" + username, new Challenge(challengeBytes, username, System.currentTimeMillis() + 300_000));
         Map<String, Object> user = new LinkedHashMap<>();
         user.put("id", b64Url(account.getId().getBytes()));
         user.put("name", account.getUsername());
         user.put("displayName", account.getUsername());
-        Map<String, Object> rp = Map.of("id", rpId, "name", rpName);
         Map<String, Object> opts = new LinkedHashMap<>();
         opts.put("challenge", challenge);
-        opts.put("rp", rp);
+        opts.put("rp", Map.of("id", rpId, "name", rpName));
         opts.put("user", user);
         opts.put("pubKeyCredParams", List.of(
                 Map.of("type", "public-key", "alg", -7),
@@ -87,30 +104,60 @@ public class PasskeyService {
         }
         Account account = accounts.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        if (body.credentialId() == null || body.publicKeyCoseBase64() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "credentialId and publicKeyCoseBase64 required");
+        if (body.clientDataJSON() == null || body.attestationObject() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "clientDataJSON and attestationObject required (WebAuthn registration response)");
         }
-        if (credentials.findByCredentialId(body.credentialId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "credential already registered");
+        try {
+            byte[] clientDataJSON = decode(body.clientDataJSON());
+            byte[] attestationObject = decode(body.attestationObject());
+            ServerProperty serverProperty = new ServerProperty(
+                    new Origin(origin), rpId, new DefaultChallenge(ch.value()));
+            RegistrationRequest regReq = new RegistrationRequest(attestationObject, clientDataJSON);
+            // userVerificationRequired=false, userPresenceRequired=true
+            RegistrationParameters params = new RegistrationParameters(serverProperty, null, false, true);
+            RegistrationData regData = webAuthnManager.verify(regReq, params);
+            AttestedCredentialData acd = regData.getAttestationObject()
+                    .getAuthenticatorData()
+                    .getAttestedCredentialData();
+            if (acd == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no attested credential data");
+            }
+            String credentialId = b64Url(acd.getCredentialId());
+            if (credentials.findByCredentialId(credentialId).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "credential already registered");
+            }
+            long counter = regData.getAttestationObject().getAuthenticatorData().getSignCount();
+            byte[] publicKeyCose = objectConverter.getCborConverter().writeValueAsBytes(acd.getCOSEKey());
+            byte[] aaguid = acd.getAaguid() != null ? acd.getAaguid().getBytes() : AAGUID.ZERO.getBytes();
+
+            PasskeyCredential cred = new PasskeyCredential();
+            cred.setId(UUID.randomUUID().toString());
+            cred.setAccountId(account.getId());
+            cred.setCredentialId(credentialId);
+            cred.setPublicKeyCose(publicKeyCose);
+            cred.setAaguid(aaguid);
+            cred.setSignCount(counter);
+            cred.setLabel(body.label() != null ? body.label() : "Passkey");
+            credentials.save(cred);
+            events.emit("com.aaax.passkey.registered", username, Map.of("credentialId", credentialId));
+            return Map.of("id", cred.getId(), "label", cred.getLabel(), "createdAt", cred.getCreatedAt().toString());
+        } catch (VerificationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "passkey registration verify failed: " + e.getMessage());
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "passkey registration failed: " + e.getMessage());
         }
-        PasskeyCredential cred = new PasskeyCredential();
-        cred.setId(UUID.randomUUID().toString());
-        cred.setAccountId(account.getId());
-        cred.setCredentialId(body.credentialId());
-        cred.setPublicKeyCose(Base64.getUrlDecoder().decode(normalizeB64(body.publicKeyCoseBase64())));
-        cred.setSignCount(body.signCount() == null ? 0L : body.signCount());
-        cred.setLabel(body.label() != null ? body.label() : "Passkey");
-        credentials.save(cred);
-        events.emit("com.aaax.passkey.registered", username, Map.of("credentialId", body.credentialId()));
-        return Map.of("id", cred.getId(), "label", cred.getLabel(), "createdAt", cred.getCreatedAt().toString());
     }
 
     public Map<String, Object> authenticationOptions(String usernameOrNull) {
-        String challenge = randomChallenge();
+        byte[] challengeBytes = new DefaultChallenge().getValue();
+        String challenge = b64Url(challengeBytes);
         String key = usernameOrNull == null || usernameOrNull.isBlank()
                 ? "auth:anon:" + challenge
                 : "auth:" + usernameOrNull;
-        challenges.put(key, new Challenge(challenge, usernameOrNull, System.currentTimeMillis() + 300_000));
+        challenges.put(key, new Challenge(challengeBytes, usernameOrNull, System.currentTimeMillis() + 300_000));
         Map<String, Object> opts = new LinkedHashMap<>();
         opts.put("challenge", challenge);
         opts.put("timeout", 120000);
@@ -128,8 +175,10 @@ public class PasskeyService {
 
     @Transactional
     public Account authenticate(AuthenticateRequest body) {
-        if (body.challengeKey() == null || body.credentialId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "challengeKey and credentialId required");
+        if (body.challengeKey() == null || body.credentialId() == null
+                || body.authenticatorData() == null || body.clientDataJSON() == null || body.signature() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "challengeKey, credentialId, authenticatorData, clientDataJSON, signature required");
         }
         Challenge ch = challenges.remove(body.challengeKey());
         if (ch == null || ch.expiresAt() < System.currentTimeMillis()) {
@@ -137,16 +186,44 @@ public class PasskeyService {
         }
         PasskeyCredential cred = credentials.findByCredentialId(body.credentialId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "unknown passkey"));
-        // Phase-1: presence + challenge bind. Tighten with assertion signature verify next.
-        if (body.signCount() != null && body.signCount() >= cred.getSignCount()) {
-            cred.setSignCount(body.signCount());
-            credentials.save(cred);
+        try {
+            byte[] credentialId = decode(body.credentialId());
+            byte[] authenticatorData = decode(body.authenticatorData());
+            byte[] clientDataJSON = decode(body.clientDataJSON());
+            byte[] signature = decode(body.signature());
+            byte[] userHandle = body.userHandle() != null && !body.userHandle().isBlank()
+                    ? decode(body.userHandle()) : null;
+
+            COSEKey coseKey = objectConverter.getCborConverter().readValue(cred.getPublicKeyCose(), COSEKey.class);
+            AAGUID aaguid = cred.getAaguid() != null ? new AAGUID(cred.getAaguid()) : AAGUID.ZERO;
+            AttestedCredentialData acd = new AttestedCredentialData(aaguid, credentialId, coseKey);
+            Authenticator authenticator = new AuthenticatorImpl(acd, null, cred.getSignCount());
+
+            ServerProperty serverProperty = new ServerProperty(
+                    new Origin(origin), rpId, new DefaultChallenge(ch.value()));
+            AuthenticationRequest authReq = userHandle != null
+                    ? new AuthenticationRequest(credentialId, userHandle, authenticatorData, clientDataJSON, signature)
+                    : new AuthenticationRequest(credentialId, authenticatorData, clientDataJSON, signature);
+            AuthenticationParameters params = new AuthenticationParameters(
+                    serverProperty, authenticator, null, false, true);
+            AuthenticationData authData = webAuthnManager.verify(authReq, params);
+            long newCount = authData.getAuthenticatorData().getSignCount();
+            if (newCount > 0) {
+                cred.setSignCount(newCount);
+                credentials.save(cred);
+            }
+            Account account = accounts.findById(cred.getAccountId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+            events.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "passkey",
+                    Map.of("method", "passkey", "credentialId", body.credentialId(), "verified", true));
+            return account;
+        } catch (VerificationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "passkey assertion verify failed: " + e.getMessage());
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "passkey auth failed: " + e.getMessage());
         }
-        Account account = accounts.findById(cred.getAccountId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        events.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "passkey",
-                Map.of("method", "passkey", "credentialId", body.credentialId()));
-        return account;
     }
 
     @Transactional(readOnly = true)
@@ -172,35 +249,40 @@ public class PasskeyService {
         credentials.deleteByIdAndAccountId(id, account.getId());
     }
 
-    public String getOrigin() {
-        return origin;
-    }
-
-    private String randomChallenge() {
-        byte[] b = new byte[32];
-        random.nextBytes(b);
-        return b64Url(b);
+    private static byte[] decode(String b64url) {
+        String s = b64url.trim().replace('+', '-').replace('/', '_');
+        int m = s.length() % 4;
+        if (m > 0) {
+            s = s + "====".substring(m);
+        }
+        return Base64.getUrlDecoder().decode(s);
     }
 
     private static String b64Url(byte[] raw) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
     }
 
-    private static String normalizeB64(String b64) {
-        String s = b64.trim().replace('+', '-').replace('/', '_');
-        int m = s.length() % 4;
-        if (m > 0) {
-            s = s + "====".substring(m);
-        }
-        return s;
+    private record Challenge(byte[] value, String username, long expiresAt) {
     }
 
-    private record Challenge(String value, String username, long expiresAt) {
+    /** WebAuthn registration response fields (base64url). */
+    public record RegisterRequest(
+            String clientDataJSON,
+            String attestationObject,
+            String label,
+            String credentialId,
+            String publicKeyCoseBase64,
+            Long signCount) {
     }
 
-    public record RegisterRequest(String credentialId, String publicKeyCoseBase64, Long signCount, String label) {
-    }
-
-    public record AuthenticateRequest(String challengeKey, String credentialId, Long signCount, String clientDataJSON) {
+    /** WebAuthn authentication assertion (base64url). */
+    public record AuthenticateRequest(
+            String challengeKey,
+            String credentialId,
+            String authenticatorData,
+            String clientDataJSON,
+            String signature,
+            String userHandle,
+            Long signCount) {
     }
 }
