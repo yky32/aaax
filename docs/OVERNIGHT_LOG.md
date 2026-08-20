@@ -1,41 +1,37 @@
 # Overnight log
 
-## 2026-08-21 — Batch C (`go` = overnight dx)
+## STOP — nothing further without product decisions
 
-### Done
-- **C1–C3** `examples/resource-server-boot4/` (Boot 4.1 JWT resource server)
-- **C4** examples README + resource-call.md + `call.sh`
-- Fix `get-token-and-hello.sh` Bearer `$TOKEN`
-- Compile/run check on example module
+Autonomous overnight queue **A → D exhausted**. Remaining needs Wayne:
 
-### Morning next
-- `go passkey crypto` · `go v0.5`
+| Need you | Why |
+|----------|-----|
+| `go passkey crypto` | webauthn4j / full verify |
+| `go v0.5` | release tag + freeze |
+| Orgs / SAML IdP / React SDK | product gates |
 
-## 2026-08-21 — Batch B (`go` = overnight deep)
+### Commits (tip `9955f48`)
+| Batch | Tip | |
+|-------|-----|--|
+| A | `e5d0de8` | FinishSession unify |
+| B | `d7e070e` | Redis OTP store |
+| C | `25b23c1` / `54fce92` | Resource server example |
+| D | `9955f48` | Passkeys off by default |
 
-### Done
-- **B1–B3** `OtpCodeStore` + `MagicLinkTokenStore` SPI; memory default
-- **B3** Redis when `aaax.otp.store=redis` (`RedisTokenStoreConfig`; Boot Redis auto excluded)
-- **B4** `examples/redis-otp-store.md` + `examples/compose-redis-otp/`
-- **E** `mvn clean test` **23/23**
+## 2026-08-21 — Batch D
 
-### Verify
-- Default path: no Redis connection required
-- HTTP API unchanged
+- `aaax.passkeys.enabled=false` default
+- API 404 when disabled; `/user` hides UI
+- Meta/settings + docs honesty
 
-### Commits
-- (see tip after push)
+## 2026-08-21 — Batch C
 
-### Morning next
-- `go overnight dx` · `go passkey crypto`
+- `examples/resource-server-boot4/` E2E
 
-## 2026-08-20 — Batch A + E (`go overnight`)
+## 2026-08-21 — Batch B
 
-### Done
-- **A1** Social + SAML → `FinishAuthenticatedSession`
-- **A2** Magic link folded into `MagicLinkUseCase`
-- **A3–A4** README mermaid + CODEMAP
-- **E** tests + verify-standalone
+- `OtpCodeStore` / `MagicLinkTokenStore` memory|redis
 
-### Commits
-- `e5d0de8` / `365669a`
+## 2026-08-20 — Batch A
+
+- FinishAuthenticatedSession + magic merge + mermaid
