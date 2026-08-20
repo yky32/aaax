@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Approve sign-in · AAAX</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell" style="width:min(420px,100%)">
+      <div class="brand">
+        <div class="mark"></div>
+        <div>
+          <div class="logo">AAAX</div>
+          <div class="tag">QR approve</div>
+        </div>
+      </div>
+      <div class="card">
+        <h1>Approve desktop sign-in?</h1>
+        <p class="lede">You are authorizing another device. Only approve if you started the QR login.</p>
+        <div class="kv" id="info"></div>
+        <button type="button" class="btn primary" id="approve">Approve</button>
+        <button type="button" class="btn ghost" id="deny">Cancel</button>
+        <p class="small" style="margin-top:1rem">Or enter code from desktop:
+          <input id="code" maxlength="12" style="width:8rem;margin-left:.35rem" placeholder="ABCD2345" />
+          <button type="button" class="btn ghost" id="approveCode" style="width:auto;display:inline;padding:.35rem .6rem">OK</button>
+        </p>
+        <p id="msg" class="err"></p>
+        <p id="ok" class="ok"></p>
+        <div class="foot"><a href="/sign-in/">Sign in</a> · <a href="/user/">Account</a></div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    const api = (path, opts = {}) =>
+      fetch(path, {
+        credentials: "include",
+        headers: { "content-type": "application/json", ...(opts.headers || {}) },
+        ...opts,
+      });
+    const $ = (s) => document.querySelector(s);
+    const msg = (t) => ($("#msg").textContent = t || "");
+    const ok = (t) => ($("#ok").textContent = t || "");
+
+    const params = new URLSearchParams(location.search);
+    let sid = params.get("sid") || "";
+
+    async function boot() {
+      const me = await api("/v1/accounts/me");
+      if (!me.ok) {
+        location.href = "/sign-in/?next=" + encodeURIComponent(location.pathname + location.search);
+        return;
+      }
+      const u = await me.json();
+      if (sid) {
+        const st = await api("/v1/auth/qr/sessions/" + sid);
+        const j = await st.json().catch(() => ({}));
+        $("#info").innerHTML = [
+          ["Signed in as", u.username],
+          ["Session", sid.slice(0, 12) + "…"],
+          ["Status", j.status || "—"],
+          ["Code", j.userCode || "—"],
+        ]
+          .map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`)
+          .join("");
+      } else {
+        $("#info").innerHTML = `<div><div class="k">Signed in as</div><div class="v">${u.username}</div></div>
+          <div><div class="k">Tip</div><div class="v">Paste desktop code below</div></div>`;
+      }
+    }
+
+    $("#approve").addEventListener("click", async () => {
+      msg("");
+      if (!sid) return msg("Missing session id");
+      const r = await api("/v1/auth/qr/sessions/" + sid + "/approve", { method: "POST" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return msg(j.message || "Approve failed");
+      ok("Approved — return to desktop");
+    });
+
+    $("#approveCode").addEventListener("click", async () => {
+      msg("");
+      const userCode = $("#code").value.trim();
+      if (!userCode) return msg("Enter code");
+      const r = await api("/v1/auth/qr/approve-code", {
+        method: "POST",
+        body: JSON.stringify({ userCode }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return msg(j.message || "Approve failed");
+      sid = j.sessionId || sid;
+      ok("Approved — return to desktop");
+    });
+
+    $("#deny").addEventListener("click", () => {
+      location.href = "/user/";
+    });
+
+    boot();
+  </script>
+</body>
+</html>

@@ -4,10 +4,13 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### QR code login
+- `POST/GET /v1/auth/qr/sessions/*` + approve/consume
+- Hosted `/sign-in/` QR tab + `qr-approve.html`
+- Docs: `docs/QR_LOGIN.md`
+
 ### Util polish
-- ROADMAP (QR login / device binding explicitly out)
-- Stale passkey messaging fixed; passkeys-off 404 test
-- Parity + admin decision blockers updated
+- ROADMAP · passkeys-off test · parity
 
 Development follows **v0.5.0**.
 

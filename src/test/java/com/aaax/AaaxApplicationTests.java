@@ -316,6 +316,43 @@ class AaaxApplicationTests {
     }
 
     @Test
+    void qrLoginCreateApproveConsume() throws Exception {
+        MvcResult created = mockMvc.perform(post("/v1/auth/qr/sessions"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.sessionId").exists())
+                .andExpect(jsonPath("$.userCode").exists())
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andReturn();
+        String sid = objectMapper.readTree(created.getResponse().getContentAsString()).get("sessionId").asText();
+
+        mockMvc.perform(get("/v1/auth/qr/sessions/" + sid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PENDING"));
+
+        // phone already logged in as demo
+        MvcResult login = mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"password\":\"demo1234\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        MockHttpSession phone = (MockHttpSession) login.getRequest().getSession();
+
+        mockMvc.perform(post("/v1/auth/qr/sessions/" + sid + "/approve").session(phone))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("APPROVED"))
+                .andExpect(jsonPath("$.approvedUsername").value("demo"));
+
+        mockMvc.perform(get("/v1/auth/qr/sessions/" + sid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("APPROVED"));
+
+        mockMvc.perform(post("/v1/auth/qr/sessions/" + sid + "/consume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.account.username").value("demo"))
+                .andExpect(jsonPath("$.sessionId").exists());
+    }
+
+    @Test
     void passkeysDisabledByDefault() throws Exception {
         mockMvc.perform(get("/v1/passkeys/authenticate/options"))
                 .andExpect(status().isNotFound());

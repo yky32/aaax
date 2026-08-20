@@ -2,29 +2,27 @@
 
 Honest backlog — not a commitment schedule.
 
-## Shipped (v0.5)
+## Shipped
 
+### v0.5
 - OIDC AS · accounts · OTP · magic link · TOTP · sessions
 - Identity Event Bus · SMS dual-mode · SAML SP · Google/GitHub
 - UseCase layer · Redis-optional OTP store · resource-server example
 - Passkeys (webauthn4j) **opt-in**
 
+### v0.6-SNAPSHOT (in progress)
+- **QR code login** — desktop QR / code → phone approve → consume ([QR_LOGIN.md](./QR_LOGIN.md))
+
 ## Not built (needs product `go`)
 
 | Item | Notes |
 |------|--------|
-| **QR code login** | Phone approves desktop session (poll or WS). qs/uaa had grants/WS; AAAX does not. |
-| **Device binding (policy)** | Trusted device registry, MFA skip, force re-auth. Distinct from passkeys. |
+| **Device binding (policy)** | Trusted device registry, MFA skip, force re-auth. Distinct from passkeys / QR. |
 | Multi-tenant **orgs** | Single-realm only today. |
 | **SAML IdP** | SP only. |
 | Official **React / Next SDK** | Hosted pages + JWT RS example only. |
 | Apple / Microsoft social | Google + GitHub first. |
-
-## Near-term engineering (safe / no new ICP)
-
-- More MockMvc coverage (passkeys-off 404, social flags)
-- Hardening: rate-limit SPI, session↔Spring tighter bind
-- Booklet/CODEMAP drift watch
+| QR multi-node store | QR sessions still in-memory (like default OTP). |
 
 ## Explicit non-goals (near term)
 
@@ -32,4 +30,4 @@ Honest backlog — not a commitment schedule.
 - Clerk SaaS clone / seat billing
 - Private Quinsic mesh libs
 
-When Wayne says `go qr-login` or `go trusted-device`, that is a 0.6 feature lane.
+When Wayne says `go trusted-device`, that is the next device-policy lane.

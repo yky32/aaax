@@ -20,15 +20,16 @@
       </div>
       <div class="card">
         <h1>Welcome back</h1>
-        <p class="lede">Clerk-class hosted sign-in — self-host. Password, magic link, OTP, or social.</p>
+        <p class="lede">Password, magic link, OTP, QR, or social — self-host.</p>
 
         <div id="social" class="hidden"></div>
         <div id="socialDiv" class="divider hidden"><span>or</span></div>
 
         <div class="tabs">
           <button type="button" class="tab active" data-mode="password">Password</button>
-          <button type="button" class="tab" data-mode="magic">Magic link</button>
+          <button type="button" class="tab" data-mode="magic">Magic</button>
           <button type="button" class="tab" data-mode="otp">OTP</button>
+          <button type="button" class="tab" data-mode="qr">QR</button>
         </div>
 
         <form id="passwordForm">
@@ -49,6 +50,21 @@
           <label class="field">Code <input name="code" inputmode="numeric" maxlength="8" required /></label>
           <button class="btn primary" type="submit">Verify &amp; sign in</button>
         </form>
+
+        <div id="qrPanel" class="hidden">
+          <p class="small">Scan with a phone that is already signed in to AAAX, or open the approve link.</p>
+          <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+            <img id="qrImg" alt="QR code" width="180" height="180" style="border-radius:8px;background:#fff;padding:8px" />
+            <div>
+              <div class="k">Status</div>
+              <div class="v" id="qrStatus">—</div>
+              <div class="k" style="margin-top:.75rem">Code</div>
+              <div class="v"><code id="qrCode">—</code></div>
+              <p class="small" style="margin-top:.75rem"><a id="qrApproveLink" href="#" target="_blank" rel="noopener">Open approve page</a></p>
+              <button type="button" class="btn ghost" id="qrRefresh" style="margin-top:.5rem;width:auto">New QR</button>
+            </div>
+          </div>
+        </div>
 
         <form id="mfaForm" class="hidden">
           <label class="field">Authenticator code <input name="code" maxlength="6" required /></label>

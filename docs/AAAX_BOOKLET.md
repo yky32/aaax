@@ -181,7 +181,7 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 
 1. Multi-tenant orgs (product gate)
 2. SAML IdP (product gate)
-3. QR login / device trust policy (see [ROADMAP.md](./ROADMAP.md))
+3. Device trust policy (see [ROADMAP.md](./ROADMAP.md)) — **QR login shipped**
 4. Official JS/React SDK / BFF quickstart
 5. Broader social (Apple/Microsoft) when needed
 

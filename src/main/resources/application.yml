@@ -55,6 +55,9 @@ aaax:
     rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}
   magic:
     ttl-seconds: ${AAAX_MAGIC_TTL_SECONDS:900}
+  qr:
+    # desktop QR login session TTL (seconds)
+    ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}
   # single-realm only (no multi-tenant orgs yet)
   orgs:
     model: single
