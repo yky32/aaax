@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OtpService {
 
     private final AccountRepository accountRepository;
-    private final InMemoryOtpStore store;
+    private final OtpCodeStore store;
     private final OtpSender sender;
     private final IdentityEventBus events;
     private final String channel;
@@ -29,7 +29,7 @@ public class OtpService {
 
     public OtpService(
             AccountRepository accountRepository,
-            InMemoryOtpStore store,
+            OtpCodeStore store,
             OtpSender sender,
             IdentityEventBus events,
             @Value("${aaax.otp.channel:console}") String channel,
@@ -75,7 +75,7 @@ public class OtpService {
             throw AccountException.badRequest("code required");
         }
         Account account = requireAccount(username);
-        InMemoryOtpStore.Entry entry = store.get(account.getUsername());
+        OtpCodeStore.Entry entry = store.get(account.getUsername());
         if (entry == null || !entry.code().equals(code.trim())) {
             throw AccountException.badRequest("invalid or expired otp");
         }

@@ -2,12 +2,17 @@ package com.aaax;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration;
 
 /**
- * Kafka producer is only constructed when {@code aaax.otp.channel=kafka}
- * ({@link com.aaax.config.KafkaOtpConfig}). Default console/mail/sms need no broker.
+ * Redis is only wired when {@code aaax.otp.store=redis}
+ * ({@link com.aaax.config.RedisTokenStoreConfig}). Default memory store needs no broker.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        DataRedisAutoConfiguration.class,
+        DataRedisRepositoriesAutoConfiguration.class
+})
 public class AaaxApplication {
 
     public static void main(String[] args) {

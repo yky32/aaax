@@ -3,7 +3,7 @@ package com.aaax;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import com.aaax.otp.InMemoryOtpStore;
+import com.aaax.otp.OtpCodeStore;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,7 +39,7 @@ class AaaxApplicationTests {
     ObjectMapper objectMapper;
 
     @Autowired
-    InMemoryOtpStore otpStore;
+    OtpCodeStore otpStore;
 
     @Test
     void contextLoads() {

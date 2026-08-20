@@ -1,0 +1,51 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: aaax
+      POSTGRES_USER: aaax
+      POSTGRES_PASSWORD: aaax
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aaax -d aaax"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  aaax:
+    image: eclipse-temurin:21-jre
+    working_dir: /app
+    volumes:
+      - ../../target:/app/target:ro
+      - ../../data:/app/data
+    command: ["java", "-jar", "/app/target/aaax-server-0.5.0-SNAPSHOT.jar"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aaax
+      SPRING_DATASOURCE_USERNAME: aaax
+      SPRING_DATASOURCE_PASSWORD: aaax
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: never
+      AAAX_ISSUER: http://localhost:8081
+      AAAX_JWK_PATH: /app/data/aaax-jwk-compose.json
+      AAAX_OTP_STORE: redis
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      AAAX_OTP_CHANNEL: console
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

@@ -5,6 +5,7 @@
 | [curl/](./curl/) | health, token, register, OTP, **admin events** |
 | [identity-events/](./identity-events/) | Kafka consumer script |
 | [compose-kafka-notify/](./compose-kafka-notify/) | **v0.4 path** — AAAX + Kafka + sample notify |
+| [redis-otp-store.md](./redis-otp-store.md) · [compose-redis-otp/](./compose-redis-otp/) | Multi-node OTP/magic (`aaax.otp.store=redis`) |
 | [resource-call.md](./resource-call.md) | Resource server JWT sketch |
 
 ```bash
@@ -12,8 +13,9 @@
 ./examples/curl/login-admin-and-events.sh
 # full mesh demo:
 # mvn -DskipTests package && cd examples/compose-kafka-notify && docker compose up --build
+# multi-node OTP:
+# mvn -DskipTests package && docker compose -f examples/compose-redis-otp/docker-compose.yml up --build
 ```
-
 
 ## Prerequisites
 

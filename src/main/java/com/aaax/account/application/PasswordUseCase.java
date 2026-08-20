@@ -7,7 +7,7 @@ import com.aaax.account.AccountException;
 import com.aaax.account.AccountRepository;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
-import com.aaax.otp.InMemoryOtpStore;
+import com.aaax.otp.OtpCodeStore;
 import com.aaax.otp.OtpSender;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class PasswordUseCase {
 
     private final AccountRepository accounts;
     private final PasswordEncoder passwordEncoder;
-    private final InMemoryOtpStore otpStore;
+    private final OtpCodeStore otpStore;
     private final OtpSender otpSender;
     private final IdentityEventBus events;
     private final int otpTtlSeconds;
@@ -30,7 +30,7 @@ public class PasswordUseCase {
     public PasswordUseCase(
             AccountRepository accounts,
             PasswordEncoder passwordEncoder,
-            InMemoryOtpStore otpStore,
+            OtpCodeStore otpStore,
             OtpSender otpSender,
             IdentityEventBus events,
             @Value("${aaax.otp.ttl-seconds:300}") int otpTtlSeconds,
@@ -82,7 +82,7 @@ public class PasswordUseCase {
             throw AccountException.badRequest("new password too short");
         }
         Account account = require(username);
-        InMemoryOtpStore.Entry entry = otpStore.get(resetKey(account.getUsername()));
+        OtpCodeStore.Entry entry = otpStore.get(resetKey(account.getUsername()));
         if (entry == null || !entry.code().equals(code == null ? "" : code.trim())) {
             throw AccountException.badRequest("invalid or expired otp");
         }

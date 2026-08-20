@@ -57,6 +57,8 @@ aaax:
   orgs:
     model: single
   otp:
+    # memory (default, single-node) | redis (multi-node OTP + magic-link tokens)
+    store: ${AAAX_OTP_STORE:memory}
     ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
     length: ${AAAX_OTP_LENGTH:6}
     # console | mail | kafka | sms

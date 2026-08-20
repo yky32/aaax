@@ -4,6 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.5.0-SNAPSHOT] — unreleased
 
+### Overnight batch B (2026-08-21) — Redis-optional OTP/magic store
+- `OtpCodeStore` + `MagicLinkTokenStore` SPI
+- Default `aaax.otp.store=memory`; `redis` via `RedisTokenStoreConfig` (no broker unless enabled)
+- Docs: `examples/redis-otp-store.md`, `examples/compose-redis-otp/`
+
 ### Overnight batch A (2026-08-20)
 - All login paths (password/OTP/magic/social/SAML/passkey) → `FinishAuthenticatedSession`
 - Magic link logic folded into `MagicLinkUseCase` (no `MagicLinkService`)

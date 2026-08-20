@@ -155,6 +155,7 @@ public class AdminSettingsController {
         f.put("samlSp", samlEnabled);
         f.put("passkeys", "experimental");
         f.put("magicLink", true);
+        f.put("otpStore", environment.getProperty("aaax.otp.store", "memory"));
         f.put("hostedExperiences", true);
         f.put("sessions", true);
         f.put("orgsModel", "single");

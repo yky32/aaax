@@ -18,7 +18,8 @@ Then optionally:
 | Topic | Start |
 |-------|--------|
 | Register user | `account/application/RegisterAccountUseCase.java` |
-| OTP / SMS channels | `otp/OtpService.java` + `otp/OtpSender.java` |
+| OTP / SMS channels | `otp/OtpService.java` + `OtpSender` + **`OtpCodeStore`** (`memory` \| `redis`) |
+| Magic link tokens | `auth/MagicLinkTokenStore` (same store mode as OTP) |
 | OAuth clients admin | `client/ClientAdminService.java` |
 | Social Google/GitHub | `config/SocialLoginConfig.java` |
 | SAML SP | `config/SamlSpConfig.java` |
