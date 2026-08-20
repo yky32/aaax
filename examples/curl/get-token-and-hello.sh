@@ -18,5 +18,6 @@ echo
 echo "token_len=${#TOKEN}"
 
 echo "== GET /v1/api/hello =="
-curl -sf "$BASE/v1/api/hello" -H "Authorization: Bearer $TOKEN" | (command -v jq >/dev/null && jq . || cat)
+AUTH_HEADER="Authorization: Bearer ${TOKEN}"
+curl -sf "$BASE/v1/api/hello" -H "$AUTH_HEADER" | (command -v jq >/dev/null && jq . || cat)
 echo
