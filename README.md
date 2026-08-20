@@ -83,6 +83,19 @@ Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, 
 | `kafka` | **Mode 1** — publish `OtpDispatchEvent` to Kafka; caller owns notification-service/SMS |
 | `sms` | **Mode 2** — HTTP webhook to your provider URL (`AAAX_OTP_SMS_WEBHOOK_URL`) |
 
+### Social login (optional)
+
+```bash
+export SPRING_PROFILES_ACTIVE=social
+export GOOGLE_CLIENT_ID=...
+export GOOGLE_CLIENT_SECRET=...
+export GITHUB_CLIENT_ID=...      # optional
+export GITHUB_CLIENT_SECRET=...
+```
+
+Console shows **Continue with Google / GitHub** when configured.  
+Docs: [docs/SOCIAL.md](./docs/SOCIAL.md)
+
 ### SAML 2 SP
 
 ```bash
@@ -101,7 +114,7 @@ Orgs: **single-realm** only. Passkeys: later.
 | Area | Capability |
 |------|------------|
 | **Accounts** | Register, me, change/forgot/reset password, admin users |
-| **Authentication** | Form login, OTP (+ mail channel), OIDC authorize/token/jwks |
+| **Authentication** | Form login, OTP, social (Google/GitHub), OIDC authorize/token/jwks |
 | **Authorization** | Roles, OAuth clients admin, scopes, sample protected API |
 | **X · DX** | Booklet, curl pack, qs/uaa-ish public aliases, standalone clone |
 

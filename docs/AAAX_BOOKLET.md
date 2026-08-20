@@ -167,7 +167,7 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 
 | ✅ Solid | 🟡 Thin | ❌ Out / later |
 |----------|---------|----------------|
-| OIDC AS + JWK | Social (Google optional) | Passkeys |
+| OIDC AS + JWK | Social (Google + GitHub optional) | Passkeys |
 | Admin portal `/admin` | SAML **SP only** | SAML **IdP** |
 | Users/clients admin | RBAC = roles+scopes | Orgs / multi-tenant |
 | TOTP MFA | Audit = basic | JS/mobile SDK |
@@ -182,6 +182,8 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 4. Broader social (Apple/Microsoft) when needed  
 
 Detail: OTP/SMS/SAML → [SMS_SAML.md](./SMS_SAML.md) · Events → [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md) · Social → [SOCIAL.md](./SOCIAL.md)
+
+### 4.6 How we win (deliberate wedge)
 
 **Do not try to out-Clerk Clerk or out-Keycloak Keycloak.**
 
