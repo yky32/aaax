@@ -13,13 +13,14 @@
 - **A5** `SettingsQuery` extract — not needed for overnight value
 
 ### Commits
-- (see git log after push)
+- `e5d0de8` — refactor(aaax): overnight A — unify FinishAuthenticatedSession + magic merge
 
 ### Verify
-- Tests: see CI / local `mvn test`
+- Tests: **23/23** green
+- `verify-standalone`: **OK**
 - API: unchanged
 
 ### Morning checklist
-1. `git pull`
+1. `git pull` (`e5d0de8`)
 2. Optional: `mvn test`
-3. Optional next: `go overnight deep` (Redis OTP store) or `go passkey crypto`
+3. Optional next: `go overnight deep` (Redis OTP) · `go overnight dx` · `go passkey crypto`
