@@ -7,7 +7,7 @@
 | **Status** | Source of truth for product + eng docs |
 | **qs/uaa parity** | [PARITY_QS_UAA.md](./PARITY_QS_UAA.md) |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `v0.3.0` |
+| **Version** | `0.4.0-SNAPSHOT` (Boot **4.1** / JDK **21**) |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
@@ -205,14 +205,14 @@ aaax/
 
 ## 10. Stack & run
 
-- Java 17 · Spring Boot 3.3 · Authorization Server · Mail  
-- JPA Accounts · JDBC OAuth · File JWK · H2 / Postgres  
+- **Java 21** · **Spring Boot 4.1** · Spring Security **7** Authorization Server  
+- JPA Accounts · JDBC OAuth · File JWK · H2 / Postgres · Mail  
+- Jackson **3** · Maven Central only (enforcer bans private deps)  
 
 ```bash
+# requires JDK 21+
 mvn test
 mvn spring-boot:run
-# prod-ish local:
-# mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
 ```bash

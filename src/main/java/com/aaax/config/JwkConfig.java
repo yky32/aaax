@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 
 /**
  * File-backed RSA JWK so tokens remain valid across restarts.
@@ -48,13 +48,15 @@ public class JwkConfig {
             if (Files.exists(path)) {
                 String json = Files.readString(path, StandardCharsets.UTF_8);
                 JWKSet set = JWKSet.parse(json);
-                RSAKey key = (RSAKey) set.getKeys().get(0);
+                RSAKey key = (RSAKey) set.getKeys().getFirst();
                 log.info("Loaded JWK from {}", path.toAbsolutePath());
                 return key;
             }
             RSAKey generated = generateRsa();
-            Files.createDirectories(path.getParent() == null ? Path.of(".") : path.getParent());
-            // Persist private + public for server use
+            Path parent = path.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
             Files.writeString(path, new JWKSet(generated).toString(false), StandardCharsets.UTF_8);
             log.info("Generated new JWK at {}", path.toAbsolutePath());
             return generated;

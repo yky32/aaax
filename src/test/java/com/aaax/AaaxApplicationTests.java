@@ -4,22 +4,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import com.aaax.otp.InMemoryOtpStore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -50,7 +50,7 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product").value("AAAX"))
-                .andExpect(jsonPath("$.version").value("0.3.0"));
+                .andExpect(jsonPath("$.version").value("0.4.0-SNAPSHOT"));
     }
 
     @Test
@@ -101,9 +101,8 @@ class AaaxApplicationTests {
     }
 
     @Test
-    @WithMockUser(username = "demo")
     void meReturnsCurrentAccount() throws Exception {
-        mockMvc.perform(get("/v1/accounts/me"))
+        mockMvc.perform(get("/v1/accounts/me").with(user("demo").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("demo"));
     }
@@ -130,7 +129,7 @@ class AaaxApplicationTests {
         String accessToken = objectMapper
                 .readTree(tokenResult.getResponse().getContentAsString())
                 .get("access_token")
-                .asText();
+                .asString();
 
         mockMvc.perform(get("/v1/api/hello")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
@@ -170,9 +169,8 @@ class AaaxApplicationTests {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "USER"})
     void adminCanManageClients() throws Exception {
-        mockMvc.perform(get("/v1/admin/clients"))
+        mockMvc.perform(get("/v1/admin/clients").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].clientId").value("aaax-demo"));
 
@@ -187,6 +185,7 @@ class AaaxApplicationTests {
                 """;
 
         MvcResult created = mockMvc.perform(post("/v1/admin/clients")
+                        .with(user("admin").roles("ADMIN", "USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createBody))
                 .andExpect(status().isCreated())
@@ -195,24 +194,23 @@ class AaaxApplicationTests {
                 .andReturn();
 
         JsonNode json = objectMapper.readTree(created.getResponse().getContentAsString());
-        String secret = json.get("clientSecret").asText();
+        String secret = json.get("clientSecret").asString();
         assertThat(secret).isNotBlank();
 
-        mockMvc.perform(get("/v1/admin/clients/aaax-app-1"))
+        mockMvc.perform(get("/v1/admin/clients/aaax-app-1").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientName").value("App One"));
 
-        mockMvc.perform(delete("/v1/admin/clients/aaax-app-1"))
+        mockMvc.perform(delete("/v1/admin/clients/aaax-app-1").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/v1/admin/clients/aaax-app-1"))
+        mockMvc.perform(get("/v1/admin/clients/aaax-app-1").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(username = "demo", roles = "USER")
     void nonAdminCannotListClients() throws Exception {
-        mockMvc.perform(get("/v1/admin/clients"))
+        mockMvc.perform(get("/v1/admin/clients").with(user("demo").roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
@@ -240,7 +238,6 @@ class AaaxApplicationTests {
         mockMvc.perform(formLogin().user("demo").password("newpass123"))
                 .andExpect(authenticated().withUsername("demo"));
 
-        // restore seed password
         mockMvc.perform(post("/v1/accounts/password/forgot")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"usernameOrEmail\":\"demo\"}"))
@@ -262,9 +259,8 @@ class AaaxApplicationTests {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "USER"})
     void adminCanListUsers() throws Exception {
-        mockMvc.perform(get("/v1/admin/users"))
+        mockMvc.perform(get("/v1/admin/users").with(user("admin").roles("ADMIN", "USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").exists());
     }

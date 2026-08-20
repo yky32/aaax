@@ -11,21 +11,21 @@ clone → mvn test → spring-boot:run → token → call API
 ```
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
-[![Java](https://img.shields.io/badge/Java-17+-orange.svg)](./pom.xml)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green.svg)](./pom.xml)
+[![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](./pom.xml)
 
 | | |
 |--|--|
 | **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Parity vs qs/uaa](./docs/PARITY_QS_UAA.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) |
-| **Version** | `v0.3.0` |
+| **Version** | `v0.4.0-SNAPSHOT` (Boot 4.1 / JDK 21) |
 | **Maven** | **Central only** (`.mvn/settings.xml`) — no `app-core`, no GitHub Packages |
 
 ---
 
 ## 5-minute path
 
-**Need:** JDK 17+, Maven 3.9+
+**Need:** JDK **21**+, Maven 3.9+
 
 ```bash
 git clone https://github.com/yky32/aaax.git
