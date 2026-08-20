@@ -2,7 +2,7 @@ spring:
   application:
     name: ${SPRING_APPLICATION_NAME:aaax-server}
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:aaax;MODE=PostgreSQL;DB_CLOSE_DELAY=-1}
+    url: ${DB_URL:jdbc:h2:mem:aaax;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
@@ -10,19 +10,37 @@ spring:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
     open-in-view: false
+    defer-datasource-initialization: true
     properties:
       hibernate:
         jdbc:
           time_zone: UTC
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
   h2:
     console:
       enabled: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 
 server:
   port: ${SERVER_PORT:8081}
 
 aaax:
   issuer: ${AAAX_ISSUER:http://localhost:8081}
+  jwk:
+    path: ${AAAX_JWK_PATH:./data/aaax-jwk.json}
+  otp:
+    ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
+    length: ${AAAX_OTP_LENGTH:6}
+  demo:
+    seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
+    seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
 
 management:
   endpoints:
@@ -32,6 +50,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    redis:
+      enabled: false
 
 logging:
   level:

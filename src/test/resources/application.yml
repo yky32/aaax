@@ -1,0 +1,12 @@
+aaax:
+  jwk:
+    path: ${java.io.tmpdir}/aaax-test-jwk.json
+  demo:
+    seed-client: true
+    seed-account: true
+
+spring:
+  sql:
+    init:
+      mode: always
+      continue-on-error: true

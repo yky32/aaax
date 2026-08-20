@@ -1,7 +1,11 @@
 package com.aaax.account;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +31,10 @@ public class Account {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    /** Comma-separated roles without ROLE_ prefix, e.g. USER,ADMIN */
+    @Column(nullable = false, length = 255)
+    private String roles = "USER";
+
     @Column(nullable = false)
     private boolean enabled = true;
 
@@ -40,9 +48,14 @@ public class Account {
     }
 
     public Account(String username, String email, String passwordHash) {
+        this(username, email, passwordHash, "USER");
+    }
+
+    public Account(String username, String email, String passwordHash, String roles) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.roles = roles == null || roles.isBlank() ? "USER" : roles;
     }
 
     @PrePersist
@@ -50,6 +63,9 @@ public class Account {
         Instant now = Instant.now();
         if (id == null) {
             id = UUID.randomUUID().toString();
+        }
+        if (roles == null || roles.isBlank()) {
+            roles = "USER";
         }
         createdAt = now;
         updatedAt = now;
@@ -76,6 +92,17 @@ public class Account {
         return passwordHash;
     }
 
+    public String getRoles() {
+        return roles;
+    }
+
+    public Set<String> roleSet() {
+        return Arrays.stream(roles.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -94,6 +121,10 @@ public class Account {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 
     public void setEnabled(boolean enabled) {

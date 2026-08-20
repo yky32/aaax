@@ -1,6 +1,6 @@
 package com.aaax.account;
 
-import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,11 +24,15 @@ public class AccountUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("account not found"));
+        var authorities = account.roleSet().stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
         return User.builder()
                 .username(account.getUsername())
                 .password(account.getPasswordHash())
                 .disabled(!account.isEnabled())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))
+                .authorities(authorities)
                 .build();
     }
 }

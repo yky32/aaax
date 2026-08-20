@@ -70,12 +70,13 @@ We win by **trust + run-your-own + fewer footguns**.
 
 ## Where we are (now)
 
-Greenfield `aaax-server`:
-- Spring Authorization Server boots
-- **Accounts** persisted (register API + DB login)
-- In-memory demo OAuth client
-- Ephemeral RSA JWK (dev)
-- Public product meta + health + OIDC discovery
+`0.2.0-SNAPSHOT` greenfield server:
+- Accounts + roles + register API + DB login
+- JDBC OAuth clients / authorizations
+- File-backed RSA JWK (stable across restarts)
+- OTP (pluggable sender; default logs)
+- Protected API sample (`/v1/api/hello`)
+- Curl happy path → `docs/HAPPY_PATH.md`
 
 Next execution order → [ROADMAP.md](./ROADMAP.md)
 

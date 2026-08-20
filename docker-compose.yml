@@ -32,11 +32,15 @@ services:
     environment:
       SERVER_PORT: 8081
       AAAX_ISSUER: http://localhost:8081
+      AAAX_JWK_PATH: /data/aaax-jwk.json
       DB_URL: jdbc:postgresql://postgres:5432/aaax
       DB_USERNAME: aaax
       DB_PASSWORD: aaax
+      DB_DRIVER: org.postgresql.Driver
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    volumes:
+      - aaax_jwk:/data
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,3 +49,4 @@ services:
 
 volumes:
   aaax_pg:
+  aaax_jwk:

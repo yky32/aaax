@@ -1,41 +1,30 @@
 # AAAX roadmap
 
-Greenfield from `0.1.0-SNAPSHOT`. North star: [VISION.md](./VISION.md).
+Greenfield. North star: [VISION.md](./VISION.md).
 
-## Done
+## Done (0.2)
 
 - [x] Public repo + Apache-2.0 + SECURITY
 - [x] Brand-new `com.aaax` codebase
-- [x] Spring Authorization Server boots
-- [x] Demo OAuth client + ephemeral JWK + OIDC discovery
-- [x] `mvn test` + GitHub Actions CI
-- [x] Docker Compose (Postgres + Redis + app)
-- [x] **Accounts** table + `POST /v1/accounts/register`
-- [x] DB-backed form login (`AccountUserDetailsService`)
-- [x] `GET /v1/accounts/me`
+- [x] Spring Authorization Server
+- [x] Accounts + register + DB login + roles
+- [x] JDBC **OAuth clients** + authorization / consent stores
+- [x] **Stable JWK file** (`aaax.jwk.path`)
+- [x] Protected API sample (`GET /v1/api/hello`)
+- [x] OTP path + pluggable `OtpSender` (default logs)
+- [x] authorization_code / client_credentials curls → [docs/HAPPY_PATH.md](./docs/HAPPY_PATH.md)
+- [x] CI + Compose
 
-## Now → v0.2 continued
+## Next → v0.3+
 
-- [ ] Persist **OAuth clients** (replace in-memory repository)
-- [ ] authorization_code happy path documented (curl end-to-end)
-- [ ] Stable issuer JWKS across restarts (file or DB-backed keys)
-
-## Next → v0.3
-
-- [ ] OTP path (email provider pluggable)
-- [ ] RBAC baseline + protected resource API sample
-- [ ] Redis-backed authorization service option
-- [ ] Cold `docker compose up` verified on clean machine
-
-## Later
-
-- [ ] Passkeys / richer MFA
-- [ ] Social providers pack
-- [ ] Admin UX
-- [ ] Product GitHub org
-- [ ] v1.0 when stranger: clone → compose → register → token → call API
+- [ ] Email/SMS `OtpSender` implementations
+- [ ] Redis OTP / authorization service option (prod multi-node)
+- [ ] First-class passwordless OTP login grant
+- [ ] Admin client management API
+- [ ] Passkeys / social packs
+- [ ] v1.0 stranger cold path polish
 
 ## Non-goals (v1)
 
 - Clerk dashboard clone
-- Shipping Quinsic/tgt business APIs in this repo
+- Quinsic/tgt business APIs in this repo

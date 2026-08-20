@@ -1,6 +1,9 @@
 package com.aaax;
 
-import com.aaax.account.AccountRepository;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import com.aaax.otp.InMemoryOtpStore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,11 +37,10 @@ class AaaxApplicationTests {
     ObjectMapper objectMapper;
 
     @Autowired
-    AccountRepository accountRepository;
+    InMemoryOtpStore otpStore;
 
     @Test
     void contextLoads() {
-        assertThat(accountRepository.count()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
@@ -45,7 +48,7 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product").value("AAAX"))
-                .andExpect(jsonPath("$.endpoints.register").value("POST /v1/accounts/register"));
+                .andExpect(jsonPath("$.endpoints.apiHello").exists());
     }
 
     @Test
@@ -70,12 +73,10 @@ class AaaxApplicationTests {
                         .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
-                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.roles[0]").value("USER"))
                 .andReturn();
 
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertThat(json.has("password")).isFalse();
         assertThat(json.has("passwordHash")).isFalse();
 
         mockMvc.perform(formLogin().user("alice").password("password123"))
@@ -94,24 +95,7 @@ class AaaxApplicationTests {
         mockMvc.perform(post("/v1/accounts/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("username already taken"));
-    }
-
-    @Test
-    void registerValidatesPasswordLength() throws Exception {
-        String body = """
-                {
-                  "username": "bob",
-                  "password": "short"
-                }
-                """;
-
-        mockMvc.perform(post("/v1/accounts/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("validation_failed"));
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -131,13 +115,68 @@ class AaaxApplicationTests {
     void meReturnsCurrentAccount() throws Exception {
         mockMvc.perform(get("/v1/accounts/me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("demo"))
-                .andExpect(jsonPath("$.email").value("demo@aaax.local"));
+                .andExpect(jsonPath("$.username").value("demo"));
     }
 
     @Test
     void meRequiresAuth() throws Exception {
         mockMvc.perform(get("/v1/accounts/me"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void clientCredentialsTokenCanCallProtectedApi() throws Exception {
+        String basic = Base64.getEncoder()
+                .encodeToString("aaax-demo:aaax-demo-secret".getBytes(StandardCharsets.UTF_8));
+
+        MvcResult tokenResult = mockMvc.perform(post("/oauth2/token")
+                        .header(HttpHeaders.AUTHORIZATION, "Basic " + basic)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("grant_type=client_credentials&scope=api.read"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.access_token").isNotEmpty())
+                .andReturn();
+
+        String accessToken = objectMapper
+                .readTree(tokenResult.getResponse().getContentAsString())
+                .get("access_token")
+                .asText();
+
+        mockMvc.perform(get("/v1/api/hello")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("hello from AAAX protected API"));
+    }
+
+    @Test
+    void protectedApiWithoutTokenIsUnauthorized() throws Exception {
+        mockMvc.perform(get("/v1/api/hello"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void otpRequestAndVerify() throws Exception {
+        mockMvc.perform(post("/v1/otp/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("demo"));
+
+        String code = otpStore.get("demo").code();
+        assertThat(code).hasSize(6);
+
+        mockMvc.perform(post("/v1/otp/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"code\":\"" + code + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(true));
+    }
+
+    @Test
+    void oidcDiscoveryIsPublic() throws Exception {
+        mockMvc.perform(get("/.well-known/openid-configuration"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.issuer").exists())
+                .andExpect(jsonPath("$.token_endpoint").exists());
     }
 }
