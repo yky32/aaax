@@ -11,7 +11,9 @@
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
-| **Maven** | `.mvn/settings.xml` = **Central only** (no private packages) |
+| **Maven** | Central + Shibboleth OpenSAML (public; no private packages) |
+| **Admin** | http://localhost:8081/admin/ |
+| **SMS / SAML** | [SMS_SAML.md](./SMS_SAML.md) |
 
 > **This file is the single booklet.**  
 > Root `README.md` is the shop window.  
@@ -108,11 +110,77 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 
 ## 4. Competitive frame
 
-| | Strength | AAAX angle |
-|--|----------|------------|
-| **Clerk** | Hosted UX | Self-host, no seat tax |
-| **better-auth** | TS/Next DX | JVM/Spring + OIDC server |
-| **Logto** | OIDC self-host | Clearer DX + ops defaults |
+**Positioning:** Spring-native lean self-host OIDC — not Keycloak kitchen-sink, not Clerk hosted UX.
+
+> AAAX = self-host OIDC for **Spring/JVM teams** who want clients, MFA, admin UI, and **caller-owned SMS** (Kafka/webhook) — without Keycloak weight or Clerk seats.
+
+Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
+
+### 4.1 Capability matrix
+
+| Capability | **AAAX** | **Logto** | **Keycloak** | **Clerk** | **better-auth** | **Auth0 / Cognito** |
+|------------|:--------:|:---------:|:------------:|:---------:|:---------------:|:-------------------:|
+| Self-host / own data | ✅★ | ✅ | ✅ | ❌ SaaS | ✅ (lib) | 🟡 |
+| OIDC AS (discovery/JWKS/code/refresh/cc) | ✅ | ✅★ | ✅★ | ✅ | 🟡 | ✅★ |
+| Clone → run (no private Maven) | ✅★ | ✅ | 🟡 heavy | n/a | ✅★ | n/a |
+| Spring / JVM native | ✅★ | ❌ | 🟡 | ❌ | ❌ | ❌ |
+| Register / me / password reset | ✅ | ✅ | ✅ | ✅★ | ✅★ | ✅ |
+| Passwordless OTP | ✅ | ✅ | ✅ | ✅★ | ✅ | ✅ |
+| Email OTP | ✅ | ✅★ | ✅ | ✅★ | ✅ | ✅ |
+| SMS OTP | 🟡★ webhook/Kafka (no Twilio lock-in) | ✅★ | ✅ | ✅★ | 🟡 | ✅★ |
+| TOTP MFA | ✅ | ✅ | ✅★ | ✅★ | 🟡 | ✅★ |
+| Passkeys | ❌ later | ✅ | ✅ | ✅★ | ✅ | ✅ |
+| Social (Google…) | 🟡 Google optional | ✅★ | ✅★ | ✅★ | ✅★ | ✅★ |
+| SAML SP (login via IdP) | ✅ | ✅ | ✅★ | ✅ | ❌ | ✅★ |
+| SAML IdP (serve SAML apps) | ❌ | 🟡/✅ | ✅★ | ✅ | ❌ | ✅★ |
+| Admin console UI | ✅ `/admin` | ✅★ | ✅★ | ✅★ | 🟡 | ✅★ |
+| Users + OAuth clients admin | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
+| Orgs / multi-tenant | ❌ **single** | ✅★ | ✅★ | ✅★ | 🟡 | ✅★ |
+| Fine RBAC | 🟡 roles + scopes | ✅ | ✅★ | ✅ | 🟡 | ✅★ |
+| Audit log | ✅ basic | 🟡/✅ | ✅★ | ✅ | ❌ | ✅★ |
+| SDKs / drop-in components | ❌ | ✅★ | 🟡 | ✅★ | ✅★ | ✅★ |
+| Seat-tax free | ✅★ | ✅ OSS | ✅ | ❌ | ✅ | ❌ |
+
+### 4.2 Scorecard (100 = credible pick in that lane)
+
+| Lane | AAAX | Logto | Keycloak | Clerk | better-auth |
+|------|-----:|------:|---------:|------:|------------:|
+| Self-host OIDC core | **78** | 88 | 92 | — | 55 |
+| Admin / ops UX | **55** | 85 | 80 | 95 | 40 |
+| Auth methods breadth | **58** | 85 | 95 | 95 | 75 |
+| Enterprise federation | **40** (SP) | 70 | **95** | 80 | 15 |
+| App DX (SDK/components) | **25** | 80 | 45 | **98** | **90** |
+| Spring/JVM fit | **95** | 20 | 50 | 10 | 5 |
+| Time-to-first-token | **90** | 80 | 40 | 95 hosted | 90 |
+
+### 4.3 Per-competitor
+
+| vs | AAAX wins | AAAX loses |
+|----|-----------|------------|
+| **Logto** | JVM/Spring AS; SMS Kafka/webhook for in-house notify | Orgs, passkeys, social pack, JS SDK, console polish |
+| **Keycloak** | 10× smaller; clone DX | SAML IdP, LDAP, fine RBAC, federation surface |
+| **Clerk** | Self-host, no seats | Hosted components, SDK, passkeys UX |
+| **better-auth** | Real OIDC server + clients | Next/TS drop-in DX |
+| **Auth0/Cognito** | Cost, control, OSS | Enterprise checklist, SLA, ecosystem |
+
+### 4.4 Honest AAAX state
+
+| ✅ Solid | 🟡 Thin | ❌ Out / later |
+|----------|---------|----------------|
+| OIDC AS + JWK | Social (Google optional) | Passkeys |
+| Admin portal `/admin` | SAML **SP only** | SAML **IdP** |
+| Users/clients admin | RBAC = roles+scopes | Orgs / multi-tenant |
+| TOTP MFA | Audit = basic | JS/mobile SDK |
+| OTP console/mail/kafka/sms-webhook | Login UI basic | Drop-in components |
+| Bootstrap, booklet, examples | — | LDAP |
+
+### 4.5 Gap priority (if closing on Logto)
+
+1. Passkeys (deferred)  
+2. SAML IdP (open decision)  
+3. Official BFF/JS example + broader social  
+
+Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity → [PARITY_QS_UAA.md](./PARITY_QS_UAA.md)
 
 ---
 
@@ -129,27 +197,32 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 
 ## 6. Scope (v1)
 
-**In:** Accounts, password+OTP, OAuth2/OIDC, RBAC baseline, Compose, curl docs.  
-**Out:** Full admin dashboard, every social, passkeys day-one, Quinsic business APIs.
+**In:** Accounts, password+OTP (console/mail/kafka/sms-webhook), OAuth2/OIDC, TOTP MFA, admin portal, clients/users admin, SAML SP, bootstrap, Compose, curl/examples.  
+**Orgs:** **single-realm** only.  
+**Out / later:** Passkeys, SAML IdP, multi-tenant orgs, every social, JS SDK pack, Quinsic business APIs, LDAP.
 
 ---
 
-## 7. Current status (0.3)
+## 7. Current status (0.4)
 
 | Area | State |
 |------|--------|
 | Accounts + register + DB login + roles | ✅ |
 | JDBC OAuth clients + authorizations | ✅ |
 | File-backed RSA JWK | ✅ |
-| OTP request/verify | ✅ |
-| OTP channel `console` \| `mail` (SMTP) | ✅ |
-| Passwordless `POST /v1/auth/otp/login` | ✅ |
-| Admin clients CRUD `/v1/admin/clients` | ✅ |
-| Protected API `GET /v1/api/hello` | ✅ |
+| OTP request/verify + passwordless login | ✅ |
+| OTP `console` \| `mail` \| `kafka` \| `sms` webhook | ✅ |
+| TOTP MFA | ✅ |
+| Admin portal `/admin` | ✅ |
+| Admin clients + users + audit + settings | ✅ |
+| First-admin bootstrap | ✅ |
+| SAML 2 SP (external IdP) | ✅ optional |
+| Google OIDC | ✅ optional profile |
 | `prod` profile (no demo seeds) | ✅ |
-| Deploy checklist (this §16) | ✅ |
+| Orgs multi-tenant | ❌ single only |
+| SAML IdP | ❌ |
+| Passkeys | ❌ later |
 | Redis multi-node OTP | ⬜ |
-| Passkeys / social | ⬜ |
 
 ---
 
