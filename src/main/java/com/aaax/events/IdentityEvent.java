@@ -36,7 +36,9 @@ public record IdentityEvent(
         public static final String ACCOUNT_REGISTERED = "com.aaax.account.registered";
         public static final String AUTH_LOGIN = "com.aaax.auth.login";
         public static final String AUTH_LOGIN_MFA = "com.aaax.auth.login.mfa";
+        public static final String AUTH_LOGIN_SOCIAL = "com.aaax.auth.login.social";
         public static final String AUTH_LOGOUT = "com.aaax.auth.logout";
+        public static final String ACCOUNT_FEDERATED = "com.aaax.account.federated";
         public static final String MFA_TOTP_ENABLED = "com.aaax.mfa.totp.enabled";
         public static final String MFA_TOTP_DISABLED = "com.aaax.mfa.totp.disabled";
         public static final String PASSWORD_CHANGED = "com.aaax.account.password.changed";

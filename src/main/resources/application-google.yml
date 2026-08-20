@@ -1,5 +1,8 @@
-# Activate with: SPRING_PROFILES_ACTIVE=google  (and set GOOGLE_CLIENT_ID / SECRET)
+# Backward-compatible alias — prefer profile "social"
 spring:
+  config:
+    activate:
+      on-profile: google
   security:
     oauth2:
       client:

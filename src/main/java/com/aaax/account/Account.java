@@ -47,6 +47,9 @@ public class Account {
     @Column(name = "google_sub", length = 128, unique = true)
     private String googleSub;
 
+    @Column(name = "github_id", length = 64, unique = true)
+    private String githubId;
+
     @Column(name = "saml_name_id", length = 256, unique = true)
     private String samlNameId;
 
@@ -134,6 +137,10 @@ public class Account {
         return googleSub;
     }
 
+    public String getGithubId() {
+        return githubId;
+    }
+
     public String getSamlNameId() {
         return samlNameId;
     }
@@ -176,6 +183,10 @@ public class Account {
 
     public void setGoogleSub(String googleSub) {
         this.googleSub = googleSub;
+    }
+
+    public void setGithubId(String githubId) {
+        this.githubId = githubId;
     }
 
     public void setSamlNameId(String samlNameId) {

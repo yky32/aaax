@@ -91,6 +91,11 @@ public class AdminSettingsController {
         m.put("demoSeedAccount", seedAccount);
         m.put("profiles", List.of(environment.getActiveProfiles()));
         m.put("googleLoginEnabled", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id")));
+        m.put("githubLoginEnabled", hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
+        m.put("socialLoginPath", Map.of(
+                "google", "/oauth2/authorization/google",
+                "github", "/oauth2/authorization/github",
+                "providersApi", "/v1/auth/social/providers"));
         m.put("samlEnabled", samlEnabled);
         m.put("samlLoginPath", samlEnabled ? "/saml2/authenticate/idp" : null);
         m.put("identityEventBus", Map.of(
@@ -142,6 +147,9 @@ public class AdminSettingsController {
         f.put("oauthClientsAdmin", true);
         f.put("bootstrapAdmin", true);
         f.put("googleOidc", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id")));
+        f.put("githubOAuth", hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
+        f.put("socialLogin", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id"))
+                || hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
         f.put("samlSp", samlEnabled);
         f.put("orgs", false);
         f.put("orgsModel", "single");

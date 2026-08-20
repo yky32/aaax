@@ -130,7 +130,7 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 | SMS OTP | 🟡★ webhook/Kafka (no Twilio lock-in) | ✅★ | ✅ | ✅★ | 🟡 | ✅★ |
 | TOTP MFA | ✅ | ✅ | ✅★ | ✅★ | 🟡 | ✅★ |
 | Passkeys | ❌ later | ✅ | ✅ | ✅★ | ✅ | ✅ |
-| Social (Google…) | 🟡 Google optional | ✅★ | ✅★ | ✅★ | ✅★ | ✅★ |
+| Social (Google…)| 🟡 **Google + GitHub** optional | ✅★ | ✅★ | ✅★ | ✅★ | ✅★ |
 | SAML SP (login via IdP) | ✅ | ✅ | ✅★ | ✅ | ❌ | ✅★ |
 | SAML IdP (serve SAML apps) | ❌ | 🟡/✅ | ✅★ | ✅ | ❌ | ✅★ |
 | Admin console UI | ✅ `/admin` | ✅★ | ✅★ | ✅★ | 🟡 | ✅★ |
@@ -178,9 +178,10 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 
 1. Passkeys (deferred)  
 2. SAML IdP (open decision)  
-3. Official BFF/JS example + broader social  
+3. Official BFF/JS quickstart (DX)  
+4. Broader social (Apple/Microsoft) when needed  
 
-### 4.6 How we win (deliberate wedge)
+Detail: OTP/SMS/SAML → [SMS_SAML.md](./SMS_SAML.md) · Events → [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md) · Social → [SOCIAL.md](./SOCIAL.md)
 
 **Do not try to out-Clerk Clerk or out-Keycloak Keycloak.**
 

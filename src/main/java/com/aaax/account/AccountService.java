@@ -241,7 +241,24 @@ public class AccountService {
                     }
                     return existing;
                 })
-                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setGoogleSub(sub), "account.google.link", sub));
+                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setGoogleSub(sub),
+                        IdentityEvent.Types.ACCOUNT_FEDERATED, "google:" + sub));
+    }
+
+    @Transactional
+    public Account linkOrCreateGithub(String githubId, String email, String login) {
+        return accountRepository.findByGithubId(githubId)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+                .map(existing -> {
+                    if (existing.getGithubId() == null) {
+                        existing.setGithubId(githubId);
+                        return accountRepository.save(existing);
+                    }
+                    return existing;
+                })
+                .orElseGet(() -> createFederatedUser(email, login != null ? login : "github",
+                        a -> a.setGithubId(githubId),
+                        IdentityEvent.Types.ACCOUNT_FEDERATED, "github:" + githubId));
     }
 
     @Transactional
@@ -255,7 +272,8 @@ public class AccountService {
                     }
                     return existing;
                 })
-                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setSamlNameId(nameId), "account.saml.link", nameId));
+                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setSamlNameId(nameId),
+                        IdentityEvent.Types.ACCOUNT_FEDERATED, "saml:" + nameId));
     }
 
     private Account createFederatedUser(

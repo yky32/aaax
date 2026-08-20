@@ -11,6 +11,7 @@ public record AccountResponse(
         boolean enabled,
         boolean mfaEnabled,
         boolean googleLinked,
+        boolean githubLinked,
         Instant createdAt
 ) {
     public static AccountResponse from(Account account) {
@@ -22,6 +23,7 @@ public record AccountResponse(
                 account.isEnabled(),
                 account.isTotpEnabled(),
                 account.getGoogleSub() != null && !account.getGoogleSub().isBlank(),
+                account.getGithubId() != null && !account.getGithubId().isBlank(),
                 account.getCreatedAt());
     }
 }

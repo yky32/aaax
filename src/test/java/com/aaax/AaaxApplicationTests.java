@@ -267,6 +267,14 @@ class AaaxApplicationTests {
     }
 
     @Test
+    void socialProvidersPublicEndpoint() throws Exception {
+        mockMvc.perform(get("/v1/auth/social/providers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.enabled").value(false))
+                .andExpect(jsonPath("$.providers").isArray());
+    }
+
+    @Test
     void passwordLoginApiEstablishesSession() throws Exception {
         MvcResult login = mockMvc.perform(post("/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

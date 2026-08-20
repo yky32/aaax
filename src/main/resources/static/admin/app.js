@@ -44,6 +44,7 @@ async function refreshMe() {
     $("#app").classList.add("is-auth");
     show("login");
     await checkBootstrap();
+    await loadSocialProviders();
     return false;
   }
   me = await r.json();
@@ -61,6 +62,36 @@ async function checkBootstrap() {
   if (!r.ok) return;
   const s = await r.json();
   $("#bootstrapBox").classList.toggle("hidden", !s.needsBootstrap);
+}
+
+async function loadSocialProviders() {
+  const box = $("#socialButtons");
+  const div = $("#socialDivider");
+  if (!box) return;
+  try {
+    const r = await api("/v1/auth/social/providers");
+    if (!r.ok) return;
+    const s = await r.json();
+    const list = s.providers || [];
+    if (!list.length) {
+      box.classList.add("hidden");
+      div?.classList.add("hidden");
+      return;
+    }
+    box.classList.remove("hidden");
+    div?.classList.remove("hidden");
+    box.innerHTML = list
+      .map((p) => {
+        const ico =
+          p.id === "google"
+            ? `<span class="g" aria-hidden="true"></span>`
+            : `<span class="gh" aria-hidden="true">⌘</span>`;
+        return `<a class="btn-social" href="${esc(p.authorizationUrl)}">${ico} Continue with ${esc(p.label)}</a>`;
+      })
+      .join("");
+  } catch {
+    /* ignore */
+  }
 }
 
 $("#loginForm").addEventListener("submit", async (e) => {
@@ -378,7 +409,8 @@ async function loadSettings() {
     ["OTP channel", s.otpChannel],
     ["Orgs model", s.orgsModel || "single"],
     ["Demo seeds", `client=${s.demoSeedClient} · account=${s.demoSeedAccount}`],
-    ["Google OIDC", s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID + profile google"],
+    ["Google OIDC", s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID + profile social|google"],
+    ["GitHub OAuth", s.githubLoginEnabled ? "configured" : "set GITHUB_CLIENT_ID + profile social"],
     ["SAML SP", s.samlEnabled ? `on · ${s.samlLoginPath || ""}` : "AAAX_SAML_ENABLED + IdP metadata"],
     ["Version", s.version],
   ];

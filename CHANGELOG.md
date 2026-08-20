@@ -4,6 +4,12 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.4.0-SNAPSHOT] — 2026-08-20
 
+### Social login pack
+- Google OIDC + GitHub OAuth2 via profile `social` (legacy `google` still works)
+- Console **Continue with …** buttons from `GET /v1/auth/social/providers`
+- Session link/create account · event `com.aaax.auth.login.social`
+- Docs: `docs/SOCIAL.md`
+
 ### Win wedge complete — Identity Event Bus
 - CloudEvents-ish lifecycle on every auth path (login/MFA/OTP/clients/admin)
 - Sinks: log · audit DB · **in-memory buffer** · optional Kafka · optional webhook
@@ -14,7 +20,7 @@ All notable changes to **AAAX** are documented here.
 
 ### Also in 0.4 line
 - Boot 4.1 / JDK 21 / Security 7 AS
-- Admin portal, TOTP MFA, bootstrap, SAML SP, SMS kafka/webhook modes
+- Admin portal (designed console), TOTP MFA, bootstrap, SAML SP, SMS kafka/webhook modes
 - Standalone OSS (Central + Shibboleth OpenSAML)
 
 ## [0.3.0] — 2026-08-20
