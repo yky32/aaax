@@ -90,7 +90,7 @@ class AaaxApplicationTests {
 
     @Test
     void demoAccountCanLogin() throws Exception {
-        mockMvc.perform(formLogin().user("demo").password("demo"))
+        mockMvc.perform(formLogin().user("demo").password("demo1234"))
                 .andExpect(authenticated().withUsername("demo"));
     }
 
@@ -221,5 +221,51 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/.well-known/openid-configuration"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.issuer").exists());
+    }
+
+    @Test
+    void passwordResetFlowWorks() throws Exception {
+        mockMvc.perform(post("/v1/accounts/password/forgot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"usernameOrEmail\":\"demo\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accepted").value(true));
+
+        String code = otpStore.get("reset:demo").code();
+        mockMvc.perform(post("/v1/accounts/password/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"code\":\"" + code + "\",\"newPassword\":\"newpass123\"}"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(formLogin().user("demo").password("newpass123"))
+                .andExpect(authenticated().withUsername("demo"));
+
+        // restore seed password
+        mockMvc.perform(post("/v1/accounts/password/forgot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"usernameOrEmail\":\"demo\"}"))
+                .andExpect(status().isOk());
+        String code2 = otpStore.get("reset:demo").code();
+        mockMvc.perform(post("/v1/accounts/password/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"demo\",\"code\":\"" + code2 + "\",\"newPassword\":\"demo1234\"}"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void uaaCompatRegistrationPathWorks() throws Exception {
+        mockMvc.perform(post("/users/registrations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"compat1\",\"email\":\"c1@example.com\",\"password\":\"password123\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("compat1"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN", "USER"})
+    void adminCanListUsers() throws Exception {
+        mockMvc.perform(get("/v1/admin/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username").exists());
     }
 }

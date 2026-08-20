@@ -83,12 +83,21 @@ public class SecurityConfig {
                                 "/actuator/info",
                                 "/error",
                                 "/v1/accounts/register",
+                                "/v1/accounts/password/**",
                                 "/v1/otp/**",
-                                "/v1/auth/**")
+                                "/v1/auth/**",
+                                // qs/uaa-inspired public compat (core identity only)
+                                "/users/registrations",
+                                "/users/credentials/reset",
+                                "/users/credentials/reset/**",
+                                "/authentications/one-time-passwords/**")
                         .permitAll()
                         .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/v1/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        "/v1/**",
+                        "/users/**",
+                        "/authentications/**"))
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                         new OrRequestMatcher(

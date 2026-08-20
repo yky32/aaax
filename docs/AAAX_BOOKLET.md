@@ -5,11 +5,13 @@
 | | |
 |--|--|
 | **Status** | Source of truth for product + eng docs |
+| **qs/uaa parity** | [PARITY_QS_UAA.md](./PARITY_QS_UAA.md) |
 | **Repo** | https://github.com/yky32/aaax |
 | **Version** | `0.3.0-SNAPSHOT` |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
+| **Maven** | `.mvn/settings.xml` = **Central only** (no private packages) |
 
 > **This file is the single booklet.**  
 > Root `README.md` is the shop window.  
@@ -197,7 +199,7 @@ docker compose up --build
 
 | | |
 |--|--|
-| User | `demo` / `demo` |
+| User | `demo` / `demo1234` |
 | Admin | `admin` / `admin12345` (`ROLE_ADMIN`) |
 | Client | `aaax-demo` / `aaax-demo-secret` |
 

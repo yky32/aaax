@@ -34,7 +34,7 @@ public class DemoAccountSeed implements ApplicationRunner {
         }
         if (!accountRepository.existsByUsernameIgnoreCase("demo")) {
             accountRepository.save(new Account(
-                    "demo", "demo@aaax.local", passwordEncoder.encode("demo"), "USER"));
+                    "demo", "demo@aaax.local", passwordEncoder.encode("demo1234"), "USER"));
         }
         if (!accountRepository.existsByUsernameIgnoreCase("admin")) {
             accountRepository.save(new Account(
