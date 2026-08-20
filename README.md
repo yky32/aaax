@@ -4,24 +4,30 @@
 
 ### Identity you run. Signals you own.
 
-Self-host **OIDC-grade** auth for your stack — without SaaS seat tax, without Keycloak weight, without private Maven monorepos.
+Self-host **OIDC** for **Spring / platform teams** — without SaaS seat tax, without Keycloak weight, without private Maven.
 
-**Win wedge:** [Identity Event Bus](./docs/IDENTITY_EVENTS.md) — login/MFA/OTP/clients as CloudEvents → **your** Kafka / webhook / notification-service (you keep SMS).
+**Primary win:** [Identity Event Bus](./docs/IDENTITY_EVENTS.md)  
+→ login · MFA · OTP · clients as CloudEvents → **your** Kafka / webhook / notification-service  
+→ **you keep SMS** (no Twilio lock-in)
 
 ```text
-clone → mvn test → spring-boot:run → token → call API
+clone → mvn test → spring-boot:run → token
                  ↘ events → your notify mesh
 ```
+
+> **ICP:** JVM teams that already run (or want) Kafka + notification-service and need a lean OIDC issuer.  
+> Not a Clerk SaaS clone — see [Clerk parity (honest)](./docs/CLERK_PARITY.md).
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](./pom.xml)
+[![Release](https://img.shields.io/badge/release-v0.4.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.4.0)
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Clerk parity](./docs/CLERK_PARITY.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Social](./docs/SOCIAL.md) · [Changelog](./CHANGELOG.md) |
-| **Examples** | [examples/](./examples/) |
-| **Version** | `v0.4.0-SNAPSHOT` (Boot 4.1 / JDK 21) |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Clerk parity](./docs/CLERK_PARITY.md) · [Social](./docs/SOCIAL.md) · [Changelog](./CHANGELOG.md) |
+| **Examples** | [examples/](./examples/) · [Kafka notify path](./examples/compose-kafka-notify/) |
+| **Version** | **`v0.4.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 
 ---
@@ -33,103 +39,84 @@ clone → mvn test → spring-boot:run → token → call API
 ```bash
 git clone https://github.com/yky32/aaax.git
 cd aaax
-mvn test                 # Central only — no private tokens
+git checkout v0.4.0   # or main
+mvn test
 mvn spring-boot:run
 ```
 
 **Another terminal:**
 
 ```bash
-# health
 curl -sS http://localhost:8081/actuator/health
-
-# client_credentials → protected API
 ./examples/curl/get-token-and-hello.sh
-
-# or one-liners:
-TOKEN=$(curl -sS -u 'aaax-demo:aaax-demo-secret' \
-  -X POST http://localhost:8081/oauth2/token \
-  -d 'grant_type=client_credentials&scope=api.read' | jq -r .access_token)
-curl -sS http://localhost:8081/v1/api/hello -H "Authorization: Bearer $TOKEN" | jq
+./examples/curl/login-admin-and-events.sh
 ```
 
-**Docker alternative:**
+**Docker (Postgres):**
 
 ```bash
 mvn -DskipTests package
 docker compose up --build
 ```
 
----
+**Production-shaped path (AAAX + Kafka + sample notify consumer):**
 
-### Hosted experiences (Clerk-class UI)
-
-```text
-/sign-in/   password · magic link · OTP · social
-/sign-up/
-/user/      profile · sessions · passkeys
-/admin/     ops console
+```bash
+cd examples/compose-kafka-notify
+docker compose up --build
+# see README in that folder
 ```
 
-Parity map: [docs/CLERK_PARITY.md](./docs/CLERK_PARITY.md)
+---
 
-### Admin portal
+## What v0.4.0 commits to
 
-Open after `mvn spring-boot:run`:
+| ✅ Supported | 🧪 Experimental | ❌ Out of 0.4 |
+|--------------|-----------------|---------------|
+| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (ceremony + store; crypto harden next) | Multi-tenant orgs |
+| Accounts · password · OTP · magic link | — | SAML IdP |
+| TOTP MFA · sessions list/revoke | — | Official React SDK |
+| Identity Event Bus (log · audit · buffer · Kafka · webhook) | — | LDAP |
+| Admin `/admin/` · users/clients | — | |
+| Hosted `/sign-in/` `/sign-up/` `/user/` | — | |
+| Social Google + GitHub (optional) | — | |
+| SAML SP (optional) | — | |
+| SMS via **kafka event** or **webhook** (your provider) | — | |
 
-**http://localhost:8081/admin/**
+---
 
-- Sign in: `admin` / `admin12345` (demo seed)  
-- Users · OAuth clients · TOTP MFA · Audit · Settings  
-- First-time (no admin): in-portal **bootstrap** form  
+## Hosted UI (same jar)
 
-Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, no Node build. Designed console (Instrument Sans · ink/indigo).
+```text
+/sign-in/   password · magic · OTP · social
+/sign-up/
+/user/      profile · sessions · passkeys (experimental)
+/admin/     ops console (admin / admin12345 demo)
+```
 
-### OTP / SMS modes (no Twilio lock-in)
+---
+
+## OTP / SMS (no carrier SDK)
 
 | `AAAX_OTP_CHANNEL` | Behavior |
 |--------------------|----------|
 | `console` | Log codes (default) |
 | `mail` | SMTP |
-| `kafka` | **Mode 1** — publish `OtpDispatchEvent` to Kafka; caller owns notification-service/SMS |
-| `sms` | **Mode 2** — HTTP webhook to your provider URL (`AAAX_OTP_SMS_WEBHOOK_URL`) |
+| `kafka` | Event for **your** notification-service |
+| `sms` | HTTP webhook to **your** SMS adapter |
 
-### Social login (optional)
+Lifecycle events: `AAAX_EVENTS_KAFKA_ENABLED=true` → topic `aaax.identity.events`.
+
+---
+
+## Social (optional)
 
 ```bash
 export SPRING_PROFILES_ACTIVE=social
 export GOOGLE_CLIENT_ID=...
 export GOOGLE_CLIENT_SECRET=...
-export GITHUB_CLIENT_ID=...      # optional
-export GITHUB_CLIENT_SECRET=...
+# optional GitHub — see docs/SOCIAL.md
 ```
-
-Console shows **Continue with Google / GitHub** when configured.  
-Docs: [docs/SOCIAL.md](./docs/SOCIAL.md)
-
-### SAML 2 SP
-
-```bash
-export AAAX_SAML_ENABLED=true
-export AAAX_SAML_IDP_METADATA_URI=https://idp.example.com/metadata
-mvn spring-boot:run
-# Login: /saml2/authenticate/idp
-```
-
-Orgs: **single-realm** only. Passkeys: later.
-
----
-
-## What you get
-
-| Area | Capability |
-|------|------------|
-| **Accounts** | Register, me, change/forgot/reset password, admin users |
-| **Authentication** | Form login, OTP, social (Google/GitHub), OIDC authorize/token/jwks |
-| **Authorization** | Roles, OAuth clients admin, scopes, sample protected API |
-| **X · DX** | Booklet, curl pack, qs/uaa-ish public aliases, standalone clone |
-
-**Not** a Quinsic dump. **Not** Keycloak-in-a-box. Core identity for builders.
 
 ---
 
@@ -141,39 +128,10 @@ Orgs: **single-realm** only. Passkeys: later.
 | Admin | `admin` / `admin12345` |
 | OAuth client | `aaax-demo` / `aaax-demo-secret` |
 
-Disable seeds in prod: `SPRING_PROFILES_ACTIVE=prod` or `AAAX_DEMO_SEED_*=false`.
+Prod: `SPRING_PROFILES_ACTIVE=prod` or `AAAX_DEMO_SEED_*=false`.
 
 ---
 
-## Who is this for?
+## License
 
-- Java/Spring teams who want OIDC without Keycloak ops  
-- Indie / small B2B products that must **own** identity data  
-- Platform eng wiring a few SPAs + APIs behind one issuer  
-
-**Job-to-be-done:** *login + token + protect an API in one day, on my DB.*
-
----
-
-## Docs map
-
-| Doc | |
-|-----|--|
-| [docs/AAAX_BOOKLET.md](./docs/AAAX_BOOKLET.md) | **Source of truth** (API, deploy, architecture) |
-| [docs/PARITY_QS_UAA.md](./docs/PARITY_QS_UAA.md) | Core parity vs production UAA (honest gaps) |
-| [examples/README.md](./examples/README.md) | Curl recipes + resource-call sample |
-| [CHANGELOG.md](./CHANGELOG.md) | Releases |
-
----
-
-## Project hygiene
-
-```bash
-./scripts/verify-standalone.sh   # Central-only + tests + no private deps
-```
-
-Apache-2.0 · Report security issues via GitHub Security Advisories · [SECURITY.md](./SECURITY.md)
-
----
-
-*AAAX — four letters, one job: identity you can run and ship with.*
+Apache-2.0

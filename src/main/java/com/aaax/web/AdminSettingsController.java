@@ -83,7 +83,7 @@ public class AdminSettingsController {
         boolean kafkaLive = kafkaTemplate.getIfAvailable() != null;
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("product", "AAAX");
-        m.put("version", "0.4.0-SNAPSHOT");
+        m.put("version", "0.4.0");
         m.put("issuer", issuer);
         m.put("otpChannel", otpChannel);
         m.put("orgsModel", "single");
@@ -153,7 +153,7 @@ public class AdminSettingsController {
         f.put("socialLogin", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id"))
                 || hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
         f.put("samlSp", samlEnabled);
-        f.put("passkeys", true);
+        f.put("passkeys", "experimental");
         f.put("magicLink", true);
         f.put("hostedExperiences", true);
         f.put("sessions", true);

@@ -7,13 +7,16 @@
 | **Status** | Source of truth for product + eng docs |
 | **qs/uaa parity** | [PARITY_QS_UAA.md](./PARITY_QS_UAA.md) |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.4.0-SNAPSHOT` (Boot **4.1** / JDK **21**) |
+| **Version** | **`0.4.0`** (Boot **4.1** / JDK **21**) · tag `v0.4.0` |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
 | **Maven** | Central + Shibboleth OpenSAML (public; no private packages) |
 | **Admin** | http://localhost:8081/admin/ |
+| **Hosted** | `/sign-in/` · `/sign-up/` · `/user/` |
+| **Events** | [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md) |
 | **SMS / SAML** | [SMS_SAML.md](./SMS_SAML.md) |
+| **Clerk map** | [CLERK_PARITY.md](./CLERK_PARITY.md) |
 
 > **This file is the single booklet.**  
 > Root `README.md` is the shop window.  
@@ -29,7 +32,7 @@
 4. [Competitive frame](#4-competitive-frame)
 5. [Principles](#5-principles)
 6. [Scope (v1)](#6-scope-v1)
-7. [Current status (0.3)](#7-current-status-03)
+7. [Current status (0.4)](#7-current-status-04)
 8. [Architecture](#8-architecture)
 9. [Repo map](#9-repo-map)
 10. [Stack & run](#10-stack--run)
@@ -216,48 +219,54 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 
 ---
 
-## 6. Scope (v1)
+## 6. Scope (v0.4)
 
-**In:** Accounts, password+OTP (console/mail/kafka/sms-webhook), OAuth2/OIDC, TOTP MFA, admin portal, clients/users admin, SAML SP, bootstrap, Compose, curl/examples.  
+**In (supported):** Accounts; password + OTP + magic link; OAuth2/OIDC; TOTP MFA; sessions; Identity Event Bus; admin portal; clients/users; hosted sign-in/up/user; SAML SP (opt); Google/GitHub social (opt); SMS via kafka/webhook; Compose + kafka-notify example.  
 **Orgs:** **single-realm** only.  
-**Out / later:** Passkeys, SAML IdP, multi-tenant orgs, every social, JS SDK pack, Quinsic business APIs, LDAP.
+**Experimental:** Passkeys (ceremony + store — **not** production MFA until crypto verify).  
+**Out:** SAML IdP, multi-tenant orgs, React SDK, LDAP, every social.
 
 ---
 
-## 7. Current status (0.4)
+## 7. Current status (0.4.0)
 
 | Area | State |
 |------|--------|
 | Accounts + register + DB login + roles | ✅ |
 | JDBC OAuth clients + authorizations | ✅ |
 | File-backed RSA JWK | ✅ |
-| OTP request/verify + passwordless login | ✅ |
+| OTP request/verify + passwordless + magic link | ✅ |
 | OTP `console` \| `mail` \| `kafka` \| `sms` webhook | ✅ |
+| Identity Event Bus + admin Events | ✅ |
 | TOTP MFA | ✅ |
+| Sessions list/revoke | ✅ |
 | Admin portal `/admin` | ✅ |
+| Hosted `/sign-in` `/sign-up` `/user` | ✅ |
 | Admin clients + users + audit + settings | ✅ |
 | First-admin bootstrap | ✅ |
 | SAML 2 SP (external IdP) | ✅ optional |
-| Google OIDC | ✅ optional profile |
+| Google + GitHub social | ✅ optional profile `social` |
 | `prod` profile (no demo seeds) | ✅ |
+| Kafka notify compose example | ✅ `examples/compose-kafka-notify/` |
 | Orgs multi-tenant | ❌ single only |
 | SAML IdP | ❌ |
-| Passkeys | ❌ later |
+| Passkeys | 🧪 experimental |
 | Redis multi-node OTP | ⬜ |
+| Official JS/React SDK | ❌ |
 
 ---
 
 ## 8. Architecture
 
 ```text
- Browser / SPA ──► Form login + /oauth2/* (AS)
- API clients  ──► JWT /v1/api/**
- Admin (session ROLE_ADMIN) ──► /v1/admin/clients
- OTP ──► OtpSender (console | mail)
-        │
- accounts (JPA) · oauth2_* (JDBC) · aaax-jwk.json (file)
-        │
- H2 (dev) / PostgreSQL (Compose)
+ Browser ──► /sign-in · /oauth2/* (AS) · /admin
+ API     ──► JWT /v1/api/**
+                │
+ accounts · oauth2_* · sessions · passkeys(exp) · jwk file
+                │
+ IdentityEventBus ──► log · audit DB · buffer · Kafka · webhook
+                │
+ H2 (dev) / PostgreSQL (Compose) · optional Kafka
 ```
 
 ### Filter chains
@@ -266,7 +275,7 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 |------:|---------|------|
 | 1 | AS | token, authorize, jwks, OIDC |
 | 2 | `/v1/api/**` | JWT · `SCOPE_api.read` / admin JWT role |
-| 3 | default | session · register/otp/auth public · `/v1/admin/**` needs `ROLE_ADMIN` |
+| 3 | default | session · public auth/register · `/v1/admin/**` needs `ROLE_ADMIN` |
 
 ### Packages
 
@@ -274,9 +283,12 @@ Detail: OTP/SMS/SAML ops → [SMS_SAML.md](./SMS_SAML.md) · qs/uaa core parity 
 |---------|--|
 | `account` | Entity, register, UserDetails, seeds |
 | `client` | Demo client seed + admin client service |
-| `config` | Security, JWK file |
-| `otp` | Store, service, Logging/Mail senders |
-| `web` | REST + errors |
+| `config` | Security, JWK, Kafka bridge, SAML/social |
+| `otp` | Store, service, senders |
+| `events` | Identity Event Bus |
+| `session` | Auth session tracking |
+| `passkey` | Experimental WebAuthn store |
+| `web` | REST + hosted forwards |
 
 ---
 

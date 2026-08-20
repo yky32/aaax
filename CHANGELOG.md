@@ -2,33 +2,33 @@
 
 All notable changes to **AAAX** are documented here.
 
-## [0.4.0-SNAPSHOT] — 2026-08-20
+## [0.4.0] — 2026-08-20
 
-### Clerk-class hosted experiences
-- `/sign-in/` · `/sign-up/` · `/user/` (same jar static UI)
-- Magic link `POST /v1/auth/magic/request|consume`
-- Sessions list/revoke `GET|DELETE /v1/sessions`
-- Passkeys ceremony + credential store `/v1/passkeys/*` (assertion crypto harden next)
-- Docs: `CLERK_PARITY.md`
+**Release focus:** Identity Event Bus as primary product wedge + production-shaped Kafka path + honest v0.4 scope.
 
-### Social login pack
-- Google OIDC + GitHub OAuth2 via profile `social` (legacy `google` still works)
-- Console **Continue with …** buttons from `GET /v1/auth/social/providers`
-- Session link/create account · event `com.aaax.auth.login.social`
-- Docs: `docs/SOCIAL.md`
+### Supported
+- OIDC Authorization Server (Boot 4.1 / JDK 21 / Security 7)
+- Accounts, password, OTP (`console`/`mail`/`kafka`/`sms` webhook), magic link
+- TOTP MFA, session list/revoke
+- **Identity Event Bus** → log · audit · buffer · Kafka · webhook
+- Admin portal `/admin/` (users, clients, MFA, events, audit, settings)
+- Hosted `/sign-in/` · `/sign-up/` · `/user/`
+- Social Google + GitHub (profile `social`)
+- SAML 2 SP (optional)
+- `examples/compose-kafka-notify/` — AAAX + Kafka + sample notify consumer
+- Standalone OSS: Maven Central + Shibboleth OpenSAML only
 
-### Win wedge complete — Identity Event Bus
-- CloudEvents-ish lifecycle on every auth path (login/MFA/OTP/clients/admin)
-- Sinks: log · audit DB · **in-memory buffer** · optional Kafka · optional webhook
-- `GET /v1/admin/events` + Admin portal **Events** tab
-- OTP always emits `com.aaax.otp.dispatch` (kafka channel = bus-only delivery)
-- Examples: `examples/identity-events/consumer.py`, `curl/login-admin-and-events.sh`
-- Docs: IDENTITY_EVENTS.md · booklet §4.6 · README tagline
+### Experimental
+- **Passkeys** — WebAuthn options + credential store; full assertion crypto verify **not** claimed for production MFA
 
-### Also in 0.4 line
-- Boot 4.1 / JDK 21 / Security 7 AS
-- Admin portal (designed console), TOTP MFA, bootstrap, SAML SP, SMS kafka/webhook modes
-- Standalone OSS (Central + Shibboleth OpenSAML)
+### Explicitly out of 0.4
+- Multi-tenant organizations
+- SAML IdP
+- Official React/JS SDK
+- LDAP
+
+### Docs
+- Booklet §4 competitive + §4.6 wedge · `IDENTITY_EVENTS` · `CLERK_PARITY` · `SOCIAL` · `SMS_SAML`
 
 ## [0.3.0] — 2026-08-20
 - Developer product launch surface

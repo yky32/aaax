@@ -24,7 +24,7 @@ Clerk is a **hosted SaaS UX + SDK company**. AAAX is a **self-host OIDC applianc
 | Email code / OTP | yes | ✅ |
 | Magic link | yes | ✅ `/v1/auth/magic/*` |
 | Social (Google…) | many | 🟡 Google + GitHub |
-| Passkeys | yes | 🟡 ceremony + store (assertion crypto harden next) |
+| Passkeys | yes | 🧪 **experimental** — ceremony + store; not production MFA yet |
 | TOTP MFA | yes | ✅ |
 | Sessions list / revoke | yes | ✅ `/v1/sessions` |
 | Organizations | yes | ❌ single-realm (decision) |

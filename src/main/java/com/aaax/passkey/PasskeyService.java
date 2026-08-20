@@ -20,12 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Passkeys (WebAuthn) — Clerk-class surface.
- * <p>
- * Phase 1 stores credentials and issues standard PublicKeyCredential options.
- * Registration accepts client attestation JSON (credentialId + publicKey base64).
- * Full browser attestation crypto verification can be tightened with webauthn4j later;
- * storage + ceremony flow is product-complete for self-host UX parity.
+ /**
+ * Passkeys (WebAuthn) — experimental in v0.4.0 (not production MFA).
+ * Stores credentials and issues PublicKeyCredential options.
+ * Full assertion crypto verification is not claimed yet.
  */
 @Service
 public class PasskeyService {

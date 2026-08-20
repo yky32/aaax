@@ -3,12 +3,15 @@
 | Path | |
 |------|--|
 | [curl/](./curl/) | health, token, register, OTP, **admin events** |
-| [identity-events/](./identity-events/) | Kafka consumer for Identity Event Bus |
+| [identity-events/](./identity-events/) | Kafka consumer script |
+| [compose-kafka-notify/](./compose-kafka-notify/) | **v0.4 path** — AAAX + Kafka + sample notify |
 | [resource-call.md](./resource-call.md) | Resource server JWT sketch |
 
 ```bash
 ./examples/curl/get-token-and-hello.sh
 ./examples/curl/login-admin-and-events.sh
+# full mesh demo:
+# mvn -DskipTests package && cd examples/compose-kafka-notify && docker compose up --build
 ```
 
 
