@@ -19,7 +19,7 @@ clone → mvn test → spring-boot:run → token → call API
 | **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Parity](./docs/PARITY_QS_UAA.md) · [SMS/SAML](./docs/SMS_SAML.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) |
 | **Version** | `v0.4.0-SNAPSHOT` (Boot 4.1 / JDK 21) |
-| **Maven** | **Central only** (`.mvn/settings.xml`) — no `app-core`, no GitHub Packages |
+| **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 
 ---
 
