@@ -9,6 +9,8 @@ public record AccountResponse(
         String email,
         Set<String> roles,
         boolean enabled,
+        boolean mfaEnabled,
+        boolean googleLinked,
         Instant createdAt
 ) {
     public static AccountResponse from(Account account) {
@@ -18,6 +20,8 @@ public record AccountResponse(
                 account.getEmail(),
                 account.roleSet(),
                 account.isEnabled(),
+                account.isTotpEnabled(),
+                account.getGoogleSub() != null && !account.getGoogleSub().isBlank(),
                 account.getCreatedAt());
     }
 }

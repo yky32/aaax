@@ -264,4 +264,32 @@ class AaaxApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").exists());
     }
+
+    @Test
+    void passwordLoginApiEstablishesSession() throws Exception {
+        MvcResult login = mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"admin12345\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaRequired").value(false))
+                .andExpect(jsonPath("$.account.username").value("admin"))
+                .andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
+        mockMvc.perform(get("/v1/admin/settings").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.features.adminPortal").value(true));
+    }
+
+    @Test
+    void adminPortalIndexIsPublic() throws Exception {
+        mockMvc.perform(get("/admin/index.html"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void bootstrapStatusPublic() throws Exception {
+        mockMvc.perform(get("/v1/auth/bootstrap/status"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.needsBootstrap").exists());
+    }
 }

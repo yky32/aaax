@@ -1,0 +1,13 @@
+# Activate with: SPRING_PROFILES_ACTIVE=google  (and set GOOGLE_CLIENT_ID / SECRET)
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com

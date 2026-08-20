@@ -59,6 +59,20 @@ docker compose up --build
 
 ---
 
+## Admin portal
+
+Open after `mvn spring-boot:run`:
+
+**http://localhost:8081/admin/**
+
+- Sign in: `admin` / `admin12345` (demo seed)  
+- Users · OAuth clients · TOTP MFA · Audit · Settings  
+- First-time (no admin): in-portal **bootstrap** form  
+
+Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, no Node build.
+
+---
+
 ## What you get
 
 | Area | Capability |

@@ -1,10 +1,12 @@
 package com.aaax.web;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.aaax.account.AccountResponse;
 import com.aaax.account.AccountService;
 import com.aaax.account.AccountService.SetEnabledRequest;
+import com.aaax.account.AccountService.SetRolesRequest;
 
 import jakarta.validation.Valid;
 
@@ -36,7 +38,18 @@ public class AdminUserController {
     }
 
     @PatchMapping("/{id}/status")
-    public AccountResponse setStatus(@PathVariable String id, @Valid @RequestBody SetEnabledRequest request) {
-        return accountService.setEnabled(id, request.enabled());
+    public AccountResponse setStatus(
+            @PathVariable String id,
+            @Valid @RequestBody SetEnabledRequest request,
+            Principal principal) {
+        return accountService.setEnabled(id, request.enabled(), principal.getName());
+    }
+
+    @PatchMapping("/{id}/roles")
+    public AccountResponse setRoles(
+            @PathVariable String id,
+            @Valid @RequestBody SetRolesRequest request,
+            Principal principal) {
+        return accountService.setRoles(id, request.roles(), principal.getName());
     }
 }

@@ -1,7 +1,11 @@
 package com.aaax.account;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
+import com.aaax.audit.AuditService;
+import com.aaax.mfa.TotpService;
 import com.aaax.otp.InMemoryOtpStore;
 import com.aaax.otp.OtpSender;
 
@@ -21,22 +25,31 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final InMemoryOtpStore otpStore;
     private final OtpSender otpSender;
+    private final TotpService totpService;
+    private final AuditService auditService;
     private final int otpTtlSeconds;
     private final int otpLength;
+    private final String issuer;
 
     public AccountService(
             AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
             InMemoryOtpStore otpStore,
             OtpSender otpSender,
+            TotpService totpService,
+            AuditService auditService,
             @Value("${aaax.otp.ttl-seconds:300}") int otpTtlSeconds,
-            @Value("${aaax.otp.length:6}") int otpLength) {
+            @Value("${aaax.otp.length:6}") int otpLength,
+            @Value("${aaax.issuer:http://localhost:8081}") String issuer) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.otpStore = otpStore;
         this.otpSender = otpSender;
+        this.totpService = totpService;
+        this.auditService = auditService;
         this.otpTtlSeconds = otpTtlSeconds;
         this.otpLength = Math.max(4, Math.min(otpLength, 10));
+        this.issuer = issuer;
     }
 
     @Transactional
@@ -53,7 +66,40 @@ public class AccountService {
         }
 
         Account account = new Account(username, email, passwordEncoder.encode(password));
-        return AccountResponse.from(accountRepository.save(account));
+        Account saved = accountRepository.save(account);
+        auditService.record("account.register", username, "self-register");
+        return AccountResponse.from(saved);
+    }
+
+    @Transactional
+    public AccountResponse bootstrapAdmin(String username, String email, String password, String bootstrapToken, String configuredToken) {
+        if (accountRepository.countByRolesContainingIgnoreCase("ADMIN") > 0) {
+            throw AccountException.conflict("admin already exists");
+        }
+        if (StringUtils.hasText(configuredToken)) {
+            if (!configuredToken.equals(bootstrapToken)) {
+                throw AccountException.badRequest("invalid bootstrap token");
+            }
+        }
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || password.length() < 8) {
+            throw AccountException.badRequest("username and password (min 8) required");
+        }
+        if (accountRepository.existsByUsernameIgnoreCase(username.trim())) {
+            throw AccountException.conflict("username already taken");
+        }
+        Account account = new Account(
+                username.trim(),
+                normalizeEmail(email),
+                passwordEncoder.encode(password),
+                "USER,ADMIN");
+        Account saved = accountRepository.save(account);
+        auditService.record("bootstrap.admin", saved.getUsername(), "first admin");
+        return AccountResponse.from(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean needsBootstrap() {
+        return accountRepository.countByRolesContainingIgnoreCase("ADMIN") == 0;
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +115,7 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public List<AccountResponse> listAll() {
-        return accountRepository.findAllByOrderByUsernameAsc().stream()
+        return accountRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(AccountResponse::from)
                 .toList();
     }
@@ -82,11 +128,26 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResponse setEnabled(String id, boolean enabled) {
+    public AccountResponse setEnabled(String id, boolean enabled, String actor) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
         account.setEnabled(enabled);
-        return AccountResponse.from(accountRepository.save(account));
+        Account saved = accountRepository.save(account);
+        auditService.record("admin.user.status", actor, id + " enabled=" + enabled);
+        return AccountResponse.from(saved);
+    }
+
+    @Transactional
+    public AccountResponse setRoles(String id, String rolesCsv, String actor) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> AccountException.notFound("account not found"));
+        if (!StringUtils.hasText(rolesCsv)) {
+            throw AccountException.badRequest("roles required");
+        }
+        account.setRoles(rolesCsv.trim().toUpperCase(Locale.ROOT));
+        Account saved = accountRepository.save(account);
+        auditService.record("admin.user.roles", actor, id + " -> " + saved.getRoles());
+        return AccountResponse.from(saved);
     }
 
     @Transactional
@@ -100,11 +161,101 @@ public class AccountService {
         }
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
+        auditService.record("account.password.change", username, null);
     }
 
-    /**
-     * Always returns 202-shaped success to avoid account enumeration.
-     */
+    @Transactional(readOnly = true)
+    public Account authenticatePassword(String username, String password) {
+        Account account = accountRepository.findByUsernameIgnoreCase(username.trim())
+                .orElseThrow(() -> AccountException.badRequest("invalid credentials"));
+        if (!account.isEnabled() || !passwordEncoder.matches(password, account.getPasswordHash())) {
+            throw AccountException.badRequest("invalid credentials");
+        }
+        return account;
+    }
+
+    @Transactional
+    public TotpSetupResponse beginTotpSetup(String username) {
+        Account account = requireEntityByUsername(username);
+        String secret = totpService.generateSecret();
+        account.setTotpSecret(secret);
+        account.setTotpEnabled(false);
+        accountRepository.save(account);
+        String url = totpService.otpAuthUrl("AAAX", account.getUsername(), secret);
+        return new TotpSetupResponse(secret, url);
+    }
+
+    @Transactional
+    public AccountResponse confirmTotp(String username, String code) {
+        Account account = requireEntityByUsername(username);
+        if (!StringUtils.hasText(account.getTotpSecret())) {
+            throw AccountException.badRequest("totp setup not started");
+        }
+        if (!totpService.verify(account.getTotpSecret(), code)) {
+            throw AccountException.badRequest("invalid totp code");
+        }
+        account.setTotpEnabled(true);
+        Account saved = accountRepository.save(account);
+        auditService.record("mfa.totp.enable", username, null);
+        return AccountResponse.from(saved);
+    }
+
+    @Transactional
+    public AccountResponse disableTotp(String username, String password, String code) {
+        Account account = requireEntityByUsername(username);
+        if (!passwordEncoder.matches(password, account.getPasswordHash())) {
+            throw AccountException.badRequest("password incorrect");
+        }
+        if (account.isTotpEnabled() && !totpService.verify(account.getTotpSecret(), code)) {
+            throw AccountException.badRequest("invalid totp code");
+        }
+        account.setTotpEnabled(false);
+        account.setTotpSecret(null);
+        Account saved = accountRepository.save(account);
+        auditService.record("mfa.totp.disable", username, null);
+        return AccountResponse.from(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean verifyTotp(String username, String code) {
+        Account account = requireEntityByUsername(username);
+        if (!account.isTotpEnabled()) {
+            return true;
+        }
+        return totpService.verify(account.getTotpSecret(), code);
+    }
+
+    @Transactional
+    public Account linkOrCreateGoogle(String sub, String email, String nameHint) {
+        return accountRepository.findByGoogleSub(sub)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+                .map(existing -> {
+                    if (existing.getGoogleSub() == null) {
+                        existing.setGoogleSub(sub);
+                        return accountRepository.save(existing);
+                    }
+                    return existing;
+                })
+                .orElseGet(() -> {
+                    String base = StringUtils.hasText(nameHint) ? nameHint.replaceAll("[^a-zA-Z0-9._-]", "") : "google";
+                    if (base.length() < 3) {
+                        base = "google";
+                    }
+                    String username = base.substring(0, Math.min(base.length(), 40));
+                    int i = 0;
+                    while (accountRepository.existsByUsernameIgnoreCase(username)) {
+                        i++;
+                        username = base.substring(0, Math.min(base.length(), 36)) + i;
+                    }
+                    String randomPass = passwordEncoder.encode(UUID.randomUUID().toString());
+                    Account created = new Account(username, normalizeEmail(email), randomPass, "USER");
+                    created.setGoogleSub(sub);
+                    Account saved = accountRepository.save(created);
+                    auditService.record("account.google.link", username, sub);
+                    return saved;
+                });
+    }
+
     @Transactional(readOnly = true)
     public void requestPasswordReset(String usernameOrEmail) {
         if (!StringUtils.hasText(usernameOrEmail)) {
@@ -112,7 +263,7 @@ public class AccountService {
         }
         String q = usernameOrEmail.trim();
         Account account = accountRepository.findByUsernameIgnoreCase(q)
-                .or(() -> accountRepository.findByEmailIgnoreCase(q.toLowerCase()))
+                .or(() -> accountRepository.findByEmailIgnoreCase(q.toLowerCase(Locale.ROOT)))
                 .orElse(null);
         if (account == null || !account.isEnabled()) {
             return;
@@ -136,6 +287,15 @@ public class AccountService {
         otpStore.remove(resetKey(account.getUsername()));
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
+        auditService.record("account.password.reset", username, null);
+    }
+
+    public long countUsers() {
+        return accountRepository.count();
+    }
+
+    public long countAdmins() {
+        return accountRepository.countByRolesContainingIgnoreCase("ADMIN");
     }
 
     private String generateOtp() {
@@ -145,14 +305,14 @@ public class AccountService {
     }
 
     static String resetKey(String username) {
-        return "reset:" + username.trim().toLowerCase();
+        return "reset:" + username.trim().toLowerCase(Locale.ROOT);
     }
 
     private static String normalizeEmail(String email) {
         if (!StringUtils.hasText(email)) {
             return null;
         }
-        return email.trim().toLowerCase();
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     public record ChangePasswordRequest(
@@ -174,5 +334,28 @@ public class AccountService {
     }
 
     public record SetEnabledRequest(boolean enabled) {
+    }
+
+    public record SetRolesRequest(@NotBlank String roles) {
+    }
+
+    public record TotpSetupResponse(String secret, String otpauthUrl) {
+    }
+
+    public record TotpCodeRequest(@NotBlank @Size(min = 6, max = 6) String code) {
+    }
+
+    public record DisableTotpRequest(
+            @NotBlank String password,
+            @NotBlank @Size(min = 6, max = 6) String code
+    ) {
+    }
+
+    public record BootstrapAdminRequest(
+            @NotBlank @Size(max = 64) String username,
+            @Size(max = 320) String email,
+            @NotBlank @Size(min = 8, max = 128) String password,
+            String bootstrapToken
+    ) {
     }
 }

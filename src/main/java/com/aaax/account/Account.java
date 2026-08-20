@@ -38,6 +38,15 @@ public class Account {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "totp_secret", length = 64)
+    private String totpSecret;
+
+    @Column(name = "totp_enabled", nullable = false)
+    private boolean totpEnabled = false;
+
+    @Column(name = "google_sub", length = 128, unique = true)
+    private String googleSub;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -107,6 +116,18 @@ public class Account {
         return enabled;
     }
 
+    public String getTotpSecret() {
+        return totpSecret;
+    }
+
+    public boolean isTotpEnabled() {
+        return totpEnabled;
+    }
+
+    public String getGoogleSub() {
+        return googleSub;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -129,5 +150,17 @@ public class Account {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setTotpSecret(String totpSecret) {
+        this.totpSecret = totpSecret;
+    }
+
+    public void setTotpEnabled(boolean totpEnabled) {
+        this.totpEnabled = totpEnabled;
+    }
+
+    public void setGoogleSub(String googleSub) {
+        this.googleSub = googleSub;
     }
 }

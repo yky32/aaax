@@ -3,7 +3,12 @@ package com.aaax.config;
 import java.time.Duration;
 import java.util.UUID;
 
+import com.aaax.account.Account;
+import com.aaax.account.AccountService;
+import com.aaax.account.AccountUserDetailsService;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,11 +22,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -32,6 +42,8 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -39,10 +51,10 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Spring Security 7 / Boot 4.1 Authorization Server + API resource + session app security.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -82,11 +94,16 @@ public class SecurityConfig {
 
     @Bean
     @Order(3)
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain defaultSecurityFilterChain(
+            HttpSecurity http,
+            org.springframework.core.env.Environment env) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
+                                "/admin",
+                                "/admin/",
+                                "/admin/**",
                                 "/actuator/health",
                                 "/actuator/info",
                                 "/error",
@@ -105,13 +122,53 @@ public class SecurityConfig {
                         "/v1/**",
                         "/users/**",
                         "/authentications/**"))
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                         new OrRequestMatcher(
                                 PathPatternRequestMatcher.pathPattern("/v1/**"),
                                 new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON))))
-                .formLogin(Customizer.withDefaults());
+                .formLogin(form -> form.loginPage("/login").permitAll())
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/admin/"));
+
+        String googleId = env.getProperty("spring.security.oauth2.client.registration.google.client-id");
+        if (googleId != null && !googleId.isBlank()) {
+            http.oauth2Login(oauth -> oauth.defaultSuccessUrl("/admin/", true));
+        }
         return http.build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "spring.security.oauth2.client.registration.google.client-id")
+    OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(
+            AccountService accountService,
+            AccountUserDetailsService userDetailsService) {
+        OidcUserService delegate = new OidcUserService();
+        return userRequest -> {
+            OidcUser oidcUser = delegate.loadUser(userRequest);
+            String sub = oidcUser.getSubject();
+            String email = oidcUser.getEmail();
+            String name = oidcUser.getFullName() != null ? oidcUser.getFullName() : oidcUser.getGivenName();
+            Account account = accountService.linkOrCreateGoogle(sub, email, name != null ? name : email);
+            UserDetails details = userDetailsService.loadUserByUsername(account.getUsername());
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            return oidcUser;
+        };
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOriginPattern("http://localhost:*");
+        config.addAllowedOriginPattern("http://127.0.0.1:*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/v1/**", config);
+        return source;
     }
 
     @Bean

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AAAX Admin</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">AAAX</div>
+        <div class="tag">Admin Portal</div>
+      </div>
+      <nav id="nav" class="hidden">
+        <button data-view="dashboard" class="nav-btn active">Dashboard</button>
+        <button data-view="users" class="nav-btn">Users</button>
+        <button data-view="clients" class="nav-btn">OAuth Clients</button>
+        <button data-view="mfa" class="nav-btn">MFA (TOTP)</button>
+        <button data-view="audit" class="nav-btn">Audit</button>
+        <button data-view="settings" class="nav-btn">Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div id="whoami" class="muted"></div>
+        <button id="logoutBtn" class="btn ghost hidden">Sign out</button>
+      </div>
+    </aside>
+
+    <main>
+      <!-- LOGIN -->
+      <section id="view-login" class="panel">
+        <h1>Sign in to AAAX</h1>
+        <p class="muted">Configure your self-host identity server.</p>
+        <form id="loginForm" class="card">
+          <label>Username <input name="username" autocomplete="username" required value="admin" /></label>
+          <label>Password <input name="password" type="password" autocomplete="current-password" required value="admin12345" /></label>
+          <button class="btn primary" type="submit">Sign in</button>
+          <p id="loginError" class="error"></p>
+        </form>
+        <form id="mfaForm" class="card hidden">
+          <h2>MFA required</h2>
+          <label>Authenticator code <input name="code" inputmode="numeric" pattern="\\d{6}" maxlength="6" required /></label>
+          <button class="btn primary" type="submit">Verify</button>
+          <p id="mfaError" class="error"></p>
+        </form>
+        <div id="bootstrapBox" class="card hidden">
+          <h2>First-time bootstrap</h2>
+          <p class="muted">No admin exists. Create the first administrator.</p>
+          <form id="bootstrapForm">
+            <label>Username <input name="username" required value="admin" /></label>
+            <label>Email <input name="email" type="email" /></label>
+            <label>Password <input name="password" type="password" minlength="8" required /></label>
+            <label>Bootstrap token (if configured) <input name="bootstrapToken" /></label>
+            <button class="btn primary" type="submit">Create admin</button>
+            <p id="bootstrapError" class="error"></p>
+          </form>
+        </div>
+        <p class="muted small">Demo seed: <code>admin / admin12345</code> · API session cookies</p>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="panel hidden">
+        <h1>Dashboard</h1>
+        <div class="grid stats" id="stats"></div>
+        <div class="card" id="featureFlags"></div>
+      </section>
+
+      <!-- USERS -->
+      <section id="view-users" class="panel hidden">
+        <h1>Users</h1>
+        <div class="card table-wrap">
+          <table>
+            <thead>
+              <tr><th>Username</th><th>Email</th><th>Roles</th><th>MFA</th><th>Enabled</th><th></th></tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CLIENTS -->
+      <section id="view-clients" class="panel hidden">
+        <h1>OAuth Clients</h1>
+        <div class="grid two">
+          <div class="card">
+            <h2>Registered</h2>
+            <div id="clientsList"></div>
+          </div>
+          <div class="card">
+            <h2>Create client</h2>
+            <form id="clientForm">
+              <label>Client ID <input name="clientId" required placeholder="my-app" /></label>
+              <label>Name <input name="clientName" placeholder="My App" /></label>
+              <label>Redirect URIs (comma) <input name="redirectUris" placeholder="http://127.0.0.1:3000/callback" /></label>
+              <label>Scopes (comma) <input name="scopes" value="openid,profile,api.read" /></label>
+              <button class="btn primary" type="submit">Create</button>
+              <pre id="clientSecretOut" class="secret"></pre>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- MFA -->
+      <section id="view-mfa" class="panel hidden">
+        <h1>Authenticator MFA</h1>
+        <div class="card">
+          <p class="muted">Enable TOTP for the signed-in admin (Google Authenticator / 1Password / Authy).</p>
+          <button id="setupMfaBtn" class="btn primary">Start TOTP setup</button>
+          <div id="mfaSetup" class="hidden">
+            <p>Secret: <code id="mfaSecret"></code></p>
+            <p class="small muted">Add manually in your app using the otpauth URL:</p>
+            <code id="mfaUrl" class="block"></code>
+            <label>Confirm code <input id="mfaConfirmCode" maxlength="6" /></label>
+            <button id="confirmMfaBtn" class="btn primary">Confirm & enable</button>
+          </div>
+          <p id="mfaStatus"></p>
+        </div>
+      </section>
+
+      <!-- AUDIT -->
+      <section id="view-audit" class="panel hidden">
+        <h1>Audit log</h1>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>When</th><th>Action</th><th>Actor</th><th>Detail</th></tr></thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="panel hidden">
+        <h1>Server settings</h1>
+        <div class="card" id="settingsCard"></div>
+        <div class="card">
+          <h2>Needs your decision</h2>
+          <ul id="decisions"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="./app.js" type="module"></script>
+</body>
+</html>
