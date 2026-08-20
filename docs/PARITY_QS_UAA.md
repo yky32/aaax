@@ -77,7 +77,7 @@ Legend: ✅ in aaax · 🟡 partial · ❌ not in OSS aaax (by design or later) 
 | Redis authz service (prod multi-node) | optional later, not required for clone |
 | profile-svc / tenant-svc / util-svc / idv clients | Quinsic mesh |
 | Discord/ELK webhooks | ops |
-| WebSocket QR login | product-specific | 🟡 HTTP poll QR (no WS required) — [QR_LOGIN.md](./QR_LOGIN.md) |
+| WebSocket QR login | AAAX uses **HTTP poll QR** instead — [QR_LOGIN.md](./QR_LOGIN.md) |
 | Housekeeping tokens / stats dashboards | ops |
 | `app-core` BaseEntity, BizException codes | private lib — aaax has own types |
 
