@@ -32,7 +32,7 @@ public class MetaController {
                         "health", "/actuator/health",
                         "oidc", issuer + "/.well-known/openid-configuration"),
                 "docs", Map.of(
-                        "happyPath", "docs/HAPPY_PATH.md",
+                        "booklet", "docs/AAAX_BOOKLET.md",
                         "vision", "VISION.md",
                         "roadmap", "ROADMAP.md"));
     }
