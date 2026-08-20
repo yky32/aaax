@@ -124,8 +124,9 @@ public class AdminSettingsController {
         m.put("decisionBlockers", List.of(
                 Map.of("id", "orgs_multi", "question", "Multi-tenant organizations (Clerk Orgs) — still single-realm"),
                 Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP) — SP done; full IdP later?"),
-                Map.of("id", "react_sdk", "question", "Official React/Next SDK — hosted pages first"),
-                Map.of("id", "passkey_crypto", "question", "Passkey assertion full WebAuthn crypto verify")));
+                Map.of("id", "qr_login", "question", "QR code login (phone approves desktop) — see ROADMAP"),
+                Map.of("id", "device_binding", "question", "Policy device trust (not passkeys) — see ROADMAP"),
+                Map.of("id", "react_sdk", "question", "Official React/Next SDK — hosted pages first")));
         return m;
     }
 

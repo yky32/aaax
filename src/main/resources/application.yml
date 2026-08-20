@@ -49,7 +49,7 @@ aaax:
   bootstrap:
     token: ${AAAX_BOOTSTRAP_TOKEN:}
   passkeys:
-    # off by default — experimental ceremony only; enable to try APIs/UI
+    # off by default; when true → webauthn4j registration + assertion verify
     enabled: ${AAAX_PASSKEYS_ENABLED:false}
     rp-id: ${AAAX_PASSKEYS_RP_ID:localhost}
     rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}

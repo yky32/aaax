@@ -316,6 +316,15 @@ class AaaxApplicationTests {
     }
 
     @Test
+    void passkeysDisabledByDefault() throws Exception {
+        mockMvc.perform(get("/v1/passkeys/authenticate/options"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.features.passkeys").value("disabled"));
+    }
+
+    @Test
     void adminPortalIndexIsPublic() throws Exception {
         mockMvc.perform(get("/admin/index.html"))
                 .andExpect(status().isOk());

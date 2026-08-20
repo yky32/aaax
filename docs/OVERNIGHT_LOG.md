@@ -1,14 +1,17 @@
-# Overnight log
+# Overnight / util log
 
-## DONE — go all (2026-08-21)
+## STOP — nothing further without product `go`
 
-| | |
-|--|--|
-| **v0.5.0** | tag `v0.5.0` · commit `b751ef2` |
-| **Passkeys** | webauthn4j verify · still **off by default** |
-| **main tip** | `0.6.0-SNAPSHOT` after release |
+| Lane | Status |
+|------|--------|
+| Overnight A–D | done (v0.5 pack) |
+| Passkey crypto + v0.5.0 tag | done |
+| Post-0.5 util (this) | docs/parity/tests honesty |
 
-Overnight A–D + passkey crypto + release complete.
+### Needs Wayne
+- `go qr-login`
+- `go trusted-device` / device binding policy
+- `go orgs` · `go saml-idp` · React SDK
 
-## Historical batches
-- A FinishSession · B Redis OTP · C resource-server · D passkeys gate
+### Commits tip
+- See `main` after util polish push

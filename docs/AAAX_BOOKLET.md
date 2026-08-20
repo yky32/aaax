@@ -179,12 +179,13 @@ Legend: ✅ has · 🟡 partial · ❌ no · ★ strong in that lane
 
 ### 4.5 Gap priority (if closing on Logto)
 
-1. Passkeys (deferred)  
-2. SAML IdP (open decision)  
-3. Official BFF/JS quickstart (DX)  
-4. Broader social (Apple/Microsoft) when needed  
+1. Multi-tenant orgs (product gate)
+2. SAML IdP (product gate)
+3. QR login / device trust policy (see [ROADMAP.md](./ROADMAP.md))
+4. Official JS/React SDK / BFF quickstart
+5. Broader social (Apple/Microsoft) when needed
 
-Detail: OTP/SMS/SAML → [SMS_SAML.md](./SMS_SAML.md) · Events → [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md) · Social → [SOCIAL.md](./SOCIAL.md)
+Detail: OTP/SMS/SAML → [SMS_SAML.md](./SMS_SAML.md) · Events → [IDENTITY_EVENTS.md](./IDENTITY_EVENTS.md) · Social → [SOCIAL.md](./SOCIAL.md) · Passkeys → [PASSKEYS.md](./PASSKEYS.md)
 
 ### 4.6 How we win (deliberate wedge)
 

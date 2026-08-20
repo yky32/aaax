@@ -42,6 +42,8 @@ public class MetaController {
         Map<String, Object> docs = new LinkedHashMap<>();
         docs.put("booklet", "docs/AAAX_BOOKLET.md");
         docs.put("codemap", "docs/CODEMAP.md");
+        docs.put("passkeys", "docs/PASSKEYS.md");
+        docs.put("roadmap", "docs/ROADMAP.md");
         docs.put("events", "docs/IDENTITY_EVENTS.md");
         docs.put("smsSaml", "docs/SMS_SAML.md");
 

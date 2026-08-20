@@ -4,6 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### Util polish
+- ROADMAP (QR login / device binding explicitly out)
+- Stale passkey messaging fixed; passkeys-off 404 test
+- Parity + admin decision blockers updated
+
 Development follows **v0.5.0**.
 
 ## [0.5.0] — 2026-08-21

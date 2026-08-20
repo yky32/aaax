@@ -52,9 +52,11 @@ Legend: ✅ in aaax · 🟡 partial · ❌ not in OSS aaax (by design or later) 
 | Password form login | ✅ | ✅ |
 | OTP issue/verify | ✅ `/authentications/one-time-passwords/*` | ✅ `/v1/otp/*` + compat paths |
 | OTP passwordless session login | custom grants | ✅ `/v1/auth/otp/login` |
-| custom-password / encrypted / SMS / QR grants | ✅ many | ❌ roadmap |
-| Social (Google/Apple) | ✅ | ❌ roadmap |
-| Device binding | ✅ | ❌ |
+| custom-password / encrypted / SMS / QR grants | ✅ many | ❌ QR/device grants — roadmap (`docs/ROADMAP.md`) |
+| Social (Google/Apple) | ✅ | 🟡 Google + GitHub optional (`profile=social`) |
+| Device binding | ✅ | ❌ policy binding — roadmap; passkeys = authenticator-bound when enabled |
+| Passkeys / WebAuthn | 🔒 | 🟡 opt-in webauthn4j (`aaax.passkeys.enabled`) |
+| Redis multi-node OTP | ✅ prod | ✅ `aaax.otp.store=redis` |
 | Refresh token (OAuth) | ✅ | ✅ standard AS |
 
 ### C — Authorization
@@ -75,7 +77,7 @@ Legend: ✅ in aaax · 🟡 partial · ❌ not in OSS aaax (by design or later) 
 | Redis authz service (prod multi-node) | optional later, not required for clone |
 | profile-svc / tenant-svc / util-svc / idv clients | Quinsic mesh |
 | Discord/ELK webhooks | ops |
-| WebSocket QR login | product-specific |
+| WebSocket QR login | product-specific — see ROADMAP |
 | Housekeeping tokens / stats dashboards | ops |
 | `app-core` BaseEntity, BizException codes | private lib — aaax has own types |
 
