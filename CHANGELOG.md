@@ -7,7 +7,8 @@ All notable changes to **AAAX** are documented here.
 ### Application layer (UseCase)
 - Split `AccountService` → `account.application.*UseCase` + `AccountQueries`
 - Auth flows → `auth.application` (`FinishAuthenticatedSession`, password/OTP/magic/logout)
-- Controllers thin; docs: `ARCHITECTURE.md`
+- Controllers thin; docs: `ARCHITECTURE.md` + **`CODEMAP.md`** (OSS reading tour)
+- `package-info.java` on main packages for IDE/GitHub readers
 - Candidates still open: passkey crypto harden, resource-server starter, orgs decision
 
 ## [0.4.0] — 2026-08-20
