@@ -19,7 +19,12 @@ jobs:
         run: |
           test -f .mvn/settings.xml
           test -f .mvn/maven.config
-          ! grep -RInE 'quinsic|app-core' pom.xml
+          # Ban list in enforcer may mention private names; only fail on real Maven coordinates
+          if grep -nE '<groupId>com\.quinsic(\.|<)|<artifactId>app-core</artifactId>' pom.xml; then
+            echo 'Private dependency coordinate found in pom.xml' >&2
+            exit 1
+          fi
+          echo 'OK: settings + no private dependency coordinates'
       - name: Test (JDK 21 + Boot 4.1 + Central only)
         run: mvn -B clean test
       - name: Package

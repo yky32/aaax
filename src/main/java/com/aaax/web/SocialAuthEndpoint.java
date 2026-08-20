@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/v1/auth/social")
-public class SocialAuthController {
+public class SocialAuthEndpoint {
 
     private final Environment env;
 
-    public SocialAuthController(Environment env) {
+    public SocialAuthEndpoint(Environment env) {
         this.env = env;
     }
 

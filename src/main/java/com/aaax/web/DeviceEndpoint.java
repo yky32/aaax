@@ -29,12 +29,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/v1/devices")
 @PreAuthorize("isAuthenticated()")
-public class DeviceController {
+public class DeviceEndpoint {
 
     private final TrustedDeviceService devices;
     private final AccountRepository accounts;
 
-    public DeviceController(TrustedDeviceService devices, AccountRepository accounts) {
+    public DeviceEndpoint(TrustedDeviceService devices, AccountRepository accounts) {
         this.devices = devices;
         this.accounts = accounts;
     }

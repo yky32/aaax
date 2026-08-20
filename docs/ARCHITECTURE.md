@@ -11,7 +11,7 @@ For a **clone → open files in order** tour, read **[CODEMAP.md](./CODEMAP.md)*
 ## Layers
 
 ```text
-web/*Controller          HTTP adapt only
+web/*Endpoint            HTTP adapt only
   ↓
 *.application.*UseCase   one user intent
 AccountQueries           reads
@@ -26,15 +26,17 @@ config/*                 Security, SAML, Social
 |--------|----------------------|
 | Feature packages (`account`, `auth`, `events`) | Deep enterprise hexagon with 12 modules |
 | `*UseCase` for writes | Interface + Impl pair for every action |
+| `*Endpoint` for HTTP (not `*Controller`) | GodService |
 | `package-info.java` + CODEMAP | Tribal knowledge only |
 | SPI (`OtpSender`, `IdentityEventSink`) | Hard-coded Twilio inside core |
 
 ## Rules
 
-1. Controllers do not open transactions or build SecurityContext (use `FinishAuthenticatedSession`).
+1. Endpoints do not open transactions or build SecurityContext (use `FinishAuthenticatedSession`).
 2. New write features → `*UseCase` under the feature’s `application` package.
 3. Reads may use `AccountQueries` / small services.
-4. Keep concrete `@Component` classes.
+4. Keep concrete `@Component` / `@RestController` classes (annotation stays Spring; **class names** use Endpoint).
+
 
 ## Related
 

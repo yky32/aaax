@@ -24,12 +24,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/v1/sessions")
 @PreAuthorize("isAuthenticated()")
-public class SessionController {
+public class SessionEndpoint {
 
     private final AuthSessionService sessions;
     private final AccountRepository accounts;
 
-    public SessionController(AuthSessionService sessions, AccountRepository accounts) {
+    public SessionEndpoint(AuthSessionService sessions, AccountRepository accounts) {
         this.sessions = sessions;
         this.accounts = accounts;
     }

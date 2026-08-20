@@ -11,7 +11,7 @@ import com.aaax.account.application.RegisterAccountUseCase;
 import com.aaax.otp.OtpRequestResponse;
 import com.aaax.otp.OtpVerifyResponse;
 import com.aaax.otp.application.RequestOtpUseCase;
-import com.aaax.web.OtpController.OtpVerifyBody;
+import com.aaax.web.OtpEndpoint.OtpVerifyBody;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
  * Thin compatibility surface inspired by qs/uaa public paths.
  */
 @RestController
-public class UaaCompatController {
+public class UaaCompatEndpoint {
 
     private final RegisterAccountUseCase registerAccount;
     private final PasswordUseCase passwords;
     private final RequestOtpUseCase requestOtp;
 
-    public UaaCompatController(
+    public UaaCompatEndpoint(
             RegisterAccountUseCase registerAccount, PasswordUseCase passwords, RequestOtpUseCase requestOtp) {
         this.registerAccount = registerAccount;
         this.passwords = passwords;

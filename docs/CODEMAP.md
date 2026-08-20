@@ -11,7 +11,7 @@ AAAX is a **single Spring Boot module**. Open these files in order to understand
 | 3 | [`auth/application/PasswordLoginUseCase.java`](../src/main/java/com/aaax/auth/application/PasswordLoginUseCase.java) | Login intent |
 | 4 | [`auth/application/FinishAuthenticatedSession.java`](../src/main/java/com/aaax/auth/application/FinishAuthenticatedSession.java) | **All logins end here** — password · OTP · magic · social · SAML · passkey |
 | 5 | [`events/IdentityEventBus.java`](../src/main/java/com/aaax/events/IdentityEventBus.java) | Product wedge — signals out to Kafka/webhook |
-| 6 | [`web/AuthController.java`](../src/main/java/com/aaax/web/AuthController.java) | HTTP surface for `/v1/auth/*` (thin) |
+| 6 | [`web/AuthEndpoint.java`](../src/main/java/com/aaax/web/AuthEndpoint.java) | HTTP surface for `/v1/auth/*` (thin) |
 
 Then optionally:
 
@@ -47,7 +47,7 @@ com.aaax
 
 **Rule of thumb for readers:**
 
-- Want **HTTP contract** → `web/*Controller`
+- Want **HTTP contract** → `web/*Endpoint`
 - Want **business steps** → `*/application/*UseCase`
 - Want **security wiring** → `config/SecurityConfig`
 - Want **product moat** → `events/*`

@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/otp")
-public class OtpController {
+public class OtpEndpoint {
 
     private final RequestOtpUseCase requestOtp;
 
-    public OtpController(RequestOtpUseCase requestOtp) {
+    public OtpEndpoint(RequestOtpUseCase requestOtp) {
         this.requestOtp = requestOtp;
     }
 

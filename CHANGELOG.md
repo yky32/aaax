@@ -4,6 +4,12 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### Naming
+- HTTP classes renamed `*Controller` → `*Endpoint` (Spring annotations unchanged)
+
+### CI
+- Fixed false-positive ban on enforcer `<exclude>` lines mentioning quinsic/app-core
+
 ### Trusted devices
 - Cookie `AAAX_DEVICE` + hashed store; optional skip TOTP on password login
 - `/v1/devices` CRUD; sign-in checkbox; `/user/` management

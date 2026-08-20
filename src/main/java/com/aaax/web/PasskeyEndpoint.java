@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/passkeys")
-public class PasskeyController {
+public class PasskeyEndpoint {
 
     private final PasskeyService passkeys;
     private final PasskeyFeatures features;
     private final FinishAuthenticatedSession finishSession;
 
-    public PasskeyController(
+    public PasskeyEndpoint(
             PasskeyService passkeys, PasskeyFeatures features, FinishAuthenticatedSession finishSession) {
         this.passkeys = passkeys;
         this.features = features;

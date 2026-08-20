@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/accounts/me/mfa")
-public class MfaController {
+public class MfaEndpoint {
 
     private final TotpMfaUseCase totpMfa;
 
-    public MfaController(TotpMfaUseCase totpMfa) {
+    public MfaEndpoint(TotpMfaUseCase totpMfa) {
         this.totpMfa = totpMfa;
     }
 

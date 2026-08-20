@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/admin/users")
-public class AdminUserController {
+public class AdminUserEndpoint {
 
     private final AccountQueries queries;
     private final AdminManageUserUseCase manageUser;
 
-    public AdminUserController(AccountQueries queries, AdminManageUserUseCase manageUser) {
+    public AdminUserEndpoint(AccountQueries queries, AdminManageUserUseCase manageUser) {
         this.queries = queries;
         this.manageUser = manageUser;
     }

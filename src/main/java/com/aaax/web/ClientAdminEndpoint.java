@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/admin/clients")
-public class ClientAdminController {
+public class ClientAdminEndpoint {
 
     private final ClientAdminService clientAdminService;
 
-    public ClientAdminController(ClientAdminService clientAdminService) {
+    public ClientAdminEndpoint(ClientAdminService clientAdminService) {
         this.clientAdminService = clientAdminService;
     }
 

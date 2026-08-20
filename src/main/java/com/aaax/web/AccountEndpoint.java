@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/accounts")
-public class AccountController {
+public class AccountEndpoint {
 
     private final RegisterAccountUseCase registerAccount;
     private final AccountQueries queries;
     private final PasswordUseCase passwords;
 
-    public AccountController(
+    public AccountEndpoint(
             RegisterAccountUseCase registerAccount, AccountQueries queries, PasswordUseCase passwords) {
         this.registerAccount = registerAccount;
         this.queries = queries;

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/v1/api")
-public class ProtectedApiController {
+public class ProtectedApiEndpoint {
 
     @GetMapping("/hello")
     public Map<String, Object> hello(Authentication authentication) {

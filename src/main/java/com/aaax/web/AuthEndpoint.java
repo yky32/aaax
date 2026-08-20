@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/auth")
-public class AuthController {
+public class AuthEndpoint {
 
     private final AccountQueries accountQueries;
     private final BootstrapAdminUseCase bootstrapAdmin;
@@ -47,7 +47,7 @@ public class AuthController {
     private final QrLoginUseCase qrLogin;
     private final LogoutUseCase logoutUseCase;
 
-    public AuthController(
+    public AuthEndpoint(
             AccountQueries accountQueries,
             BootstrapAdminUseCase bootstrapAdmin,
             PasswordLoginUseCase passwordLogin,

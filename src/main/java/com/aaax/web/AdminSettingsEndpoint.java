@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/admin")
-public class AdminSettingsController {
+public class AdminSettingsEndpoint {
 
     private final AccountQueries accountService;
     private final ClientAdminService clientAdminService;
@@ -43,7 +43,7 @@ public class AdminSettingsController {
     private final String eventsKafkaTopic;
     private final String eventsWebhook;
 
-    public AdminSettingsController(
+    public AdminSettingsEndpoint(
             AccountQueries accountService,
             ClientAdminService clientAdminService,
             AuditService auditService,

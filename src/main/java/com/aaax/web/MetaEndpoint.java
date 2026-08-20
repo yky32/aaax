@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MetaController {
+public class MetaEndpoint {
 
     private final String issuer;
     private final boolean passkeysEnabled;
 
-    public MetaController(
+    public MetaEndpoint(
             @Value("${aaax.issuer:http://localhost:8081}") String issuer,
             @Value("${aaax.passkeys.enabled:false}") boolean passkeysEnabled) {
         this.issuer = issuer;
