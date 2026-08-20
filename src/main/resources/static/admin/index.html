@@ -3,155 +3,267 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AAAX Admin</title>
+  <title>AAAX Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div id="app">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <div id="app" class="shell">
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo">AAAX</div>
-        <div class="tag">Admin Portal</div>
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div>
+          <div class="logo">AAAX</div>
+          <div class="tag">Console</div>
+        </div>
       </div>
-      <nav id="nav" class="hidden">
-        <button data-view="dashboard" class="nav-btn active">Dashboard</button>
-        <button data-view="users" class="nav-btn">Users</button>
-        <button data-view="clients" class="nav-btn">OAuth Clients</button>
-        <button data-view="mfa" class="nav-btn">MFA (TOTP)</button>
-        <button data-view="events" class="nav-btn">Events</button>
-        <button data-view="audit" class="nav-btn">Audit</button>
-        <button data-view="settings" class="nav-btn">Settings</button>
+
+      <p class="sidebar-blurb">Identity you run.<br /><span>Signals you own.</span></p>
+
+      <nav id="nav" class="nav hidden" aria-label="Primary">
+        <div class="nav-group-label">Operate</div>
+        <button type="button" data-view="dashboard" class="nav-btn active">
+          <span class="nav-ico" aria-hidden="true">◈</span> Dashboard
+        </button>
+        <button type="button" data-view="users" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">◎</span> Users
+        </button>
+        <button type="button" data-view="clients" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">⬡</span> OAuth clients
+        </button>
+        <div class="nav-group-label">Security</div>
+        <button type="button" data-view="mfa" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">▣</span> MFA
+        </button>
+        <button type="button" data-view="events" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">⚡</span> Events
+        </button>
+        <button type="button" data-view="audit" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">☰</span> Audit
+        </button>
+        <div class="nav-group-label">System</div>
+        <button type="button" data-view="settings" class="nav-btn">
+          <span class="nav-ico" aria-hidden="true">⚙</span> Settings
+        </button>
       </nav>
+
       <div class="sidebar-foot">
-        <div id="whoami" class="muted"></div>
-        <button id="logoutBtn" class="btn ghost hidden">Sign out</button>
+        <div id="whoami" class="whoami muted"></div>
+        <button type="button" id="logoutBtn" class="btn ghost full hidden">Sign out</button>
       </div>
     </aside>
 
-    <main>
-      <!-- LOGIN -->
-      <section id="view-login" class="panel">
-        <h1>Sign in to AAAX</h1>
-        <p class="muted">Configure your self-host identity server.</p>
-        <form id="loginForm" class="card">
-          <label>Username <input name="username" autocomplete="username" required value="admin" /></label>
-          <label>Password <input name="password" type="password" autocomplete="current-password" required value="admin12345" /></label>
-          <button class="btn primary" type="submit">Sign in</button>
-          <p id="loginError" class="error"></p>
-        </form>
-        <form id="mfaForm" class="card hidden">
-          <h2>MFA required</h2>
-          <label>Authenticator code <input name="code" inputmode="numeric" pattern="\\d{6}" maxlength="6" required /></label>
-          <button class="btn primary" type="submit">Verify</button>
-          <p id="mfaError" class="error"></p>
-        </form>
-        <div id="bootstrapBox" class="card hidden">
-          <h2>First-time bootstrap</h2>
-          <p class="muted">No admin exists. Create the first administrator.</p>
-          <form id="bootstrapForm">
-            <label>Username <input name="username" required value="admin" /></label>
-            <label>Email <input name="email" type="email" /></label>
-            <label>Password <input name="password" type="password" minlength="8" required /></label>
-            <label>Bootstrap token (if configured) <input name="bootstrapToken" /></label>
-            <button class="btn primary" type="submit">Create admin</button>
-            <p id="bootstrapError" class="error"></p>
-          </form>
+    <!-- MAIN -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div>
+          <div id="pageEyebrow" class="eyebrow">AAAX</div>
+          <h1 id="pageTitle" class="page-title">Console</h1>
         </div>
-        <p class="muted small">Demo seed: <code>admin / admin12345</code> · API session cookies</p>
-      </section>
-
-      <!-- DASHBOARD -->
-      <section id="view-dashboard" class="panel hidden">
-        <h1>Dashboard</h1>
-        <div class="grid stats" id="stats"></div>
-        <div class="card" id="featureFlags"></div>
-      </section>
-
-      <!-- USERS -->
-      <section id="view-users" class="panel hidden">
-        <h1>Users</h1>
-        <div class="card table-wrap">
-          <table>
-            <thead>
-              <tr><th>Username</th><th>Email</th><th>Roles</th><th>MFA</th><th>Enabled</th><th></th></tr>
-            </thead>
-            <tbody id="usersBody"></tbody>
-          </table>
+        <div class="topbar-right">
+          <span id="topbarBadge" class="badge badge-soft">Self-host</span>
         </div>
-      </section>
+      </header>
 
-      <!-- CLIENTS -->
-      <section id="view-clients" class="panel hidden">
-        <h1>OAuth Clients</h1>
-        <div class="grid two">
-          <div class="card">
-            <h2>Registered</h2>
-            <div id="clientsList"></div>
+      <main class="main">
+        <!-- LOGIN -->
+        <section id="view-login" class="panel panel-auth">
+          <div class="auth-layout">
+            <div class="auth-copy">
+              <p class="eyebrow">Self-host identity</p>
+              <h1 class="auth-title">Sign in to AAAX</h1>
+              <p class="lede">Configure accounts, OAuth clients, MFA, and the identity event bus — in one console.</p>
+              <ul class="auth-points">
+                <li>OIDC authorization server</li>
+                <li>Caller-owned SMS via events</li>
+                <li>No private Maven monorepo</li>
+              </ul>
+            </div>
+            <div class="auth-forms">
+              <form id="loginForm" class="card card-elevated">
+                <div class="card-head">
+                  <h2>Administrator</h2>
+                  <p class="muted small">Session cookie · ROLE_ADMIN</p>
+                </div>
+                <label class="field">
+                  <span>Username</span>
+                  <input name="username" autocomplete="username" required value="admin" />
+                </label>
+                <label class="field">
+                  <span>Password</span>
+                  <input name="password" type="password" autocomplete="current-password" required value="admin12345" />
+                </label>
+                <button class="btn primary full" type="submit">Continue</button>
+                <p id="loginError" class="error" role="alert"></p>
+              </form>
+
+              <form id="mfaForm" class="card card-elevated hidden">
+                <div class="card-head">
+                  <h2>MFA challenge</h2>
+                  <p class="muted small">Authenticator app code</p>
+                </div>
+                <label class="field">
+                  <span>6-digit code</span>
+                  <input name="code" class="input-otp" inputmode="numeric" pattern="\d{6}" maxlength="6" required placeholder="000000" />
+                </label>
+                <button class="btn primary full" type="submit">Verify</button>
+                <p id="mfaError" class="error" role="alert"></p>
+              </form>
+
+              <div id="bootstrapBox" class="card card-elevated hidden">
+                <div class="card-head">
+                  <h2>First-time bootstrap</h2>
+                  <p class="muted small">No admin exists yet</p>
+                </div>
+                <form id="bootstrapForm">
+                  <label class="field"><span>Username</span><input name="username" required value="admin" /></label>
+                  <label class="field"><span>Email</span><input name="email" type="email" /></label>
+                  <label class="field"><span>Password</span><input name="password" type="password" minlength="8" required /></label>
+                  <label class="field"><span>Bootstrap token</span><input name="bootstrapToken" placeholder="if AAAX_BOOTSTRAP_TOKEN set" /></label>
+                  <button class="btn primary full" type="submit">Create admin</button>
+                  <p id="bootstrapError" class="error" role="alert"></p>
+                </form>
+              </div>
+
+              <p class="auth-foot muted small">Demo seed <code>admin / admin12345</code></p>
+            </div>
           </div>
-          <div class="card">
-            <h2>Create client</h2>
-            <form id="clientForm">
-              <label>Client ID <input name="clientId" required placeholder="my-app" /></label>
-              <label>Name <input name="clientName" placeholder="My App" /></label>
-              <label>Redirect URIs (comma) <input name="redirectUris" placeholder="http://127.0.0.1:3000/callback" /></label>
-              <label>Scopes (comma) <input name="scopes" value="openid,profile,api.read" /></label>
-              <button class="btn primary" type="submit">Create</button>
-              <pre id="clientSecretOut" class="secret"></pre>
-            </form>
+        </section>
+
+        <!-- DASHBOARD -->
+        <section id="view-dashboard" class="panel hidden">
+          <p class="panel-desc">Runtime snapshot of your self-host identity server.</p>
+          <div class="grid stats" id="stats"></div>
+          <div class="grid two-1">
+            <div class="card" id="wedgeCard"></div>
+            <div class="card" id="featureFlags"></div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- MFA -->
-      <section id="view-mfa" class="panel hidden">
-        <h1>Authenticator MFA</h1>
-        <div class="card">
-          <p class="muted">Enable TOTP for the signed-in admin (Google Authenticator / 1Password / Authy).</p>
-          <button id="setupMfaBtn" class="btn primary">Start TOTP setup</button>
-          <div id="mfaSetup" class="hidden">
-            <p>Secret: <code id="mfaSecret"></code></p>
-            <p class="small muted">Add manually in your app using the otpauth URL:</p>
-            <code id="mfaUrl" class="block"></code>
-            <label>Confirm code <input id="mfaConfirmCode" maxlength="6" /></label>
-            <button id="confirmMfaBtn" class="btn primary">Confirm & enable</button>
+        <!-- USERS -->
+        <section id="view-users" class="panel hidden">
+          <p class="panel-desc">Accounts, roles, and enablement.</p>
+          <div class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>MFA</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+              </table>
+            </div>
           </div>
-          <p id="mfaStatus"></p>
-        </div>
-      </section>
+        </section>
 
-      <!-- EVENTS -->
-      <section id="view-events" class="panel hidden">
-        <h1>Identity events</h1>
-        <p class="muted">Live bus buffer (CloudEvents-ish). Kafka/webhook fan-out when configured.</p>
-        <div class="card table-wrap">
-          <table>
-            <thead><tr><th>Time</th><th>Type</th><th>Subject</th><th>Data</th></tr></thead>
-            <tbody id="eventsBody"></tbody>
-          </table>
-        </div>
-      </section>
+        <!-- CLIENTS -->
+        <section id="view-clients" class="panel hidden">
+          <p class="panel-desc">Registered OAuth 2 / OIDC applications.</p>
+          <div class="grid two">
+            <div class="card">
+              <div class="card-head"><h2>Registered</h2></div>
+              <div id="clientsList" class="stack"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Create client</h2></div>
+              <form id="clientForm" class="form-stack">
+                <label class="field"><span>Client ID</span><input name="clientId" required placeholder="my-app" /></label>
+                <label class="field"><span>Name</span><input name="clientName" placeholder="My App" /></label>
+                <label class="field"><span>Redirect URIs</span><input name="redirectUris" placeholder="http://127.0.0.1:3000/callback" /></label>
+                <label class="field"><span>Scopes</span><input name="scopes" value="openid,profile,api.read" /></label>
+                <button class="btn primary" type="submit">Create client</button>
+                <pre id="clientSecretOut" class="secret" hidden></pre>
+              </form>
+            </div>
+          </div>
+        </section>
 
-      <!-- AUDIT -->
-      <section id="view-audit" class="panel hidden">
-        <h1>Audit log</h1>
-        <div class="card table-wrap">
-          <table>
-            <thead><tr><th>When</th><th>Action</th><th>Actor</th><th>Detail</th></tr></thead>
-            <tbody id="auditBody"></tbody>
-          </table>
-        </div>
-      </section>
+        <!-- MFA -->
+        <section id="view-mfa" class="panel hidden">
+          <p class="panel-desc">TOTP for the signed-in administrator.</p>
+          <div class="card card-narrow">
+            <div class="card-head">
+              <h2>Authenticator app</h2>
+              <p class="muted small">Google Authenticator · 1Password · Authy</p>
+            </div>
+            <p id="mfaStatus" class="status-line"></p>
+            <button type="button" id="setupMfaBtn" class="btn primary">Start TOTP setup</button>
+            <div id="mfaSetup" class="mfa-setup hidden">
+              <div class="callout">
+                <span class="callout-label">Secret</span>
+                <code id="mfaSecret"></code>
+              </div>
+              <p class="muted small">otpauth URL</p>
+              <code id="mfaUrl" class="block mono-block"></code>
+              <label class="field">
+                <span>Confirm code</span>
+                <input id="mfaConfirmCode" class="input-otp" maxlength="6" placeholder="000000" />
+              </label>
+              <button type="button" id="confirmMfaBtn" class="btn primary">Confirm &amp; enable</button>
+            </div>
+          </div>
+        </section>
 
-      <!-- SETTINGS -->
-      <section id="view-settings" class="panel hidden">
-        <h1>Server settings</h1>
-        <div class="card" id="settingsCard"></div>
-        <div class="card">
-          <h2>Needs your decision</h2>
-          <ul id="decisions"></ul>
-        </div>
-      </section>
-    </main>
+        <!-- EVENTS -->
+        <section id="view-events" class="panel hidden">
+          <p class="panel-desc">Live identity event bus buffer — CloudEvents-shaped. Fan-out to Kafka / webhook when configured.</p>
+          <div class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Time</th><th>Type</th><th>Subject</th><th>Data</th></tr>
+                </thead>
+                <tbody id="eventsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- AUDIT -->
+        <section id="view-audit" class="panel hidden">
+          <p class="panel-desc">Persisted audit trail (DB).</p>
+          <div class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>When</th><th>Action</th><th>Actor</th><th>Detail</th></tr>
+                </thead>
+                <tbody id="auditBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="view-settings" class="panel hidden">
+          <p class="panel-desc">Read-only runtime configuration. Change via env / compose, then restart.</p>
+          <div class="grid two">
+            <div class="card">
+              <div class="card-head"><h2>Server</h2></div>
+              <div id="settingsCard" class="kv-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Open decisions</h2></div>
+              <ul id="decisions" class="decision-list"></ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
   <script src="./app.js" type="module"></script>
 </body>

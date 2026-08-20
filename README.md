@@ -72,7 +72,7 @@ Open after `mvn spring-boot:run`:
 - Users · OAuth clients · TOTP MFA · Audit · Settings  
 - First-time (no admin): in-portal **bootstrap** form  
 
-Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, no Node build.
+Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, no Node build. Designed console (Instrument Sans · ink/indigo).
 
 ### OTP / SMS modes (no Twilio lock-in)
 

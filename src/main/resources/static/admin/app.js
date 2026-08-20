@@ -8,6 +8,17 @@ const api = (path, opts = {}) =>
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
 
+const TITLES = {
+  login: ["AAAX", "Sign in"],
+  dashboard: ["Operate", "Dashboard"],
+  users: ["Operate", "Users"],
+  clients: ["Operate", "OAuth clients"],
+  mfa: ["Security", "MFA"],
+  events: ["Security", "Identity events"],
+  audit: ["Security", "Audit"],
+  settings: ["System", "Settings"],
+};
+
 let me = null;
 
 function show(view) {
@@ -15,6 +26,12 @@ function show(view) {
   const el = $(`#view-${view}`);
   if (el) el.classList.remove("hidden");
   $$(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  const t = TITLES[view] || ["AAAX", "Console"];
+  const eye = $("#pageEyebrow");
+  const title = $("#pageTitle");
+  if (eye) eye.textContent = t[0];
+  if (title) title.textContent = t[1];
+  document.body.dataset.view = view;
 }
 
 async function refreshMe() {
@@ -24,14 +41,16 @@ async function refreshMe() {
     $("#nav").classList.add("hidden");
     $("#logoutBtn").classList.add("hidden");
     $("#whoami").textContent = "";
+    $("#app").classList.add("is-auth");
     show("login");
     await checkBootstrap();
     return false;
   }
   me = await r.json();
+  $("#app").classList.remove("is-auth");
   $("#nav").classList.remove("hidden");
   $("#logoutBtn").classList.remove("hidden");
-  $("#whoami").textContent = `${me.username} · ${(me.roles || []).join(",")}`;
+  $("#whoami").innerHTML = `<strong>${esc(me.username)}</strong><br/><span class="muted small">${esc((me.roles || []).join(" · "))}</span>`;
   show("dashboard");
   await loadDashboard();
   return true;
@@ -66,7 +85,7 @@ $("#loginForm").addEventListener("submit", async (e) => {
     return;
   }
   if (!(body.account?.roles || []).includes("ADMIN")) {
-    $("#loginError").textContent = "Signed in, but ADMIN role required for portal";
+    $("#loginError").textContent = "Signed in, but ADMIN role required for console";
     await api("/v1/auth/logout", { method: "POST" });
     return;
   }
@@ -109,8 +128,9 @@ $("#bootstrapForm").addEventListener("submit", async (e) => {
     $("#bootstrapError").textContent = body.message || "Bootstrap failed";
     return;
   }
-  $("#bootstrapError").textContent = "Admin created — sign in above.";
+  $("#bootstrapError").textContent = "";
   $("#bootstrapBox").classList.add("hidden");
+  $("#loginError").textContent = "Admin created — sign in above.";
 });
 
 $("#logoutBtn").addEventListener("click", async () => {
@@ -129,7 +149,9 @@ $$(".nav-btn").forEach((btn) => {
     if (v === "audit") await loadAudit();
     if (v === "settings") await loadSettings();
     if (v === "mfa") {
-      $("#mfaStatus").textContent = me?.mfaEnabled ? "MFA is enabled on this account." : "MFA is off.";
+      $("#mfaStatus").textContent = me?.mfaEnabled
+        ? "MFA is enabled on this account."
+        : "MFA is off for this account.";
     }
   });
 });
@@ -143,21 +165,36 @@ async function loadDashboard() {
     ["Users", c.users],
     ["Admins", c.admins],
     ["Clients", c.clients],
-    ["Events buffered", c.eventsBuffered ?? "—"],
-    ["OTP channel", s.otpChannel],
+    ["Events", c.eventsBuffered ?? "—"],
+    ["OTP", s.otpChannel],
   ]
-    .map(([l, n]) => `<div class="stat"><div class="n">${n ?? "—"}</div><div class="l">${l}</div></div>`)
+    .map(
+      ([l, n]) =>
+        `<div class="stat"><div class="n">${esc(String(n ?? "—"))}</div><div class="l">${esc(l)}</div></div>`
+    )
     .join("");
+
   const bus = s.identityEventBus || {};
+  $("#wedgeCard").innerHTML = `
+    <p class="eyebrow">Win wedge</p>
+    <h2 class="wedge-title">${esc(bus.wedge || "AAAX authenticates. Your mesh notifies.")}</h2>
+    <p class="wedge-body">Identity Event Bus fans out login, MFA, OTP, and client changes to your notification-service — you keep SMS.</p>
+    <div class="kv-list">
+      <div class="kv-row"><div class="k">Kafka</div><div class="v">${bus.kafkaLive ? "live" : "off"} · ${esc(bus.kafkaTopic || "—")}</div></div>
+      <div class="kv-row"><div class="k">Webhook</div><div class="v">${bus.webhookConfigured ? "configured" : "not set"}</div></div>
+      <div class="kv-row"><div class="k">Buffer</div><div class="v">${esc(String(bus.bufferSize ?? 0))} events</div></div>
+    </div>`;
+
   const feats = s.features || {};
   $("#featureFlags").innerHTML =
-    "<h2>Identity Event Bus</h2>" +
-    `<p class="muted">${esc(bus.wedge || "AAAX authenticates. Your mesh notifies.")}</p>` +
-    `<p class="small">kafkaLive=${bus.kafkaLive} · topic=${esc(bus.kafkaTopic || "")} · webhook=${bus.webhookConfigured}</p>` +
-    "<h2 style='margin-top:1rem'>Feature flags</h2>" +
+    `<p class="eyebrow">Features</p><h2 class="wedge-title">Flags</h2><div class="flags-wrap">` +
     Object.entries(feats)
-      .map(([k, v]) => `<span class="pill ${v ? "" : "off"}" style="margin:.2rem">${k}: ${v ? "on" : "off"}</span>`)
-      .join(" ");
+      .map(
+        ([k, v]) =>
+          `<span class="pill ${v ? "" : "off"}">${esc(k)}: ${v ? "on" : "off"}</span>`
+      )
+      .join("") +
+    `</div>`;
 }
 
 async function loadEvents() {
@@ -168,16 +205,17 @@ async function loadEvents() {
     rows
       .map((e) => {
         const data = e.data ? JSON.stringify(e.data) : "";
-        const safe = data.length > 120 ? data.slice(0, 120) + "…" : data;
+        const safe = data.length > 100 ? data.slice(0, 100) + "…" : data;
+        const time = (e.time || "").replace("T", " ").replace(/\.\d+Z?$/, "");
         return `<tr>
-      <td class="small">${esc(e.time || "")}</td>
+      <td class="small mono">${esc(time)}</td>
       <td><code>${esc(e.type || "")}</code></td>
       <td>${esc(e.subject || "")}</td>
       <td class="small muted">${esc(safe)}</td>
     </tr>`;
       })
       .join("") ||
-    "<tr><td colspan='4' class='muted'>No events yet — login or register to emit.</td></tr>";
+    `<tr><td colspan="4" class="muted">No events yet — sign in or register to emit.</td></tr>`;
 }
 
 async function loadUsers() {
@@ -187,18 +225,19 @@ async function loadUsers() {
   $("#usersBody").innerHTML = users
     .map(
       (u) => `<tr>
-      <td>${esc(u.username)}</td>
-      <td>${esc(u.email || "")}</td>
-      <td>${esc((u.roles || []).join(", "))}</td>
+      <td><div class="user-cell"><strong>${esc(u.username)}</strong></div></td>
+      <td class="muted small">${esc(u.email || "—")}</td>
+      <td><span class="pill ${u.roles?.includes("ADMIN") ? "" : "off"}">${esc((u.roles || []).join(", ") || "—")}</span></td>
       <td>${u.mfaEnabled ? '<span class="pill">on</span>' : '<span class="pill off">off</span>'}</td>
-      <td>${u.enabled ? "yes" : "no"}</td>
-      <td>
-        <button class="btn small" data-toggle="${u.id}" data-en="${!u.enabled}">${u.enabled ? "Disable" : "Enable"}</button>
-        <button class="btn small" data-roles="${u.id}" data-current="${esc((u.roles || []).join(","))}">Roles</button>
-      </td>
+      <td>${u.enabled ? '<span class="pill">active</span>' : '<span class="pill off">disabled</span>'}</td>
+      <td><div class="row-actions">
+        <button type="button" class="btn small" data-toggle="${esc(u.id)}" data-en="${!u.enabled}">${u.enabled ? "Disable" : "Enable"}</button>
+        <button type="button" class="btn small ghost" data-roles="${esc(u.id)}" data-current="${esc((u.roles || []).join(","))}">Roles</button>
+      </div></td>
     </tr>`
     )
     .join("");
+
   $$("[data-toggle]").forEach((b) =>
     b.addEventListener("click", async () => {
       await api(`/v1/admin/users/${b.dataset.toggle}/status`, {
@@ -228,13 +267,15 @@ async function loadClients() {
   $("#clientsList").innerHTML =
     clients
       .map(
-        (c) => `<div style="padding:.5rem 0;border-bottom:1px solid var(--border)">
-      <strong>${esc(c.clientId)}</strong> · ${esc(c.clientName || "")}
-      <div class="small muted">${(c.scopes || []).join(" ")}</div>
-      <button class="btn small danger" data-del="${esc(c.clientId)}">Delete</button>
+        (c) => `<div class="client-row">
+      <strong>${esc(c.clientId)}</strong>
+      <div class="small muted">${esc(c.clientName || "")}</div>
+      <div class="small muted" style="margin:.35rem 0">${esc((c.scopes || []).join(" · "))}</div>
+      <button type="button" class="btn small danger" data-del="${esc(c.clientId)}">Delete</button>
     </div>`
       )
-      .join("") || "<p class='muted'>No clients</p>";
+      .join("") || `<p class="muted">No clients yet.</p>`;
+
   $$("[data-del]").forEach((b) =>
     b.addEventListener("click", async () => {
       if (!confirm("Delete " + b.dataset.del + "?")) return;
@@ -262,12 +303,18 @@ $("#clientForm").addEventListener("submit", async (e) => {
   };
   const r = await api("/v1/admin/clients", { method: "POST", body: JSON.stringify(body) });
   const j = await r.json();
+  const out = $("#clientSecretOut");
   if (!r.ok) {
-    $("#clientSecretOut").textContent = j.message || "Failed";
+    out.hidden = false;
+    out.textContent = j.message || "Failed";
     return;
   }
-  $("#clientSecretOut").textContent =
-    "Save this secret now (shown once):\n" + (j.clientSecret || "") + "\nclientId=" + j.client?.clientId;
+  out.hidden = false;
+  out.textContent =
+    "Save this secret now (shown once)\n\n" +
+    (j.clientSecret || "") +
+    "\n\nclientId=" +
+    (j.client?.clientId || "");
   e.target.reset();
   await loadClients();
 });
@@ -304,36 +351,51 @@ async function loadAudit() {
   const r = await api("/v1/admin/audit?limit=80");
   if (!r.ok) return;
   const rows = await r.json();
-  $("#auditBody").innerHTML = rows
-    .map(
-      (e) => `<tr>
-      <td class="small">${esc(e.createdAt || "")}</td>
-      <td>${esc(e.action)}</td>
+  $("#auditBody").innerHTML =
+    rows
+      .map((e) => {
+        const when = String(e.createdAt || "").replace("T", " ").replace(/\.\d+Z?$/, "");
+        return `<tr>
+      <td class="small mono">${esc(when)}</td>
+      <td><code>${esc(e.action)}</code></td>
       <td>${esc(e.actor || "")}</td>
       <td class="small muted">${esc(e.detail || "")}</td>
-    </tr>`
-    )
-    .join("");
+    </tr>`;
+      })
+      .join("") || `<tr><td colspan="4" class="muted">No audit rows.</td></tr>`;
 }
 
 async function loadSettings() {
   const r = await api("/v1/admin/settings");
   if (!r.ok) return;
   const s = await r.json();
-  $("#settingsCard").innerHTML = `
-    <div><strong>Issuer</strong><div class="muted">${esc(s.issuer)}</div></div>
-    <div style="margin-top:.75rem"><strong>Win wedge</strong><div class="muted">${esc((s.identityEventBus && s.identityEventBus.wedge) || "Event bus")}</div></div>
-    <div style="margin-top:.75rem"><strong>Event bus</strong><div class="muted">buffer=${(s.identityEventBus && s.identityEventBus.bufferSize) ?? 0} · kafka=${s.identityEventBus && s.identityEventBus.kafkaLive ? "live" : "off"} · topic=${esc((s.identityEventBus && s.identityEventBus.kafkaTopic) || "")}</div></div>
-    <div style="margin-top:.75rem"><strong>OTP channel</strong><div class="muted">${esc(s.otpChannel)}</div></div>
-    <div style="margin-top:.75rem"><strong>Orgs model</strong><div class="muted">${esc(s.orgsModel || "single")}</div></div>
-    <div style="margin-top:.75rem"><strong>Demo seeds</strong><div class="muted">client=${s.demoSeedClient} account=${s.demoSeedAccount}</div></div>
-    <div style="margin-top:.75rem"><strong>Google OIDC</strong><div class="muted">${s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID/SECRET + profile google"}</div></div>
-    <div style="margin-top:.75rem"><strong>SAML SP</strong><div class="muted">${s.samlEnabled ? "on · " + (s.samlLoginPath || "") : "AAAX_SAML_ENABLED + IDP metadata URI"}</div></div>
-    <div style="margin-top:.75rem"><strong>Version</strong><div class="muted">${esc(s.version)}</div></div>
-  `;
-  $("#decisions").innerHTML = (s.decisionBlockers || [])
-    .map((d) => `<li><code>${esc(d.id)}</code> — ${esc(d.question)}</li>`)
+  const bus = s.identityEventBus || {};
+  const rows = [
+    ["Issuer", s.issuer],
+    ["Win wedge", bus.wedge || "—"],
+    ["Event bus", `buffer ${bus.bufferSize ?? 0} · kafka ${bus.kafkaLive ? "live" : "off"} · ${bus.kafkaTopic || "—"}`],
+    ["Events webhook", bus.webhookConfigured ? "configured" : "not set"],
+    ["OTP channel", s.otpChannel],
+    ["Orgs model", s.orgsModel || "single"],
+    ["Demo seeds", `client=${s.demoSeedClient} · account=${s.demoSeedAccount}`],
+    ["Google OIDC", s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID + profile google"],
+    ["SAML SP", s.samlEnabled ? `on · ${s.samlLoginPath || ""}` : "AAAX_SAML_ENABLED + IdP metadata"],
+    ["Version", s.version],
+  ];
+  $("#settingsCard").innerHTML = rows
+    .map(
+      ([k, v]) =>
+        `<div class="kv-row"><div class="k">${esc(k)}</div><div class="v">${esc(String(v ?? "—"))}</div></div>`
+    )
     .join("");
+
+  $("#decisions").innerHTML =
+    (s.decisionBlockers || [])
+      .map(
+        (d) =>
+          `<li><code>${esc(d.id)}</code><br/>${esc(d.question)}</li>`
+      )
+      .join("") || `<li class="muted">None listed.</li>`;
 }
 
 function esc(s) {
@@ -343,5 +405,10 @@ function esc(s) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 }
+
+// mono helper class used in templates
+const style = document.createElement("style");
+style.textContent = `.mono{font-family:var(--mono)}`;
+document.head.appendChild(style);
 
 refreshMe();
