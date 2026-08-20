@@ -20,7 +20,7 @@ public class MetaController {
         return Map.of(
                 "product", "AAAX",
                 "expand", "Accounts · Authentication · Authorization · eXperiences",
-                "version", "0.3.0-SNAPSHOT",
+                "version", "0.3.0",
                 "issuer", issuer,
                 "endpoints", Map.of(
                         "register", "POST /v1/accounts/register",

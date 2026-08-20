@@ -2,34 +2,117 @@
 
 **Accounts · Authentication · Authorization · eXperiences**
 
+### Identity you run.
+
+Self-host **OIDC-grade** auth for your apps — without SaaS seat tax, without Keycloak weight, without private Maven monorepos.
+
+```text
+clone → mvn test → spring-boot:run → token → call API
+```
+
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![Java](https://img.shields.io/badge/Java-17+-orange.svg)](./pom.xml)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green.svg)](./pom.xml)
+
 | | |
 |--|--|
-| **Booklet** | [docs/AAAX_BOOKLET.md](./docs/AAAX_BOOKLET.md) |
-| **qs/uaa parity** | [docs/PARITY_QS_UAA.md](./docs/PARITY_QS_UAA.md) |
-| **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.3.0-SNAPSHOT` |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Parity vs qs/uaa](./docs/PARITY_QS_UAA.md) · [Changelog](./CHANGELOG.md) |
+| **Examples** | [examples/](./examples/) |
+| **Version** | `v0.3.0` |
+| **Maven** | **Central only** (`.mvn/settings.xml`) — no `app-core`, no GitHub Packages |
 
-## Clone → run (standalone, Maven Central only)
+---
+
+## 5-minute path
+
+**Need:** JDK 17+, Maven 3.9+
 
 ```bash
 git clone https://github.com/yky32/aaax.git
 cd aaax
-mvn test                 # uses .mvn/settings.xml → Central ONLY (no private packages)
+mvn test                 # Central only — no private tokens
 mvn spring-boot:run
 ```
 
-No `app-core`. No GitHub Packages. No Quinsic credentials required.
-
-## Quick API check
+**Another terminal:**
 
 ```bash
+# health
 curl -sS http://localhost:8081/actuator/health
+
+# client_credentials → protected API
+./examples/curl/get-token-and-hello.sh
+
+# or one-liners:
 TOKEN=$(curl -sS -u 'aaax-demo:aaax-demo-secret' \
   -X POST http://localhost:8081/oauth2/token \
   -d 'grant_type=client_credentials&scope=api.read' | jq -r .access_token)
-curl -sS http://localhost:8081/v1/api/hello -H "Authorization: Bearer $TOKEN"
+curl -sS http://localhost:8081/v1/api/hello -H "Authorization: Bearer $TOKEN" | jq
 ```
 
-Demo: `demo`/`demo1234` · admin `admin`/`admin12345` · client `aaax-demo`/`aaax-demo-secret`
+**Docker alternative:**
 
-Docs → **[docs/AAAX_BOOKLET.md](./docs/AAAX_BOOKLET.md)** · Parity → **[docs/PARITY_QS_UAA.md](./docs/PARITY_QS_UAA.md)**
+```bash
+mvn -DskipTests package
+docker compose up --build
+```
+
+---
+
+## What you get
+
+| Area | Capability |
+|------|------------|
+| **Accounts** | Register, me, change/forgot/reset password, admin users |
+| **Authentication** | Form login, OTP (+ mail channel), OIDC authorize/token/jwks |
+| **Authorization** | Roles, OAuth clients admin, scopes, sample protected API |
+| **X · DX** | Booklet, curl pack, qs/uaa-ish public aliases, standalone clone |
+
+**Not** a Quinsic dump. **Not** Keycloak-in-a-box. Core identity for builders.
+
+---
+
+## Demo credentials (local seeds only)
+
+| | |
+|--|--|
+| User | `demo` / `demo1234` |
+| Admin | `admin` / `admin12345` |
+| OAuth client | `aaax-demo` / `aaax-demo-secret` |
+
+Disable seeds in prod: `SPRING_PROFILES_ACTIVE=prod` or `AAAX_DEMO_SEED_*=false`.
+
+---
+
+## Who is this for?
+
+- Java/Spring teams who want OIDC without Keycloak ops  
+- Indie / small B2B products that must **own** identity data  
+- Platform eng wiring a few SPAs + APIs behind one issuer  
+
+**Job-to-be-done:** *login + token + protect an API in one day, on my DB.*
+
+---
+
+## Docs map
+
+| Doc | |
+|-----|--|
+| [docs/AAAX_BOOKLET.md](./docs/AAAX_BOOKLET.md) | **Source of truth** (API, deploy, architecture) |
+| [docs/PARITY_QS_UAA.md](./docs/PARITY_QS_UAA.md) | Core parity vs production UAA (honest gaps) |
+| [examples/README.md](./examples/README.md) | Curl recipes + resource-call sample |
+| [CHANGELOG.md](./CHANGELOG.md) | Releases |
+
+---
+
+## Project hygiene
+
+```bash
+./scripts/verify-standalone.sh   # Central-only + tests + no private deps
+```
+
+Apache-2.0 · Report security issues via GitHub Security Advisories · [SECURITY.md](./SECURITY.md)
+
+---
+
+*AAAX — four letters, one job: identity you can run and ship with.*

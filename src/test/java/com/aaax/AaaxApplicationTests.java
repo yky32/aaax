@@ -50,7 +50,7 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product").value("AAAX"))
-                .andExpect(jsonPath("$.version").value("0.3.0-SNAPSHOT"));
+                .andExpect(jsonPath("$.version").value("0.3.0"));
     }
 
     @Test

@@ -7,7 +7,7 @@
 | **Status** | Source of truth for product + eng docs |
 | **qs/uaa parity** | [PARITY_QS_UAA.md](./PARITY_QS_UAA.md) |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.3.0-SNAPSHOT` |
+| **Version** | `v0.3.0` |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **License** | Apache-2.0 |
 | **Updated** | 2026-08-20 |
@@ -22,24 +22,25 @@
 ## Table of contents
 
 1. [One-liner & bet](#1-one-liner--bet)
-2. [The four letters](#2-the-four-letters)
-3. [Competitive frame](#3-competitive-frame)
-4. [Principles](#4-principles)
-5. [Scope (v1)](#5-scope-v1)
-6. [Current status (0.3)](#6-current-status-03)
-7. [Architecture](#7-architecture)
-8. [Repo map](#8-repo-map)
-9. [Stack & run](#9-stack--run)
-10. [Configuration](#10-configuration)
-11. [Demo credentials](#11-demo-credentials)
-12. [HTTP API](#12-http-api)
-13. [OAuth2 / OIDC](#13-oauth2--oidc)
-14. [Happy path (curl)](#14-happy-path-curl)
-15. [Security posture](#15-security-posture)
-16. [Deploy checklist](#16-deploy-checklist)
-17. [Roadmap](#17-roadmap)
-18. [Dev workflow](#18-dev-workflow)
-19. [Glossary](#19-glossary)
+2. [Developer product](#2-developer-product)
+3. [The four letters](#3-the-four-letters)
+4. [Competitive frame](#4-competitive-frame)
+5. [Principles](#5-principles)
+6. [Scope (v1)](#6-scope-v1)
+7. [Current status (0.3)](#7-current-status-03)
+8. [Architecture](#8-architecture)
+9. [Repo map](#9-repo-map)
+10. [Stack & run](#10-stack--run)
+11. [Configuration](#11-configuration)
+12. [Demo credentials](#12-demo-credentials)
+13. [HTTP API](#13-http-api)
+14. [OAuth2 / OIDC](#14-oauth2--oidc)
+15. [Happy path (curl)](#15-happy-path-curl)
+16. [Security posture](#16-security-posture)
+17. [Deploy checklist](#17-deploy-checklist)
+18. [Roadmap](#18-roadmap)
+19. [Dev workflow](#19-dev-workflow)
+20. [Glossary](#20-glossary)
 
 ---
 
@@ -51,7 +52,50 @@
 
 ---
 
-## 2. The four letters
+## 2. Developer product
+
+AAAX is an **IT / developer product**, not an internal monorepo extract.
+
+### Promise
+
+| # | Promise | Status |
+|---|---------|--------|
+| 1 | `git clone && mvn test` with **Maven Central only** | ✅ |
+| 2 | Compose or `spring-boot:run` → health + token + API | ✅ |
+| 3 | Register → OTP login → `/me` | ✅ |
+| 4 | Admin OAuth clients + sample protected API | ✅ |
+| 5 | Curl examples pack | ✅ `examples/` |
+| 6 | Resource-server integration sketch | ✅ `examples/resource-call.md` |
+
+### ICP
+
+- Spring/Java teams needing OIDC without Keycloak weight  
+- Indie / small B2B products that must own identity data  
+- Platform eng: a few SPAs + APIs, one issuer  
+
+### Category line
+
+> Open-source OIDC server for builders who outgrew JWT-in-a-weekend and refuse Keycloak weight.
+
+### Product surfaces
+
+| Surface | Role |
+|---------|------|
+| `aaax-server` | The runnable product |
+| README | Shop window / 5-minute path |
+| Booklet | Full truth |
+| `examples/` | Integrate recipes |
+| GitHub release tags | Trust signal (`v0.3.0`) |
+
+### Explicit non-positioning
+
+- Not Auth0 enterprise RFP bait day one  
+- Not a 1:1 qs/uaa binary clone (see [PARITY_QS_UAA.md](./PARITY_QS_UAA.md))  
+- Not a hosted multi-tenant SaaS (self-host first)
+
+---
+
+## 3. The four letters
 
 | | | |
 |--|--|--|
@@ -62,7 +106,7 @@
 
 ---
 
-## 3. Competitive frame
+## 4. Competitive frame
 
 | | Strength | AAAX angle |
 |--|----------|------------|
@@ -72,7 +116,7 @@
 
 ---
 
-## 4. Principles
+## 5. Principles
 
 1. Self-host first  
 2. OIDC-grade core  
@@ -83,14 +127,14 @@
 
 ---
 
-## 5. Scope (v1)
+## 6. Scope (v1)
 
 **In:** Accounts, password+OTP, OAuth2/OIDC, RBAC baseline, Compose, curl docs.  
 **Out:** Full admin dashboard, every social, passkeys day-one, Quinsic business APIs.
 
 ---
 
-## 6. Current status (0.3)
+## 7. Current status (0.3)
 
 | Area | State |
 |------|--------|
@@ -109,7 +153,7 @@
 
 ---
 
-## 7. Architecture
+## 8. Architecture
 
 ```text
  Browser / SPA ──► Form login + /oauth2/* (AS)
@@ -142,7 +186,7 @@
 
 ---
 
-## 8. Repo map
+## 9. Repo map
 
 ```text
 aaax/
@@ -159,7 +203,7 @@ aaax/
 
 ---
 
-## 9. Stack & run
+## 10. Stack & run
 
 - Java 17 · Spring Boot 3.3 · Authorization Server · Mail  
 - JPA Accounts · JDBC OAuth · File JWK · H2 / Postgres  
@@ -179,7 +223,7 @@ docker compose up --build
 
 ---
 
-## 10. Configuration
+## 11. Configuration
 
 | Env | Default | |
 |-----|---------|--|
@@ -195,7 +239,7 @@ docker compose up --build
 
 ---
 
-## 11. Demo credentials (local seeds only)
+## 12. Demo credentials (local seeds only)
 
 | | |
 |--|--|
@@ -205,7 +249,7 @@ docker compose up --build
 
 ---
 
-## 12. HTTP API
+## 13. HTTP API
 
 | Method | Path | Auth |
 |--------|------|------|
@@ -234,7 +278,7 @@ Response includes one-time `clientSecret` (save it).
 
 ---
 
-## 13. OAuth2 / OIDC
+## 14. OAuth2 / OIDC
 
 | Endpoint | |
 |----------|--|
@@ -245,7 +289,7 @@ Response includes one-time `clientSecret` (save it).
 
 ---
 
-## 14. Happy path (curl)
+## 15. Happy path (curl)
 
 ### Register
 
@@ -293,7 +337,7 @@ Login http://localhost:8081/login then:
 
 ---
 
-## 15. Security posture
+## 16. Security posture
 
 - Report via GitHub Security Advisories  
 - Demo seeds are toys — disable in prod  
@@ -303,7 +347,7 @@ Login http://localhost:8081/login then:
 
 ---
 
-## 16. Deploy checklist
+## 17. Deploy checklist
 
 ### Before first real deploy
 
@@ -333,7 +377,7 @@ docker compose down
 
 ---
 
-## 17. Roadmap
+## 18. Roadmap
 
 ### Done
 
@@ -359,7 +403,7 @@ docker compose down
 
 ---
 
-## 18. Dev workflow
+## 19. Dev workflow
 
 | | |
 |--|--|
@@ -370,7 +414,7 @@ docker compose down
 
 ---
 
-## 19. Glossary
+## 20. Glossary
 
 | Term | |
 |------|--|
