@@ -17,6 +17,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Optional<Account> findByGoogleSub(String googleSub);
 
+    Optional<Account> findBySamlNameId(String samlNameId);
+
     boolean existsByRolesContainingIgnoreCase(String roleFragment);
 
     long countByRolesContainingIgnoreCase(String roleFragment);

@@ -47,6 +47,12 @@ public class Account {
     @Column(name = "google_sub", length = 128, unique = true)
     private String googleSub;
 
+    @Column(name = "saml_name_id", length = 256, unique = true)
+    private String samlNameId;
+
+    @Column(name = "phone", length = 32)
+    private String phone;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -128,6 +134,14 @@ public class Account {
         return googleSub;
     }
 
+    public String getSamlNameId() {
+        return samlNameId;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -162,5 +176,13 @@ public class Account {
 
     public void setGoogleSub(String googleSub) {
         this.googleSub = googleSub;
+    }
+
+    public void setSamlNameId(String samlNameId) {
+        this.samlNameId = samlNameId;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

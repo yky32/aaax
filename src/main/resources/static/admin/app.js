@@ -293,9 +293,11 @@ async function loadSettings() {
   const s = await r.json();
   $("#settingsCard").innerHTML = `
     <div><strong>Issuer</strong><div class="muted">${esc(s.issuer)}</div></div>
-    <div style="margin-top:.75rem"><strong>OTP channel</strong><div class="muted">${esc(s.otpChannel)}</div></div>
+    <div style="margin-top:.75rem"><strong>OTP channel</strong><div class="muted">${esc(s.otpChannel)} ${s.otpDispatch ? "· modes: console/mail/kafka/sms" : ""}</div></div>
+    <div style="margin-top:.75rem"><strong>Orgs model</strong><div class="muted">${esc(s.orgsModel || "single")}</div></div>
     <div style="margin-top:.75rem"><strong>Demo seeds</strong><div class="muted">client=${s.demoSeedClient} account=${s.demoSeedAccount}</div></div>
-    <div style="margin-top:.75rem"><strong>Google OIDC</strong><div class="muted">${s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID/SECRET"}</div></div>
+    <div style="margin-top:.75rem"><strong>Google OIDC</strong><div class="muted">${s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID/SECRET + profile google"}</div></div>
+    <div style="margin-top:.75rem"><strong>SAML SP</strong><div class="muted">${s.samlEnabled ? ("on · " + (s.samlLoginPath || "")) : "AAAX_SAML_ENABLED + IDP metadata URI"}</div></div>
     <div style="margin-top:.75rem"><strong>Version</strong><div class="muted">${esc(s.version)}</div></div>
   `;
   $("#decisions").innerHTML = (s.decisionBlockers || [])

@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- AAAX OSS settings: Maven Central ONLY. No private GitHub packages. -->
+<!-- AAAX OSS settings: public repos only (Central + Shibboleth OpenSAML). No private GitHub packages. -->
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <localRepository>${user.home}/.m2/repository</localRepository>
-  <interactiveMode>false</interactiveMode>
-  <offline>false</offline>
   <profiles>
     <profile>
-      <id>aaax-central-only</id>
+      <id>aaax-public-only</id>
       <repositories>
         <repository>
           <id>central</id>
           <url>https://repo1.maven.org/maven2</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>shibboleth</id>
+          <url>https://build.shibboleth.net/maven/releases/</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
@@ -28,9 +31,7 @@
     </profile>
   </profiles>
   <activeProfiles>
-    <activeProfile>aaax-central-only</activeProfile>
+    <activeProfile>aaax-public-only</activeProfile>
   </activeProfiles>
-  <!-- Intentionally empty: no private package servers -->
-  <servers/>
   <mirrors/>
 </settings>

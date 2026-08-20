@@ -135,6 +135,9 @@ public class SecurityConfig {
         if (googleId != null && !googleId.isBlank()) {
             http.oauth2Login(oauth -> oauth.defaultSuccessUrl("/admin/", true));
         }
+        if ("true".equalsIgnoreCase(env.getProperty("aaax.saml.enabled", "false"))) {
+            http.saml2Login(saml -> saml.defaultSuccessUrl("/admin/", true));
+        }
         return http.build();
     }
 

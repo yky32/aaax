@@ -23,11 +23,18 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
-  <!-- Public OSS: Maven Central only (also enforced by .mvn/settings.xml). -->
+  <!-- Public OSS: Maven Central + Shibboleth (OpenSAML for SAML2; no private packages). -->
   <repositories>
     <repository>
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+    <repository>
+      <id>shibboleth</id>
+      <name>Shibboleth OpenSAML</name>
+      <url>https://build.shibboleth.net/maven/releases/</url>
       <releases><enabled>true</enabled></releases>
       <snapshots><enabled>false</enabled></snapshots>
     </repository>
@@ -78,6 +85,16 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+    <!-- Optional channels: Kafka OTP events (caller owns SMS provider) -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <!-- SAML 2.0 Service Provider (login via external IdP) -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-saml2-service-provider</artifactId>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>

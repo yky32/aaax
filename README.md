@@ -71,6 +71,26 @@ Open after `mvn spring-boot:run`:
 
 Static UI ships in the jar (`src/main/resources/static/admin`) — clone & run, no Node build.
 
+### OTP / SMS modes (no Twilio lock-in)
+
+| `AAAX_OTP_CHANNEL` | Behavior |
+|--------------------|----------|
+| `console` | Log codes (default) |
+| `mail` | SMTP |
+| `kafka` | **Mode 1** — publish `OtpDispatchEvent` to Kafka; caller owns notification-service/SMS |
+| `sms` | **Mode 2** — HTTP webhook to your provider URL (`AAAX_OTP_SMS_WEBHOOK_URL`) |
+
+### SAML 2 SP
+
+```bash
+export AAAX_SAML_ENABLED=true
+export AAAX_SAML_IDP_METADATA_URI=https://idp.example.com/metadata
+mvn spring-boot:run
+# Login: /saml2/authenticate/idp
+```
+
+Orgs: **single-realm** only. Passkeys: later.
+
 ---
 
 ## What you get

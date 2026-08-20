@@ -236,24 +236,45 @@ public class AccountService {
                     }
                     return existing;
                 })
-                .orElseGet(() -> {
-                    String base = StringUtils.hasText(nameHint) ? nameHint.replaceAll("[^a-zA-Z0-9._-]", "") : "google";
-                    if (base.length() < 3) {
-                        base = "google";
+                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setGoogleSub(sub), "account.google.link", sub));
+    }
+
+    @Transactional
+    public Account linkOrCreateSaml(String nameId, String email, String nameHint) {
+        return accountRepository.findBySamlNameId(nameId)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+                .map(existing -> {
+                    if (existing.getSamlNameId() == null) {
+                        existing.setSamlNameId(nameId);
+                        return accountRepository.save(existing);
                     }
-                    String username = base.substring(0, Math.min(base.length(), 40));
-                    int i = 0;
-                    while (accountRepository.existsByUsernameIgnoreCase(username)) {
-                        i++;
-                        username = base.substring(0, Math.min(base.length(), 36)) + i;
-                    }
-                    String randomPass = passwordEncoder.encode(UUID.randomUUID().toString());
-                    Account created = new Account(username, normalizeEmail(email), randomPass, "USER");
-                    created.setGoogleSub(sub);
-                    Account saved = accountRepository.save(created);
-                    auditService.record("account.google.link", username, sub);
-                    return saved;
-                });
+                    return existing;
+                })
+                .orElseGet(() -> createFederatedUser(email, nameHint, a -> a.setSamlNameId(nameId), "account.saml.link", nameId));
+    }
+
+    private Account createFederatedUser(
+            String email,
+            String nameHint,
+            java.util.function.Consumer<Account> linker,
+            String auditAction,
+            String auditDetail) {
+        String base = StringUtils.hasText(nameHint) ? nameHint.replaceAll("[^a-zA-Z0-9._-]", "") : "user";
+        if (base.length() < 3) {
+            base = "user";
+        }
+        String username = base.substring(0, Math.min(base.length(), 40));
+        int i = 0;
+        while (accountRepository.existsByUsernameIgnoreCase(username)) {
+            i++;
+            username = base.substring(0, Math.min(base.length(), 36)) + i;
+        }
+        String randomPass = passwordEncoder.encode(UUID.randomUUID().toString());
+        Account created = new Account(username, normalizeEmail(email), randomPass, "USER");
+        linker.accept(created);
+        Account saved = accountRepository.save(created);
+        auditService.record(auditAction, username, auditDetail);
+        return saved;
     }
 
     @Transactional(readOnly = true)
