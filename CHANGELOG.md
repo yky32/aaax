@@ -4,24 +4,21 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.4.0-SNAPSHOT] — 2026-08-20
 
-### Admin portal
-- Built-in UI at `/admin/` (static SPA in jar — no Node build)
-- Dashboard, users, OAuth clients, TOTP MFA, audit, settings
+### Win wedge complete — Identity Event Bus
+- CloudEvents-ish lifecycle on every auth path (login/MFA/OTP/clients/admin)
+- Sinks: log · audit DB · **in-memory buffer** · optional Kafka · optional webhook
+- `GET /v1/admin/events` + Admin portal **Events** tab
+- OTP always emits `com.aaax.otp.dispatch` (kafka channel = bus-only delivery)
+- Examples: `examples/identity-events/consumer.py`, `curl/login-admin-and-events.sh`
+- Docs: IDENTITY_EVENTS.md · booklet §4.6 · README tagline
 
-### Competitor-level core
-- First-admin bootstrap API
-- TOTP MFA (RFC 6238)
-- Session login API with MFA step-up
-- Audit events + admin settings / feature flags
-- Optional Google OIDC (`application-google.yml`)
-- Decision blockers listed in settings API
-
-### Stack
-- Spring Boot 4.1 + Java 21 + Security 7 AS
-- Maven Central only
+### Also in 0.4 line
+- Boot 4.1 / JDK 21 / Security 7 AS
+- Admin portal, TOTP MFA, bootstrap, SAML SP, SMS kafka/webhook modes
+- Standalone OSS (Central + Shibboleth OpenSAML)
 
 ## [0.3.0] — 2026-08-20
-- Developer product launch, examples, standalone identity core
+- Developer product launch surface
 
 ## [0.2.0] — 2026-08-20
 - Greenfield rewrite

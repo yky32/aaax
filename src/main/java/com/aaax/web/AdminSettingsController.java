@@ -4,14 +4,19 @@ import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.aaax.account.AccountService;
 import com.aaax.audit.AuditEvent;
 import com.aaax.audit.AuditService;
 import com.aaax.client.ClientAdminService;
+import com.aaax.events.BufferIdentityEventSink;
+import com.aaax.events.IdentityEvent;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,42 +29,58 @@ public class AdminSettingsController {
     private final AccountService accountService;
     private final ClientAdminService clientAdminService;
     private final AuditService auditService;
+    private final BufferIdentityEventSink eventBuffer;
     private final Environment environment;
+    private final ObjectProvider<KafkaTemplate<String, String>> kafkaTemplate;
     private final String issuer;
     private final String otpChannel;
     private final boolean seedClient;
     private final boolean seedAccount;
     private final boolean samlEnabled;
     private final String smsWebhook;
-    private final String kafkaTopic;
+    private final String otpKafkaTopic;
+    private final boolean eventsKafkaEnabled;
+    private final String eventsKafkaTopic;
+    private final String eventsWebhook;
 
     public AdminSettingsController(
             AccountService accountService,
             ClientAdminService clientAdminService,
             AuditService auditService,
+            BufferIdentityEventSink eventBuffer,
             Environment environment,
+            ObjectProvider<KafkaTemplate<String, String>> kafkaTemplate,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer,
             @Value("${aaax.otp.channel:console}") String otpChannel,
             @Value("${aaax.demo.seed-client:true}") boolean seedClient,
             @Value("${aaax.demo.seed-account:true}") boolean seedAccount,
             @Value("${aaax.saml.enabled:false}") boolean samlEnabled,
             @Value("${aaax.otp.sms.webhook-url:}") String smsWebhook,
-            @Value("${aaax.otp.kafka.topic:aaax.otp.dispatch}") String kafkaTopic) {
+            @Value("${aaax.otp.kafka.topic:aaax.otp.dispatch}") String otpKafkaTopic,
+            @Value("${aaax.events.kafka.enabled:false}") boolean eventsKafkaEnabled,
+            @Value("${aaax.events.kafka.topic:aaax.identity.events}") String eventsKafkaTopic,
+            @Value("${aaax.events.webhook-url:}") String eventsWebhook) {
         this.accountService = accountService;
         this.clientAdminService = clientAdminService;
         this.auditService = auditService;
+        this.eventBuffer = eventBuffer;
         this.environment = environment;
+        this.kafkaTemplate = kafkaTemplate;
         this.issuer = issuer;
         this.otpChannel = otpChannel;
         this.seedClient = seedClient;
         this.seedAccount = seedAccount;
         this.samlEnabled = samlEnabled;
         this.smsWebhook = smsWebhook;
-        this.kafkaTopic = kafkaTopic;
+        this.otpKafkaTopic = otpKafkaTopic;
+        this.eventsKafkaEnabled = eventsKafkaEnabled;
+        this.eventsKafkaTopic = eventsKafkaTopic;
+        this.eventsWebhook = eventsWebhook;
     }
 
     @GetMapping("/settings")
     public Map<String, Object> settings() {
+        boolean kafkaLive = kafkaTemplate.getIfAvailable() != null;
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("product", "AAAX");
         m.put("version", "0.4.0-SNAPSHOT");
@@ -72,28 +93,49 @@ public class AdminSettingsController {
         m.put("googleLoginEnabled", hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id")));
         m.put("samlEnabled", samlEnabled);
         m.put("samlLoginPath", samlEnabled ? "/saml2/authenticate/idp" : null);
+        m.put("identityEventBus", Map.of(
+                "enabled", true,
+                "bufferSize", eventBuffer.size(),
+                "kafkaEnabled", kafkaLive || eventsKafkaEnabled || "kafka".equalsIgnoreCase(otpChannel),
+                "kafkaLive", kafkaLive,
+                "kafkaTopic", eventsKafkaTopic,
+                "webhookConfigured", hasText(eventsWebhook),
+                "wedge", "AAAX authenticates. Your mesh notifies."));
         m.put("otpDispatch", Map.of(
                 "channel", otpChannel,
                 "modes", List.of(
                         Map.of("id", "console", "desc", "Log codes (dev)"),
                         Map.of("id", "mail", "desc", "SMTP email"),
-                        Map.of("id", "kafka", "desc", "Mode1: publish OtpDispatchEvent — caller owns SMS"),
-                        Map.of("id", "sms", "desc", "Mode2: HTTP webhook to caller's notification-service")),
+                        Map.of("id", "kafka", "desc", "Mode1: OTP on Identity Event Bus → Kafka"),
+                        Map.of("id", "sms", "desc", "Mode2: HTTP webhook SMS + bus event")),
                 "smsWebhookConfigured", hasText(smsWebhook),
-                "kafkaTopic", kafkaTopic));
+                "otpKafkaTopic", otpKafkaTopic));
         m.put("counts", Map.of(
                 "users", accountService.countUsers(),
                 "admins", accountService.countAdmins(),
-                "clients", clientAdminService.list().size()));
-        m.put("features", featureMap());
+                "clients", clientAdminService.list().size(),
+                "eventsBuffered", eventBuffer.size()));
+        m.put("features", featureMap(kafkaLive));
         m.put("decisionBlockers", List.of(
                 Map.of("id", "passkeys", "question", "Passkeys — deferred (later)"),
-                Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP for SAML apps) — SP done; full IdP later?")));
+                Map.of("id", "saml_idp", "question", "SAML IdP (AAAX as IdP) — SP done; full IdP later?")));
         return m;
     }
 
-    private Map<String, Object> featureMap() {
+    /** Live identity events (in-memory buffer) — CloudEvents-ish. */
+    @GetMapping("/events")
+    public List<Map<String, Object>> events(@RequestParam(defaultValue = "50") int limit) {
+        return eventBuffer.recent(limit).stream().map(this::mapIdentity).collect(Collectors.toList());
+    }
+
+    @GetMapping("/audit")
+    public List<Map<String, Object>> audit(@RequestParam(defaultValue = "50") int limit, Principal principal) {
+        return auditService.recent(limit).stream().map(this::mapAudit).toList();
+    }
+
+    private Map<String, Object> featureMap(boolean kafkaLive) {
         Map<String, Object> f = new LinkedHashMap<>();
+        f.put("identityEventBus", true);
         f.put("totpMfa", true);
         f.put("otpPasswordless", true);
         f.put("adminPortal", true);
@@ -105,16 +147,25 @@ public class AdminSettingsController {
         f.put("orgsModel", "single");
         f.put("smsOtpWebhook", "sms".equalsIgnoreCase(otpChannel));
         f.put("smsOtpKafka", "kafka".equalsIgnoreCase(otpChannel));
+        f.put("eventsKafka", kafkaLive || eventsKafkaEnabled);
+        f.put("eventsWebhook", hasText(eventsWebhook));
         f.put("passkeys", false);
         return f;
     }
 
-    @GetMapping("/audit")
-    public List<Map<String, Object>> audit(@RequestParam(defaultValue = "50") int limit, Principal principal) {
-        return auditService.recent(limit).stream().map(this::mapEvent).toList();
+    private Map<String, Object> mapIdentity(IdentityEvent e) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("specversion", e.specversion());
+        m.put("id", e.id());
+        m.put("source", e.source());
+        m.put("type", e.type());
+        m.put("time", e.time());
+        m.put("subject", e.subject());
+        m.put("data", e.data());
+        return m;
     }
 
-    private Map<String, Object> mapEvent(AuditEvent e) {
+    private Map<String, Object> mapAudit(AuditEvent e) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", e.getId());
         m.put("action", e.getAction());

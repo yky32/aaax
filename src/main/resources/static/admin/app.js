@@ -125,9 +125,12 @@ $$(".nav-btn").forEach((btn) => {
     if (v === "dashboard") await loadDashboard();
     if (v === "users") await loadUsers();
     if (v === "clients") await loadClients();
+    if (v === "events") await loadEvents();
     if (v === "audit") await loadAudit();
     if (v === "settings") await loadSettings();
-    if (v === "mfa") $("#mfaStatus").textContent = me?.mfaEnabled ? "MFA is enabled on this account." : "MFA is off.";
+    if (v === "mfa") {
+      $("#mfaStatus").textContent = me?.mfaEnabled ? "MFA is enabled on this account." : "MFA is off.";
+    }
   });
 });
 
@@ -140,16 +143,41 @@ async function loadDashboard() {
     ["Users", c.users],
     ["Admins", c.admins],
     ["Clients", c.clients],
+    ["Events buffered", c.eventsBuffered ?? "—"],
     ["OTP channel", s.otpChannel],
   ]
     .map(([l, n]) => `<div class="stat"><div class="n">${n ?? "—"}</div><div class="l">${l}</div></div>`)
     .join("");
+  const bus = s.identityEventBus || {};
   const feats = s.features || {};
   $("#featureFlags").innerHTML =
-    "<h2>Feature flags</h2>" +
+    "<h2>Identity Event Bus</h2>" +
+    `<p class="muted">${esc(bus.wedge || "AAAX authenticates. Your mesh notifies.")}</p>` +
+    `<p class="small">kafkaLive=${bus.kafkaLive} · topic=${esc(bus.kafkaTopic || "")} · webhook=${bus.webhookConfigured}</p>` +
+    "<h2 style='margin-top:1rem'>Feature flags</h2>" +
     Object.entries(feats)
       .map(([k, v]) => `<span class="pill ${v ? "" : "off"}" style="margin:.2rem">${k}: ${v ? "on" : "off"}</span>`)
       .join(" ");
+}
+
+async function loadEvents() {
+  const r = await api("/v1/admin/events?limit=80");
+  if (!r.ok) return;
+  const rows = await r.json();
+  $("#eventsBody").innerHTML =
+    rows
+      .map((e) => {
+        const data = e.data ? JSON.stringify(e.data) : "";
+        const safe = data.length > 120 ? data.slice(0, 120) + "…" : data;
+        return `<tr>
+      <td class="small">${esc(e.time || "")}</td>
+      <td><code>${esc(e.type || "")}</code></td>
+      <td>${esc(e.subject || "")}</td>
+      <td class="small muted">${esc(safe)}</td>
+    </tr>`;
+      })
+      .join("") ||
+    "<tr><td colspan='4' class='muted'>No events yet — login or register to emit.</td></tr>";
 }
 
 async function loadUsers() {
@@ -197,15 +225,16 @@ async function loadClients() {
   const r = await api("/v1/admin/clients");
   if (!r.ok) return;
   const clients = await r.json();
-  $("#clientsList").innerHTML = clients
-    .map(
-      (c) => `<div style="padding:.5rem 0;border-bottom:1px solid var(--border)">
+  $("#clientsList").innerHTML =
+    clients
+      .map(
+        (c) => `<div style="padding:.5rem 0;border-bottom:1px solid var(--border)">
       <strong>${esc(c.clientId)}</strong> · ${esc(c.clientName || "")}
       <div class="small muted">${(c.scopes || []).join(" ")}</div>
       <button class="btn small danger" data-del="${esc(c.clientId)}">Delete</button>
     </div>`
-    )
-    .join("") || "<p class='muted'>No clients</p>";
+      )
+      .join("") || "<p class='muted'>No clients</p>";
   $$("[data-del]").forEach((b) =>
     b.addEventListener("click", async () => {
       if (!confirm("Delete " + b.dataset.del + "?")) return;
@@ -293,11 +322,13 @@ async function loadSettings() {
   const s = await r.json();
   $("#settingsCard").innerHTML = `
     <div><strong>Issuer</strong><div class="muted">${esc(s.issuer)}</div></div>
-    <div style="margin-top:.75rem"><strong>OTP channel</strong><div class="muted">${esc(s.otpChannel)} ${s.otpDispatch ? "· modes: console/mail/kafka/sms" : ""}</div></div>
+    <div style="margin-top:.75rem"><strong>Win wedge</strong><div class="muted">${esc((s.identityEventBus && s.identityEventBus.wedge) || "Event bus")}</div></div>
+    <div style="margin-top:.75rem"><strong>Event bus</strong><div class="muted">buffer=${(s.identityEventBus && s.identityEventBus.bufferSize) ?? 0} · kafka=${s.identityEventBus && s.identityEventBus.kafkaLive ? "live" : "off"} · topic=${esc((s.identityEventBus && s.identityEventBus.kafkaTopic) || "")}</div></div>
+    <div style="margin-top:.75rem"><strong>OTP channel</strong><div class="muted">${esc(s.otpChannel)}</div></div>
     <div style="margin-top:.75rem"><strong>Orgs model</strong><div class="muted">${esc(s.orgsModel || "single")}</div></div>
     <div style="margin-top:.75rem"><strong>Demo seeds</strong><div class="muted">client=${s.demoSeedClient} account=${s.demoSeedAccount}</div></div>
     <div style="margin-top:.75rem"><strong>Google OIDC</strong><div class="muted">${s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID/SECRET + profile google"}</div></div>
-    <div style="margin-top:.75rem"><strong>SAML SP</strong><div class="muted">${s.samlEnabled ? ("on · " + (s.samlLoginPath || "")) : "AAAX_SAML_ENABLED + IDP metadata URI"}</div></div>
+    <div style="margin-top:.75rem"><strong>SAML SP</strong><div class="muted">${s.samlEnabled ? "on · " + (s.samlLoginPath || "") : "AAAX_SAML_ENABLED + IDP metadata URI"}</div></div>
     <div style="margin-top:.75rem"><strong>Version</strong><div class="muted">${esc(s.version)}</div></div>
   `;
   $("#decisions").innerHTML = (s.decisionBlockers || [])

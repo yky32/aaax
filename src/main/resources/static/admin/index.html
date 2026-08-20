@@ -18,6 +18,7 @@
         <button data-view="users" class="nav-btn">Users</button>
         <button data-view="clients" class="nav-btn">OAuth Clients</button>
         <button data-view="mfa" class="nav-btn">MFA (TOTP)</button>
+        <button data-view="events" class="nav-btn">Events</button>
         <button data-view="audit" class="nav-btn">Audit</button>
         <button data-view="settings" class="nav-btn">Settings</button>
       </nav>
@@ -115,6 +116,18 @@
             <button id="confirmMfaBtn" class="btn primary">Confirm & enable</button>
           </div>
           <p id="mfaStatus"></p>
+        </div>
+      </section>
+
+      <!-- EVENTS -->
+      <section id="view-events" class="panel hidden">
+        <h1>Identity events</h1>
+        <p class="muted">Live bus buffer (CloudEvents-ish). Kafka/webhook fan-out when configured.</p>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Type</th><th>Subject</th><th>Data</th></tr></thead>
+            <tbody id="eventsBody"></tbody>
+          </table>
         </div>
       </section>
 

@@ -1,11 +1,16 @@
 # Examples
 
-Developer-facing recipes for **AAAX** after `mvn spring-boot:run` (default `http://localhost:8081`).
-
 | Path | |
 |------|--|
-| [curl/](./curl/) | Shell scripts — token, hello API, register, OTP login |
-| [resource-call.md](./resource-call.md) | How a backend/BFF should call AAAX-protected APIs |
+| [curl/](./curl/) | health, token, register, OTP, **admin events** |
+| [identity-events/](./identity-events/) | Kafka consumer for Identity Event Bus |
+| [resource-call.md](./resource-call.md) | Resource server JWT sketch |
+
+```bash
+./examples/curl/get-token-and-hello.sh
+./examples/curl/login-admin-and-events.sh
+```
+
 
 ## Prerequisites
 

@@ -50,7 +50,8 @@ class AaaxApplicationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product").value("AAAX"))
-                .andExpect(jsonPath("$.version").value("0.4.0-SNAPSHOT"));
+                .andExpect(jsonPath("$.version").value("0.4.0-SNAPSHOT"))
+                .andExpect(jsonPath("$.wedge").exists());
     }
 
     @Test
@@ -277,7 +278,12 @@ class AaaxApplicationTests {
         MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
         mockMvc.perform(get("/v1/admin/settings").session(session))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.features.adminPortal").value(true));
+                .andExpect(jsonPath("$.features.adminPortal").value(true))
+                .andExpect(jsonPath("$.features.identityEventBus").value(true))
+                .andExpect(jsonPath("$.identityEventBus.enabled").value(true));
+        mockMvc.perform(get("/v1/admin/events").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].type").value("com.aaax.auth.login"));
     }
 
     @Test

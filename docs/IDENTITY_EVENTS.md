@@ -46,11 +46,14 @@ No Twilio lock-in. No “buy our messaging add-on”.
 |------|--------|
 | **Log** | always |
 | **Audit DB** | always (`/v1/admin/audit`) |
+| **In-memory buffer** | always — `GET /v1/admin/events` + portal Events tab |
 | **Kafka** | `AAAX_EVENTS_KAFKA_ENABLED=true` **or** `AAAX_OTP_CHANNEL=kafka` |
 | **HTTP webhook** | `AAAX_EVENTS_WEBHOOK_URL=...` (+ optional `AAAX_EVENTS_WEBHOOK_AUTH`) |
 
-Kafka topic default: `aaax.identity.events`  
-OTP-only path can still use `aaax.otp.dispatch` topic via `AAAX_OTP_KAFKA_TOPIC` / events topic override.
+OTP requests always emit `com.aaax.otp.dispatch` (includes `code` for notify mesh).  
+`channel=kafka` → no second SMS adapter; bus Kafka sink is the delivery path.
+
+Kafka topic default: `aaax.identity.events`
 
 ## Caller pattern
 
