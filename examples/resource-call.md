@@ -69,3 +69,14 @@ Authorization: Bearer <token with scope api.read>
 ```
 
 Use `./examples/curl/get-token-and-hello.sh` against that endpoint before wiring your own service.
+
+## Runnable external example
+
+Full Boot 4.1 mini app (separate process on **:8082**):
+
+→ [resource-server-boot4/](./resource-server-boot4/)
+
+```bash
+cd examples/resource-server-boot4 && mvn spring-boot:run
+./examples/resource-server-boot4/call.sh
+```

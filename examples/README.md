@@ -6,15 +6,17 @@
 | [identity-events/](./identity-events/) | Kafka consumer script |
 | [compose-kafka-notify/](./compose-kafka-notify/) | **v0.4 path** — AAAX + Kafka + sample notify |
 | [redis-otp-store.md](./redis-otp-store.md) · [compose-redis-otp/](./compose-redis-otp/) | Multi-node OTP/magic (`aaax.otp.store=redis`) |
+| [**resource-server-boot4/**](./resource-server-boot4/) | **External** JWT resource server (Boot 4.1) |
 | [resource-call.md](./resource-call.md) | Resource server JWT sketch |
 
 ```bash
 ./examples/curl/get-token-and-hello.sh
 ./examples/curl/login-admin-and-events.sh
-# full mesh demo:
-# mvn -DskipTests package && cd examples/compose-kafka-notify && docker compose up --build
-# multi-node OTP:
-# mvn -DskipTests package && docker compose -f examples/compose-redis-otp/docker-compose.yml up --build
+
+# external API validated by AAAX JWKS:
+# terminal1: mvn spring-boot:run
+# terminal2: cd examples/resource-server-boot4 && mvn spring-boot:run
+# ./examples/resource-server-boot4/call.sh
 ```
 
 ## Prerequisites

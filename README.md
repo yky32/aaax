@@ -41,7 +41,7 @@ sequenceDiagram
 | | |
 |--|--|
 | **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [**Code map**](./docs/CODEMAP.md) · [Architecture](./docs/ARCHITECTURE.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Changelog](./CHANGELOG.md) |
-| **Examples** | [examples/](./examples/) · [Kafka notify path](./examples/compose-kafka-notify/) |
+| **Examples** | [examples/](./examples/) · [Kafka notify](./examples/compose-kafka-notify/) · [**Resource server**](./examples/resource-server-boot4/) · [Redis OTP](./examples/redis-otp-store.md) |
 | **Version** | **`v0.4.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 

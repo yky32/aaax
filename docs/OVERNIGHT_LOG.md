@@ -1,5 +1,16 @@
 # Overnight log
 
+## 2026-08-21 — Batch C (`go` = overnight dx)
+
+### Done
+- **C1–C3** `examples/resource-server-boot4/` (Boot 4.1 JWT resource server)
+- **C4** examples README + resource-call.md + `call.sh`
+- Fix `get-token-and-hello.sh` Bearer `$TOKEN`
+- Compile/run check on example module
+
+### Morning next
+- `go passkey crypto` · `go v0.5`
+
 ## 2026-08-21 — Batch B (`go` = overnight deep)
 
 ### Done

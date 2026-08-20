@@ -4,6 +4,10 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.5.0-SNAPSHOT] — unreleased
 
+### Overnight batch C (2026-08-21) — resource-server DX
+- `examples/resource-server-boot4/` — Boot 4.1 JWT RS + `call.sh`
+- Fix curl hello script Bearer token; link from `resource-call.md`
+
 ### Overnight batch B (2026-08-21) — Redis-optional OTP/magic store
 - `OtpCodeStore` + `MagicLinkTokenStore` SPI
 - Default `aaax.otp.store=memory`; `redis` via `RedisTokenStoreConfig` (no broker unless enabled)
