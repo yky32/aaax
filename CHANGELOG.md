@@ -4,7 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.5.0-SNAPSHOT] — unreleased
 
-Development follows **v0.4.0**. Candidates: passkey crypto harden, resource-server starter, orgs decision.
+### Application layer (UseCase)
+- Split `AccountService` → `account.application.*UseCase` + `AccountQueries`
+- Auth flows → `auth.application` (`FinishAuthenticatedSession`, password/OTP/magic/logout)
+- Controllers thin; docs: `ARCHITECTURE.md`
+- Candidates still open: passkey crypto harden, resource-server starter, orgs decision
 
 ## [0.4.0] — 2026-08-20
 

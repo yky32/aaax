@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.aaax.account.Account;
-import com.aaax.account.AccountService;
+import com.aaax.account.application.FederateAccountUseCase;
 import com.aaax.account.AccountUserDetailsService;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
@@ -48,7 +48,7 @@ public class SocialLoginConfig {
 
     @Bean
     AuthenticationSuccessHandler socialLoginSuccessHandler(
-            AccountService accountService,
+            FederateAccountUseCase accountService,
             AccountUserDetailsService userDetailsService,
             IdentityEventBus events) {
         SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
@@ -93,7 +93,7 @@ public class SocialLoginConfig {
         };
     }
 
-    static Account resolveAccount(String provider, OAuth2User user, AccountService accounts) {
+    static Account resolveAccount(String provider, OAuth2User user, FederateAccountUseCase accounts) {
         if ("google".equalsIgnoreCase(provider) && user instanceof OidcUser oidc) {
             String sub = oidc.getSubject();
             String email = oidc.getEmail();
@@ -106,12 +106,10 @@ public class SocialLoginConfig {
             String email = user.getAttribute("email");
             String login = user.getAttribute("login");
             if (!StringUtils.hasText(email)) {
-                // public email may be null; use noreply placeholder unique per github id
                 email = githubId + "+github@users.noreply.github.com";
             }
             return accounts.linkOrCreateGithub(githubId, email, login);
         }
-        // generic OIDC-ish fallback
         String sub = user.getName();
         String email = user.getAttribute("email");
         return accounts.linkOrCreateGoogle(provider + ":" + sub, email, sub);

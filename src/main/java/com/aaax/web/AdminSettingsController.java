@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.aaax.account.AccountService;
+import com.aaax.account.application.AccountQueries;
 import com.aaax.audit.AuditEvent;
 import com.aaax.audit.AuditService;
 import com.aaax.client.ClientAdminService;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/admin")
 public class AdminSettingsController {
 
-    private final AccountService accountService;
+    private final AccountQueries accountService;
     private final ClientAdminService clientAdminService;
     private final AuditService auditService;
     private final BufferIdentityEventSink eventBuffer;
@@ -44,7 +44,7 @@ public class AdminSettingsController {
     private final String eventsWebhook;
 
     public AdminSettingsController(
-            AccountService accountService,
+            AccountQueries accountService,
             ClientAdminService clientAdminService,
             AuditService auditService,
             BufferIdentityEventSink eventBuffer,

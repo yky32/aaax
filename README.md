@@ -25,7 +25,7 @@ clone → mvn test → spring-boot:run → token
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Clerk parity](./docs/CLERK_PARITY.md) · [Social](./docs/SOCIAL.md) · [Changelog](./CHANGELOG.md) |
+| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Architecture](./docs/ARCHITECTURE.md) · [Events](./docs/IDENTITY_EVENTS.md) · [Clerk parity](./docs/CLERK_PARITY.md) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) · [Kafka notify path](./examples/compose-kafka-notify/) |
 | **Version** | **`v0.4.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |

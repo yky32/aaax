@@ -4,9 +4,10 @@ import java.security.Principal;
 import java.util.List;
 
 import com.aaax.account.AccountResponse;
-import com.aaax.account.AccountService;
-import com.aaax.account.AccountService.SetEnabledRequest;
-import com.aaax.account.AccountService.SetRolesRequest;
+import com.aaax.account.application.AccountDtos.SetEnabledRequest;
+import com.aaax.account.application.AccountDtos.SetRolesRequest;
+import com.aaax.account.application.AccountQueries;
+import com.aaax.account.application.AdminManageUserUseCase;
 
 import jakarta.validation.Valid;
 
@@ -21,35 +22,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/admin/users")
 public class AdminUserController {
 
-    private final AccountService accountService;
+    private final AccountQueries queries;
+    private final AdminManageUserUseCase manageUser;
 
-    public AdminUserController(AccountService accountService) {
-        this.accountService = accountService;
+    public AdminUserController(AccountQueries queries, AdminManageUserUseCase manageUser) {
+        this.queries = queries;
+        this.manageUser = manageUser;
     }
 
     @GetMapping
     public List<AccountResponse> list() {
-        return accountService.listAll();
+        return queries.listAll();
     }
 
     @GetMapping("/{id}")
     public AccountResponse get(@PathVariable String id) {
-        return accountService.getById(id);
+        return queries.getById(id);
     }
 
     @PatchMapping("/{id}/status")
     public AccountResponse setStatus(
-            @PathVariable String id,
-            @Valid @RequestBody SetEnabledRequest request,
-            Principal principal) {
-        return accountService.setEnabled(id, request.enabled(), principal.getName());
+            @PathVariable String id, @Valid @RequestBody SetEnabledRequest request, Principal principal) {
+        return manageUser.setEnabled(id, request.enabled(), principal.getName());
     }
 
     @PatchMapping("/{id}/roles")
     public AccountResponse setRoles(
-            @PathVariable String id,
-            @Valid @RequestBody SetRolesRequest request,
-            Principal principal) {
-        return accountService.setRoles(id, request.roles(), principal.getName());
+            @PathVariable String id, @Valid @RequestBody SetRolesRequest request, Principal principal) {
+        return manageUser.setRoles(id, request.roles(), principal.getName());
     }
 }

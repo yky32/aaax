@@ -1,8 +1,8 @@
 package com.aaax.config;
 
 import com.aaax.account.Account;
-import com.aaax.account.AccountService;
 import com.aaax.account.AccountUserDetailsService;
+import com.aaax.account.application.FederateAccountUseCase;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,7 +49,7 @@ public class SamlSpConfig {
 
     @Bean
     OpenSaml5AuthenticationProvider openSamlAuthenticationProvider(
-            AccountService accountService,
+            FederateAccountUseCase accountService,
             AccountUserDetailsService userDetailsService) {
         OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
         provider.setResponseAuthenticationConverter(responseToken -> {

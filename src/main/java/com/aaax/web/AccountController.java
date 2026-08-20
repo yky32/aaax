@@ -1,15 +1,16 @@
 package com.aaax.web;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
 import com.aaax.account.AccountResponse;
-import com.aaax.account.AccountService;
-import com.aaax.account.AccountService.ChangePasswordRequest;
-import com.aaax.account.AccountService.ForgotPasswordRequest;
-import com.aaax.account.AccountService.ResetPasswordRequest;
 import com.aaax.account.RegisterAccountRequest;
+import com.aaax.account.application.AccountDtos.ChangePasswordRequest;
+import com.aaax.account.application.AccountDtos.ForgotPasswordRequest;
+import com.aaax.account.application.AccountDtos.ResetPasswordRequest;
+import com.aaax.account.application.AccountQueries;
+import com.aaax.account.application.PasswordUseCase;
+import com.aaax.account.application.RegisterAccountUseCase;
 
 import jakarta.validation.Valid;
 
@@ -26,40 +27,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/accounts")
 public class AccountController {
 
-    private final AccountService accountService;
+    private final RegisterAccountUseCase registerAccount;
+    private final AccountQueries queries;
+    private final PasswordUseCase passwords;
 
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
+    public AccountController(
+            RegisterAccountUseCase registerAccount, AccountQueries queries, PasswordUseCase passwords) {
+        this.registerAccount = registerAccount;
+        this.queries = queries;
+        this.passwords = passwords;
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse register(@Valid @RequestBody RegisterAccountRequest request) {
-        return accountService.register(request);
+        return registerAccount.execute(request);
     }
 
     @GetMapping("/me")
     public AccountResponse me(Principal principal) {
-        return accountService.requireByUsername(principal.getName());
+        return queries.requireByUsername(principal.getName());
     }
 
     @PutMapping("/me/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(Principal principal, @Valid @RequestBody ChangePasswordRequest request) {
-        accountService.changePassword(principal.getName(), request.currentPassword(), request.newPassword());
+        passwords.changePassword(principal.getName(), request.currentPassword(), request.newPassword());
     }
 
     @PostMapping("/password/forgot")
     public Map<String, Object> forgot(@Valid @RequestBody ForgotPasswordRequest request) {
-        accountService.requestPasswordReset(request.usernameOrEmail());
-        return Map.of(
-                "accepted", true,
-                "message", "If the account exists, a reset code was sent");
+        passwords.requestPasswordReset(request.usernameOrEmail());
+        return Map.of("accepted", true, "message", "If the account exists, a reset code was sent");
     }
 
     @PostMapping("/password/reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reset(@Valid @RequestBody ResetPasswordRequest request) {
-        accountService.resetPassword(request.username(), request.code(), request.newPassword());
+        passwords.resetPassword(request.username(), request.code(), request.newPassword());
     }
 }

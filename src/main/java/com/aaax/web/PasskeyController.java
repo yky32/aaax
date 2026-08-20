@@ -4,14 +4,10 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
-import com.aaax.account.Account;
-import com.aaax.account.AccountResponse;
-import com.aaax.account.AccountUserDetailsService;
+import com.aaax.auth.application.FinishAuthenticatedSession;
 import com.aaax.passkey.PasskeyService;
 import com.aaax.passkey.PasskeyService.AuthenticateRequest;
 import com.aaax.passkey.PasskeyService.RegisterRequest;
-import com.aaax.session.AuthSession;
-import com.aaax.session.AuthSessionService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,12 +15,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,16 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PasskeyController {
 
     private final PasskeyService passkeys;
-    private final AuthSessionService sessions;
-    private final AccountUserDetailsService users;
-    private final SecurityContextRepository securityContextRepository =
-            new HttpSessionSecurityContextRepository();
+    private final FinishAuthenticatedSession finishSession;
 
-    public PasskeyController(
-            PasskeyService passkeys, AuthSessionService sessions, AccountUserDetailsService users) {
+    public PasskeyController(PasskeyService passkeys, FinishAuthenticatedSession finishSession) {
         this.passkeys = passkeys;
-        this.sessions = sessions;
-        this.users = users;
+        this.finishSession = finishSession;
     }
 
     @GetMapping("/register/options")
@@ -87,18 +72,6 @@ public class PasskeyController {
             @Valid @RequestBody AuthenticateRequest body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        Account account = passkeys.authenticate(body);
-        UserDetails details = users.loadUserByUsername(account.getUsername());
-        UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
-        ctx.setAuthentication(auth);
-        SecurityContextHolder.setContext(ctx);
-        securityContextRepository.saveContext(ctx, request, response);
-        AuthSession s = sessions.open(account.getId(), request);
-        return Map.of(
-                "mfaRequired", false,
-                "account", AccountResponse.from(account),
-                "sessionId", s.getId());
+        return finishSession.execute(passkeys.authenticate(body), "passkey", request, response, true);
     }
 }
