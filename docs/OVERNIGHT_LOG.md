@@ -1,37 +1,14 @@
 # Overnight log
 
-## STOP — nothing further without product decisions
+## DONE — go all (2026-08-21)
 
-Autonomous overnight queue **A → D exhausted**. Remaining needs Wayne:
+| | |
+|--|--|
+| **v0.5.0** | tag `v0.5.0` · commit `b751ef2` |
+| **Passkeys** | webauthn4j verify · still **off by default** |
+| **main tip** | `0.6.0-SNAPSHOT` after release |
 
-| Need you | Why |
-|----------|-----|
-| `go passkey crypto` | webauthn4j / full verify |
-| `go v0.5` | release tag + freeze |
-| Orgs / SAML IdP / React SDK | product gates |
+Overnight A–D + passkey crypto + release complete.
 
-### Commits (tip `9955f48`)
-| Batch | Tip | |
-|-------|-----|--|
-| A | `e5d0de8` | FinishSession unify |
-| B | `d7e070e` | Redis OTP store |
-| C | `25b23c1` / `54fce92` | Resource server example |
-| D | `9955f48` | Passkeys off by default |
-
-## 2026-08-21 — Batch D
-
-- `aaax.passkeys.enabled=false` default
-- API 404 when disabled; `/user` hides UI
-- Meta/settings + docs honesty
-
-## 2026-08-21 — Batch C
-
-- `examples/resource-server-boot4/` E2E
-
-## 2026-08-21 — Batch B
-
-- `OtpCodeStore` / `MagicLinkTokenStore` memory|redis
-
-## 2026-08-20 — Batch A
-
-- FinishAuthenticatedSession + magic merge + mermaid
+## Historical batches
+- A FinishSession · B Redis OTP · C resource-server · D passkeys gate

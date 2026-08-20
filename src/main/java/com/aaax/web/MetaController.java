@@ -55,7 +55,7 @@ public class MetaController {
                 "signUp", "/sign-up/",
                 "user", "/user/",
                 "admin", "/admin/"));
-        body.put("version", "0.5.0");
+        body.put("version", "0.6.0-SNAPSHOT");
         body.put("issuer", issuer);
         body.put("features", Map.of(
                 "passkeys", passkeysEnabled ? "webauthn4j" : "disabled",

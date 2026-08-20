@@ -2,6 +2,10 @@
 
 All notable changes to **AAAX** are documented here.
 
+## [0.6.0-SNAPSHOT] — unreleased
+
+Development follows **v0.5.0**.
+
 ## [0.5.0] — 2026-08-21
 
 ### Highlights
@@ -19,8 +23,8 @@ All notable changes to **AAAX** are documented here.
 - Google/GitHub social (opt), SAML SP (opt)
 - SMS dual-mode (Kafka | webhook)
 
-### Opt-in / experimental
-- Passkeys when `aaax.passkeys.enabled=true` (webauthn4j verified; still ops-sensitive)
+### Opt-in
+- Passkeys when `aaax.passkeys.enabled=true` (webauthn4j verified; RP/origin must match)
 - Redis OTP store when `aaax.otp.store=redis`
 
 ### Out of 0.5
