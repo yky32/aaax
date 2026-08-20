@@ -15,6 +15,21 @@ clone → mvn test → spring-boot:run → token
                  ↘ events → your notify mesh
 ```
 
+```mermaid
+sequenceDiagram
+  participant User
+  participant AAAX
+  participant Bus as IdentityEventBus
+  participant Mesh as Your notify / Kafka
+
+  User->>AAAX: login / OTP / magic / social
+  AAAX->>AAAX: FinishAuthenticatedSession
+  AAAX->>Bus: AUTH_LOGIN / OTP_DISPATCH / …
+  Bus->>Mesh: Kafka topic or webhook
+  Note over Mesh: You send SMS/email<br/>AAAX does not embed Twilio
+  AAAX-->>User: session + OIDC tokens for apps
+```
+
 > **ICP:** JVM teams that already run (or want) Kafka + notification-service and need a lean OIDC issuer.  
 > Not a Clerk SaaS clone — see [Clerk parity (honest)](./docs/CLERK_PARITY.md).
 

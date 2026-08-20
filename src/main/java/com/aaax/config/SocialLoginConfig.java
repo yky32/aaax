@@ -5,9 +5,8 @@ import java.util.Map;
 
 import com.aaax.account.Account;
 import com.aaax.account.application.FederateAccountUseCase;
-import com.aaax.account.AccountUserDetailsService;
+import com.aaax.auth.application.FinishAuthenticatedSession;
 import com.aaax.events.IdentityEvent;
-import com.aaax.events.IdentityEventBus;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,22 +15,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
 
 /**
- * Social login success → link/create Account → session UserDetails → event bus.
- * Enabled when any social client-id is set (google and/or github).
+ * Social login success → federate Account → {@link FinishAuthenticatedSession}.
  */
 @Configuration
 public class SocialLoginConfig {
@@ -46,48 +38,30 @@ public class SocialLoginConfig {
         return v != null && !v.isBlank();
     }
 
-    @Bean
+    @Bean(name = "socialLoginSuccessHandler")
     AuthenticationSuccessHandler socialLoginSuccessHandler(
-            FederateAccountUseCase accountService,
-            AccountUserDetailsService userDetailsService,
-            IdentityEventBus events) {
-        SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+            FederateAccountUseCase federate, FinishAuthenticatedSession finishSession) {
         return new AuthenticationSuccessHandler() {
             @Override
             public void onAuthenticationSuccess(
                     HttpServletRequest request,
                     HttpServletResponse response,
                     Authentication authentication) throws IOException, ServletException {
-                String provider = "unknown";
-                Account account;
-                if (authentication instanceof OAuth2AuthenticationToken token) {
-                    provider = token.getAuthorizedClientRegistrationId();
-                    OAuth2User principal = token.getPrincipal();
-                    account = resolveAccount(provider, principal, accountService);
-                } else {
+                if (!(authentication instanceof OAuth2AuthenticationToken token)) {
                     response.sendRedirect("/admin/?error=social");
                     return;
                 }
-
-                UserDetails details = userDetailsService.loadUserByUsername(account.getUsername());
-                UsernamePasswordAuthenticationToken sessionAuth =
-                        new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-                context.setAuthentication(sessionAuth);
-                SecurityContextHolder.setContext(context);
-                repo.saveContext(context, request, response);
-
-                events.emit(
+                String provider = token.getAuthorizedClientRegistrationId();
+                Account account = resolveAccount(provider, token.getPrincipal(), federate);
+                finishSession.execute(
+                        account,
+                        "social",
+                        request,
+                        response,
                         IdentityEvent.Types.AUTH_LOGIN_SOCIAL,
-                        account.getUsername(),
-                        "social:" + provider,
                         Map.of("method", "social", "provider", provider));
 
-                String target = "/admin/";
-                if (!account.roleSet().contains("ADMIN")) {
-                    // non-admin social users land on root meta JSON-friendly page
-                    target = "/?social=ok";
-                }
+                String target = account.roleSet().contains("ADMIN") ? "/admin/" : "/user/";
                 response.sendRedirect(target);
             }
         };

@@ -3,6 +3,8 @@ package com.aaax.config;
 import java.time.Duration;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -86,7 +88,9 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(
             HttpSecurity http,
             org.springframework.core.env.Environment env,
-            AuthenticationSuccessHandler socialLoginSuccessHandler)
+            @Qualifier("socialLoginSuccessHandler") AuthenticationSuccessHandler socialLoginSuccessHandler,
+            @Autowired(required = false) @Qualifier("samlLoginSuccessHandler")
+                    AuthenticationSuccessHandler samlLoginSuccessHandler)
             throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
@@ -117,6 +121,8 @@ public class SecurityConfig {
                                 "/v1/passkeys/authenticate/**",
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/**",
+                                "/login/saml2/**",
+                                "/saml2/**",
                                 "/users/registrations",
                                 "/users/credentials/reset",
                                 "/users/credentials/reset/**",
@@ -143,7 +149,11 @@ public class SecurityConfig {
                     .successHandler(socialLoginSuccessHandler));
         }
         if ("true".equalsIgnoreCase(env.getProperty("aaax.saml.enabled", "false"))) {
-            http.saml2Login(saml -> saml.defaultSuccessUrl("/admin/", true));
+            if (samlLoginSuccessHandler != null) {
+                http.saml2Login(saml -> saml.successHandler(samlLoginSuccessHandler));
+            } else {
+                http.saml2Login(saml -> saml.defaultSuccessUrl("/admin/", true));
+            }
         }
         return http.build();
     }

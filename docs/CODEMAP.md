@@ -9,7 +9,7 @@ AAAX is a **single Spring Boot module**. Open these files in order to understand
 | 1 | [`AaaxApplication.java`](../src/main/java/com/aaax/AaaxApplication.java) | Boot entry |
 | 2 | [`config/SecurityConfig.java`](../src/main/java/com/aaax/config/SecurityConfig.java) | **How HTTP is secured** — 3 filter chains (OIDC AS · API JWT · session app) |
 | 3 | [`auth/application/PasswordLoginUseCase.java`](../src/main/java/com/aaax/auth/application/PasswordLoginUseCase.java) | Login intent |
-| 4 | [`auth/application/FinishAuthenticatedSession.java`](../src/main/java/com/aaax/auth/application/FinishAuthenticatedSession.java) | **All logins end here** (session + audit event) |
+| 4 | [`auth/application/FinishAuthenticatedSession.java`](../src/main/java/com/aaax/auth/application/FinishAuthenticatedSession.java) | **All logins end here** — password · OTP · magic · social · SAML · passkey |
 | 5 | [`events/IdentityEventBus.java`](../src/main/java/com/aaax/events/IdentityEventBus.java) | Product wedge — signals out to Kafka/webhook |
 | 6 | [`web/AuthController.java`](../src/main/java/com/aaax/web/AuthController.java) | HTTP surface for `/v1/auth/*` (thin) |
 
@@ -76,6 +76,16 @@ POST /v1/auth/login
           → Spring Security context
           → AuthSession row
           → IdentityEventBus AUTH_LOGIN
+```
+
+### Social / SAML
+
+```text
+OAuth2/SAML success handler
+  → FederateAccountUseCase (link/create)
+  → FinishAuthenticatedSession
+  → event AUTH_LOGIN_SOCIAL (+ provider)
+  → redirect /admin or /user
 ```
 
 ### OTP login

@@ -4,12 +4,17 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.5.0-SNAPSHOT] — unreleased
 
+### Overnight batch A (2026-08-20)
+- All login paths (password/OTP/magic/social/SAML/passkey) → `FinishAuthenticatedSession`
+- Magic link logic folded into `MagicLinkUseCase` (no `MagicLinkService`)
+- README sequence diagram (mermaid) for Event Bus wedge
+- CODEMAP + OVERNIGHT_LOG
+
 ### Application layer (UseCase)
 - Split `AccountService` → `account.application.*UseCase` + `AccountQueries`
-- Auth flows → `auth.application` (`FinishAuthenticatedSession`, password/OTP/magic/logout)
-- Controllers thin; docs: `ARCHITECTURE.md` + **`CODEMAP.md`** (OSS reading tour)
-- `package-info.java` on main packages for IDE/GitHub readers
-- Candidates still open: passkey crypto harden, resource-server starter, orgs decision
+- Auth flows → `auth.application`
+- Controllers thin; docs: `ARCHITECTURE.md` + `CODEMAP.md`
+- Candidates still open: Redis OTP store, passkey crypto, resource-server example
 
 ## [0.4.0] — 2026-08-20
 

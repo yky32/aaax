@@ -23,7 +23,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 
 /**
- * Shared login completion: Spring Security session + tracked AuthSession + optional event.
+ * Shared login completion for password / OTP / magic / social / SAML / passkey.
+ * Spring Security session + tracked AuthSession + optional identity event.
  */
 @Component
 public class FinishAuthenticatedSession {
@@ -41,20 +42,38 @@ public class FinishAuthenticatedSession {
         this.events = events;
     }
 
+    /** Default: emit {@link IdentityEvent.Types#AUTH_LOGIN}. */
     public Map<String, Object> execute(
             Account account,
             String method,
             HttpServletRequest request,
             HttpServletResponse response,
             boolean emitLoginEvent) {
+        return execute(account, method, request, response,
+                emitLoginEvent ? IdentityEvent.Types.AUTH_LOGIN : null,
+                Map.of("method", method));
+    }
+
+    /**
+     * @param eventType null = no event; otherwise emit with data (+ sessionId injected)
+     */
+    public Map<String, Object> execute(
+            Account account,
+            String method,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            String eventType,
+            Map<String, Object> eventData) {
         establishSpringSession(account.getUsername(), request, response);
         AuthSession tracked = authSessions.open(account.getId(), request);
-        if (emitLoginEvent) {
-            events.emit(
-                    IdentityEvent.Types.AUTH_LOGIN,
-                    account.getUsername(),
-                    method,
-                    Map.of("method", method, "sessionId", tracked.getId()));
+        if (eventType != null) {
+            Map<String, Object> data = new LinkedHashMap<>();
+            if (eventData != null) {
+                data.putAll(eventData);
+            }
+            data.putIfAbsent("method", method);
+            data.put("sessionId", tracked.getId());
+            events.emit(eventType, account.getUsername(), method, data);
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("mfaRequired", false);
