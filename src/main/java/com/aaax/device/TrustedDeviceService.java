@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.aaax.account.Account;
 import com.aaax.core.id.Ids;
+import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
 import jakarta.servlet.http.Cookie;
@@ -110,7 +111,7 @@ public class TrustedDeviceService {
         repository.save(d);
         writeCookie(response, raw);
         events.emit(
-                "com.aaax.device.trusted",
+                IdentityEvent.Types.DEVICE_TRUSTED,
                 account.getUsername(),
                 Mapish(d));
         return d;

@@ -428,7 +428,7 @@ Hosted: `/sign-in/` · `/sign-up/` · `/user/` · `/admin/`
 
 ## 15. Identity Event Bus
 
-CloudEvents-ish JSON:
+CloudEvents-ish JSON (**catalog v1.0** — frozen types):
 
 ```json
 {
@@ -438,24 +438,51 @@ CloudEvents-ish JSON:
   "type": "com.aaax.auth.login",
   "time": "2026-08-20T12:00:00Z",
   "subject": "demo",
-  "data": { "method": "password" }
+  "dataschema": "aaax:events/catalog/1.0#com.aaax.auth.login",
+  "data": { "method": "password", "eventId": "uuid", "catalogVersion": "1.0" }
 }
 ```
+
+**Catalog API:** `GET /v1/admin/events/catalog` (admin session).  
+**Compatibility:** additive types OK within catalog major; renames bump `IdentityEventCatalog.VERSION`.
+
+### Types (catalog 1.0)
 
 | type | when |
 |------|------|
 | `com.aaax.account.registered` | register |
 | `com.aaax.auth.login` | password / otp / qr / social |
 | `com.aaax.auth.login.mfa` | password + TOTP |
+| `com.aaax.auth.login.social` | social |
 | `com.aaax.auth.logout` | logout |
 | `com.aaax.auth.qr.created` / `.approved` | QR |
 | `com.aaax.device.trusted` | remember device |
-| `com.aaax.otp.dispatch` | OTP (may include `code`) |
+| `com.aaax.otp.dispatch` | OTP (includes `code`, `channel`, `destination`, `purpose`, `expiresAt`) |
 | `com.aaax.mfa.totp.*` | MFA |
 | `com.aaax.client.*` | OAuth clients |
 | `com.aaax.admin.*` | admin ops |
+| `com.aaax.account.federated` / password.* | account |
 
-**Sinks:** log · audit DB · in-memory buffer (`GET /v1/admin/events`) · Kafka · webhook.
+### Sinks
+
+log · audit DB (**`eventId` correlates bus ↔ audit**) · in-memory buffer · Kafka · webhook
+
+### Webhook (prod)
+
+```bash
+export AAAX_EVENTS_WEBHOOK_URL=https://notify.example/hooks/aaax
+export AAAX_EVENTS_WEBHOOK_SECRET=long-random   # → X-AAAX-Signature: sha256=<hex>
+# optional:
+export AAAX_EVENTS_WEBHOOK_AUTH="Bearer …"
+export AAAX_EVENTS_WEBHOOK_MAX_ATTEMPTS=3
+```
+
+Headers: `ce-id`, `ce-type`, `x-aaax-event-id`, `x-aaax-delivery-id` (idempotency = event id), `x-aaax-signature`.  
+Retries: 408 / 429 / 5xx + network errors with backoff.
+
+### OTP + bus
+
+`com.aaax.otp.dispatch` is the **single** OTP signal. Channel `kafka` relies on bus sinks only (no second SMS path). Channel `sms`/`mail`/`console` still emit the same event **and** deliver out-of-band.
 
 ---
 

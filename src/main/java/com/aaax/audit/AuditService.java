@@ -15,7 +15,12 @@ public class AuditService {
 
     @Transactional
     public void record(String action, String actor, String detail) {
-        repository.save(new AuditEvent(action, actor, detail));
+        repository.save(new AuditEvent(null, action, actor, detail));
+    }
+
+    @Transactional
+    public void record(String eventId, String action, String actor, String detail) {
+        repository.save(new AuditEvent(eventId, action, actor, detail));
     }
 
     @Transactional(readOnly = true)

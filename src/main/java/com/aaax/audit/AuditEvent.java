@@ -17,7 +17,11 @@ public class AuditEvent {
     @Column(length = 36)
     private String id;
 
-    @Column(nullable = false, length = 64)
+    /** Correlates to IdentityEvent.id when emitted via the bus. */
+    @Column(name = "event_id", length = 36)
+    private String eventId;
+
+    @Column(nullable = false, length = 128)
     private String action;
 
     @Column(length = 64)
@@ -32,10 +36,16 @@ public class AuditEvent {
     protected AuditEvent() {
     }
 
-    public AuditEvent(String action, String actor, String detail) {
+    public AuditEvent(String eventId, String action, String actor, String detail) {
+        this.eventId = eventId;
         this.action = action;
         this.actor = actor;
         this.detail = detail;
+    }
+
+    /** Legacy convenience — no event correlation. */
+    public AuditEvent(String action, String actor, String detail) {
+        this(null, action, actor, detail);
     }
 
     @PrePersist
@@ -48,6 +58,10 @@ public class AuditEvent {
 
     public String getId() {
         return id;
+    }
+
+    public String getEventId() {
+        return eventId;
     }
 
     public String getAction() {

@@ -315,7 +315,25 @@ class AaaxApplicationTests {
                 .andExpect(jsonPath("$.identityEventBus.enabled").value(true));
         mockMvc.perform(get("/v1/admin/events").session(session))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].type").value("com.aaax.auth.login"));
+                .andExpect(jsonPath("$[0].type").value("com.aaax.auth.login"))
+                .andExpect(jsonPath("$[0].dataschema").exists())
+                .andExpect(jsonPath("$[0].data.eventId").exists());
+        mockMvc.perform(get("/v1/admin/events/catalog").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.catalogVersion").value("1.0"))
+                .andExpect(jsonPath("$.types").isArray());
+        mockMvc.perform(get("/v1/admin/audit").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].eventId").exists())
+                .andExpect(jsonPath("$[0].action").exists());
+    }
+
+    @Test
+    void webhookHmacStable() {
+        String sig = com.aaax.events.WebhookIdentityEventSink.hmacSha256Hex("s3cret", "{\"a\":1}");
+        assertThat(sig).hasSize(64);
+        assertThat(com.aaax.events.WebhookIdentityEventSink.hmacSha256Hex("s3cret", "{\"a\":1}")).isEqualTo(sig);
+        assertThat(com.aaax.events.WebhookIdentityEventSink.hmacSha256Hex("other", "{\"a\":1}")).isNotEqualTo(sig);
     }
 
     @Test

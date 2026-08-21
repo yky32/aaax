@@ -8,6 +8,8 @@ import java.util.UUID;
 /**
  * CloudEvents-shaped identity signal. AAAX's competitive wedge:
  * platform teams own notification-service — IdP emits events, not SMS vendors.
+ *
+ * <p>Catalog: {@link IdentityEventCatalog#VERSION}
  */
 public record IdentityEvent(
         String specversion,
@@ -16,20 +18,26 @@ public record IdentityEvent(
         String type,
         String time,
         String subject,
-        Map<String, Object> data
-) {
+        /** e.g. aaax:events/catalog/1.0#com.aaax.auth.login */
+        String dataschema,
+        Map<String, Object> data) {
+
     public static final String SPEC = "1.0";
 
     public static IdentityEvent of(String issuer, String type, String subject, Map<String, Object> data) {
-        Map<String, Object> payload = data == null ? Map.of() : new LinkedHashMap<>(data);
+        Map<String, Object> payload = data == null ? new LinkedHashMap<>() : new LinkedHashMap<>(data);
+        payload.putIfAbsent("catalogVersion", IdentityEventCatalog.VERSION);
+        String id = UUID.randomUUID().toString();
+        payload.putIfAbsent("eventId", id);
         return new IdentityEvent(
                 SPEC,
-                UUID.randomUUID().toString(),
+                id,
                 issuer,
                 type,
                 Instant.now().toString(),
                 subject,
-                payload);
+                IdentityEventCatalog.dataschema(type),
+                Map.copyOf(payload));
     }
 
     public static final class Types {
@@ -38,12 +46,15 @@ public record IdentityEvent(
         public static final String AUTH_LOGIN_MFA = "com.aaax.auth.login.mfa";
         public static final String AUTH_LOGIN_SOCIAL = "com.aaax.auth.login.social";
         public static final String AUTH_LOGOUT = "com.aaax.auth.logout";
+        public static final String AUTH_QR_CREATED = "com.aaax.auth.qr.created";
+        public static final String AUTH_QR_APPROVED = "com.aaax.auth.qr.approved";
         public static final String ACCOUNT_FEDERATED = "com.aaax.account.federated";
         public static final String MFA_TOTP_ENABLED = "com.aaax.mfa.totp.enabled";
         public static final String MFA_TOTP_DISABLED = "com.aaax.mfa.totp.disabled";
         public static final String PASSWORD_CHANGED = "com.aaax.account.password.changed";
         public static final String PASSWORD_RESET = "com.aaax.account.password.reset";
         public static final String OTP_DISPATCH = "com.aaax.otp.dispatch";
+        public static final String DEVICE_TRUSTED = "com.aaax.device.trusted";
         public static final String CLIENT_CREATED = "com.aaax.client.created";
         public static final String CLIENT_DELETED = "com.aaax.client.deleted";
         public static final String BOOTSTRAP_ADMIN = "com.aaax.admin.bootstrap";

@@ -4,6 +4,13 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### P1 Event Bus production-grade
+- Frozen **catalog v1.0** (`IdentityEventCatalog`) + `GET /v1/admin/events/catalog`
+- Events carry `dataschema`, `data.eventId`, `data.catalogVersion`
+- Webhook: **HMAC** (`AAAX_EVENTS_WEBHOOK_SECRET`), delivery id headers, retries
+- Audit rows store **`eventId`** correlated to bus id
+- OTP `com.aaax.otp.dispatch` remains single OTP signal (kafka channel = bus-only delivery)
+
 ### Core foundation package
 - `com.aaax.core` — `AuditableEntity`, `BizException`, `Ids`, `GlobalExceptionHandler`
 - **Docs centralized:** `docs/booklet.md` (single SoT; other `docs/*` are stubs)

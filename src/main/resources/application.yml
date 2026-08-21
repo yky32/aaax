@@ -99,6 +99,10 @@ aaax:
       topic: ${AAAX_EVENTS_KAFKA_TOPIC:aaax.identity.events}
     webhook-url: ${AAAX_EVENTS_WEBHOOK_URL:}
     webhook-auth: ${AAAX_EVENTS_WEBHOOK_AUTH:}
+    # HMAC-SHA256 of raw JSON body → header X-AAAX-Signature: sha256=<hex>
+    webhook-secret: ${AAAX_EVENTS_WEBHOOK_SECRET:}
+    webhook-max-attempts: ${AAAX_EVENTS_WEBHOOK_MAX_ATTEMPTS:3}
+    webhook-backoff-ms: ${AAAX_EVENTS_WEBHOOK_BACKOFF_MS:200}
 
 management:
   endpoints:

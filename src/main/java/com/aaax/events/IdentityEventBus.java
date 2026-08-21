@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Single entry — audit DB + fan-out sinks (log / kafka / webhook).
- * This is the product wedge: identity signals for platform notification-service.
+ * Single entry — audit DB (with event id) + fan-out sinks (log / kafka / webhook).
  */
 @Service
 public class IdentityEventBus {
@@ -30,7 +29,10 @@ public class IdentityEventBus {
 
     public IdentityEvent emit(String type, String subject, String detail, Map<String, Object> data) {
         IdentityEvent event = IdentityEvent.of(issuer, type, subject, data);
-        auditService.record(type, subject, detail);
+        String auditDetail = detail == null || detail.isBlank()
+                ? "eventId=" + event.id()
+                : detail + " | eventId=" + event.id();
+        auditService.record(event.id(), type, subject, auditDetail);
         for (IdentityEventSink sink : sinks) {
             try {
                 sink.publish(event);

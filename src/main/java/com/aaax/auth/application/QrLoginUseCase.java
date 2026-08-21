@@ -48,7 +48,7 @@ public class QrLoginUseCase {
         String approvePath = "/sign-in/qr-approve.html?sid=" + s.id();
         String approveUrl = issuer + approvePath;
         events.emit(
-                "com.aaax.auth.qr.created",
+                IdentityEvent.Types.AUTH_QR_CREATED,
                 s.id(),
                 Map.of("sessionId", s.id(), "expiresInSeconds", store.ttlSeconds()));
         Map<String, Object> m = new LinkedHashMap<>();
@@ -97,7 +97,7 @@ public class QrLoginUseCase {
         s.setApprovedUsername(principal.getName());
         s.setStatus(QrLoginSession.Status.APPROVED);
         events.emit(
-                "com.aaax.auth.qr.approved",
+                IdentityEvent.Types.AUTH_QR_APPROVED,
                 principal.getName(),
                 Map.of("sessionId", s.id(), "method", "qr"));
         return Map.of("sessionId", s.id(), "status", "APPROVED", "approvedUsername", principal.getName());
