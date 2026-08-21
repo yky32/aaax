@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.entity.po.AuditEvent;
 import com.aaax.service.AuditService;
-import com.aaax.service.ClientAdminService;
+import com.aaax.usecase.client.ClientAdminUseCase;
 import com.aaax.events.BufferIdentityEventSink;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventCatalog;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminSettingsEndpoint {
 
     private final AccountQueries accountService;
-    private final ClientAdminService clientAdminService;
+    private final ClientAdminUseCase clientAdminService;
     private final AuditService auditService;
     private final BufferIdentityEventSink eventBuffer;
     private final Environment environment;
@@ -46,7 +46,7 @@ public class AdminSettingsEndpoint {
 
     public AdminSettingsEndpoint(
             AccountQueries accountService,
-            ClientAdminService clientAdminService,
+            ClientAdminUseCase clientAdminService,
             AuditService auditService,
             BufferIdentityEventSink eventBuffer,
             Environment environment,

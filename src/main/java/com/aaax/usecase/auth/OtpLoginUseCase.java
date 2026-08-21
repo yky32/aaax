@@ -2,7 +2,7 @@ package com.aaax.usecase.auth;
 
 import java.util.Map;
 
-import com.aaax.service.OtpService;
+import com.aaax.usecase.otp.OtpOpsUseCase;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class OtpLoginUseCase {
 
-    private final OtpService otpService;
+    private final OtpOpsUseCase otpService;
     private final FinishAuthenticatedSession finish;
 
-    public OtpLoginUseCase(OtpService otpService, FinishAuthenticatedSession finish) {
+    public OtpLoginUseCase(OtpOpsUseCase otpService, FinishAuthenticatedSession finish) {
         this.otpService = otpService;
         this.finish = finish;
     }

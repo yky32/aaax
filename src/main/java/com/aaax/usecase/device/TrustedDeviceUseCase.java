@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.device;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.aaax.entity.po.TrustedDevice;
 import com.aaax.repository.TrustedDeviceRepository;
@@ -29,8 +29,8 @@ import com.aaax.repository.TrustedDeviceRepository;
  * Policy "remember this device" — cookie + hashed token store.
  * When present and valid, password login may skip TOTP MFA.
  */
-@Service
-public class TrustedDeviceService {
+@Component
+public class TrustedDeviceUseCase {
 
     public static final String COOKIE_NAME = "AAAX_DEVICE";
 
@@ -40,7 +40,7 @@ public class TrustedDeviceService {
     private final boolean cookieSecure;
     private final SecureRandom random = new SecureRandom();
 
-    public TrustedDeviceService(
+    public TrustedDeviceUseCase(
             TrustedDeviceRepository repository,
             IdentityEventBus events,
             @Value("${aaax.devices.ttl-days:30}") int ttlDays,

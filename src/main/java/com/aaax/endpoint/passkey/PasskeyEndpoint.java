@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.aaax.usecase.auth.FinishAuthenticatedSession;
-import com.aaax.service.PasskeyFeatures;
-import com.aaax.service.PasskeyService;
-import com.aaax.service.PasskeyService.AuthenticateRequest;
-import com.aaax.service.PasskeyService.RegisterRequest;
+import com.aaax.usecase.passkey.PasskeyFeatures;
+import com.aaax.usecase.passkey.PasskeyUseCase;
+import com.aaax.usecase.passkey.PasskeyUseCase.AuthenticateRequest;
+import com.aaax.usecase.passkey.PasskeyUseCase.RegisterRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,12 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/passkeys")
 public class PasskeyEndpoint {
 
-    private final PasskeyService passkeys;
+    private final PasskeyUseCase passkeys;
     private final PasskeyFeatures features;
     private final FinishAuthenticatedSession finishSession;
 
     public PasskeyEndpoint(
-            PasskeyService passkeys, PasskeyFeatures features, FinishAuthenticatedSession finishSession) {
+            PasskeyUseCase passkeys, PasskeyFeatures features, FinishAuthenticatedSession finishSession) {
         this.passkeys = passkeys;
         this.features = features;
         this.finishSession = finishSession;

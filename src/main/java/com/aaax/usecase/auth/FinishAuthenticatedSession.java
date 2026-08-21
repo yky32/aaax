@@ -9,7 +9,7 @@ import com.aaax.service.AccountUserDetailsService;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 import com.aaax.entity.po.AuthSession;
-import com.aaax.service.AuthSessionService;
+import com.aaax.usecase.session.AuthSessionUseCase;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,13 +30,13 @@ import org.springframework.stereotype.Component;
 public class FinishAuthenticatedSession {
 
     private final AccountUserDetailsService users;
-    private final AuthSessionService authSessions;
+    private final AuthSessionUseCase authSessions;
     private final IdentityEventBus events;
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
 
     public FinishAuthenticatedSession(
-            AccountUserDetailsService users, AuthSessionService authSessions, IdentityEventBus events) {
+            AccountUserDetailsService users, AuthSessionUseCase authSessions, IdentityEventBus events) {
         this.users = users;
         this.authSessions = authSessions;
         this.events = events;

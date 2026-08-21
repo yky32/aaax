@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.aaax.entity.po.Account;
 import com.aaax.usecase.account.PasswordUseCase;
-import com.aaax.service.TrustedDeviceService;
+import com.aaax.usecase.device.TrustedDeviceUseCase;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,10 +23,10 @@ public class PasswordLoginUseCase {
 
     private final PasswordUseCase passwords;
     private final FinishAuthenticatedSession finish;
-    private final TrustedDeviceService devices;
+    private final TrustedDeviceUseCase devices;
 
     public PasswordLoginUseCase(
-            PasswordUseCase passwords, FinishAuthenticatedSession finish, TrustedDeviceService devices) {
+            PasswordUseCase passwords, FinishAuthenticatedSession finish, TrustedDeviceUseCase devices) {
         this.passwords = passwords;
         this.finish = finish;
         this.devices = devices;

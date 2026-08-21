@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.passkey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

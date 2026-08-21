@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.session;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -8,18 +8,18 @@ import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.aaax.entity.po.AuthSession;
 import com.aaax.repository.AuthSessionRepository;
 
-@Service
-public class AuthSessionService {
+@Component
+public class AuthSessionUseCase {
 
     private final AuthSessionRepository repository;
     private final SecureRandom random = new SecureRandom();
 
-    public AuthSessionService(AuthSessionRepository repository) {
+    public AuthSessionUseCase(AuthSessionRepository repository) {
         this.repository = repository;
     }
 

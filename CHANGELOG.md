@@ -7,6 +7,8 @@ All notable changes to **AAAX** are documented here.
 ### Structure (ledger-aligned)
 - Packages: `endpoint/<domain>`, `usecase/<domain>`, `repository`, `entity/po|dto`, `service`, `spi`, `exception`
 - Removed flat `web/` + feature-mixed trees; same behavior, clone-tour matches ledger-engine sample
+- Business services → UseCase: `PasskeyUseCase`, `TrustedDeviceUseCase`, `AuthSessionUseCase`, `ClientAdminUseCase`, `OtpOpsUseCase`
+- `service/` left for UDS / TOTP crypto / audit / seeds only
 
 ### SPA / App DX
 - Public OAuth client **`aaax-spa`** (PKCE required, no secret)

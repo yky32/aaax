@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.passkey;
 
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -32,7 +32,7 @@ import com.webauthn4j.verifier.exception.VerificationException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.aaax.entity.po.PasskeyCredential;
@@ -42,8 +42,8 @@ import com.aaax.repository.PasskeyCredentialRepository;
  * Passkeys (WebAuthn) with <b>webauthn4j</b> attestation/assertion verify.
  * Still gated by {@code aaax.passkeys.enabled} (default false).
  */
-@Service
-public class PasskeyService {
+@Component
+public class PasskeyUseCase {
 
     private final PasskeyCredentialRepository credentials;
     private final AccountRepository accounts;
@@ -55,7 +55,7 @@ public class PasskeyService {
     private final ObjectConverter objectConverter = new ObjectConverter();
     private final Map<String, Challenge> challenges = new ConcurrentHashMap<>();
 
-    public PasskeyService(
+    public PasskeyUseCase(
             PasskeyCredentialRepository credentials,
             AccountRepository accounts,
             IdentityEventBus events,

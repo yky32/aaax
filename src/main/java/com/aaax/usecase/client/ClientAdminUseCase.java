@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.client;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -23,18 +23,18 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class ClientAdminService {
+@Component
+public class ClientAdminUseCase {
 
     private final RegisteredClientRepository clients;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
     private final IdentityEventBus events;
 
-    public ClientAdminService(
+    public ClientAdminUseCase(
             RegisteredClientRepository clients,
             PasswordEncoder passwordEncoder,
             JdbcTemplate jdbcTemplate,

@@ -6,7 +6,7 @@ import com.aaax.entity.po.Account;
 import com.aaax.entity.dto.AccountDtos.TotpCodeRequest;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.TotpMfaUseCase;
-import com.aaax.service.TrustedDeviceService;
+import com.aaax.usecase.device.TrustedDeviceUseCase;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
@@ -26,14 +26,14 @@ public class CompleteTotpLoginUseCase {
     private final AccountQueries queries;
     private final FinishAuthenticatedSession finish;
     private final IdentityEventBus events;
-    private final TrustedDeviceService devices;
+    private final TrustedDeviceUseCase devices;
 
     public CompleteTotpLoginUseCase(
             TotpMfaUseCase totp,
             AccountQueries queries,
             FinishAuthenticatedSession finish,
             IdentityEventBus events,
-            TrustedDeviceService devices) {
+            TrustedDeviceUseCase devices) {
         this.totp = totp;
         this.queries = queries;
         this.finish = finish;

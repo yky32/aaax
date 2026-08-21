@@ -2,10 +2,10 @@ package com.aaax.endpoint.admin;
 
 import java.util.List;
 
-import com.aaax.service.ClientAdminService;
-import com.aaax.service.ClientAdminService.ClientCreatedResponse;
-import com.aaax.service.ClientAdminService.ClientResponse;
-import com.aaax.service.ClientAdminService.CreateClientRequest;
+import com.aaax.usecase.client.ClientAdminUseCase;
+import com.aaax.usecase.client.ClientAdminUseCase.ClientCreatedResponse;
+import com.aaax.usecase.client.ClientAdminUseCase.ClientResponse;
+import com.aaax.usecase.client.ClientAdminUseCase.CreateClientRequest;
 
 import jakarta.validation.Valid;
 
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/admin/clients")
 public class ClientAdminEndpoint {
 
-    private final ClientAdminService clientAdminService;
+    private final ClientAdminUseCase clientAdminService;
 
-    public ClientAdminEndpoint(ClientAdminService clientAdminService) {
+    public ClientAdminEndpoint(ClientAdminUseCase clientAdminService) {
         this.clientAdminService = clientAdminService;
     }
 

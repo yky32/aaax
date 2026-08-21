@@ -310,10 +310,10 @@ com.aaax
 ├── core/              # AuditableEntity, BizException, Ids, GlobalExceptionHandler
 ├── config/
 ├── endpoint/          # auth · account · admin · device · passkey · session · otp · meta · compat
-├── usecase/           # account · auth · otp
+├── usecase/           # account · auth · otp · passkey · device · session · client
 ├── repository/
 ├── entity/po · dto/
-├── service/           # OTP/passkey/session/device helpers + seeds
+├── service/           # Security UDS · TOTP crypto · audit · seeds only
 ├── spi/               # otp + auth stores/senders
 ├── events/            # Event Bus
 └── exception/

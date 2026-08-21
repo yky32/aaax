@@ -1,26 +1,25 @@
 package com.aaax.usecase.otp;
 
 import com.aaax.entity.dto.response.OtpRequestResponse;
-import com.aaax.service.OtpService;
 import com.aaax.entity.dto.response.OtpVerifyResponse;
 
 import org.springframework.stereotype.Component;
 
-/** Thin application entry for OTP request/verify (delegates to OtpService domain helper). */
+/** OTP request entry (delegates domain ops). */
 @Component
 public class RequestOtpUseCase {
 
-    private final OtpService otpService;
+    private final OtpOpsUseCase otp;
 
-    public RequestOtpUseCase(OtpService otpService) {
-        this.otpService = otpService;
+    public RequestOtpUseCase(OtpOpsUseCase otp) {
+        this.otp = otp;
     }
 
     public OtpRequestResponse execute(String username) {
-        return otpService.request(username);
+        return otp.request(username);
     }
 
     public OtpVerifyResponse verify(String username, String code) {
-        return otpService.verify(username, code);
+        return otp.verify(username, code);
     }
 }

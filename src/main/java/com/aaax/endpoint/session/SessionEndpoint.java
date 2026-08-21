@@ -8,7 +8,7 @@ import java.util.Map;
 import com.aaax.entity.po.Account;
 import com.aaax.repository.AccountRepository;
 import com.aaax.entity.po.AuthSession;
-import com.aaax.service.AuthSessionService;
+import com.aaax.usecase.session.AuthSessionUseCase;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,10 +26,10 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("isAuthenticated()")
 public class SessionEndpoint {
 
-    private final AuthSessionService sessions;
+    private final AuthSessionUseCase sessions;
     private final AccountRepository accounts;
 
-    public SessionEndpoint(AuthSessionService sessions, AccountRepository accounts) {
+    public SessionEndpoint(AuthSessionUseCase sessions, AccountRepository accounts) {
         this.sessions = sessions;
         this.accounts = accounts;
     }

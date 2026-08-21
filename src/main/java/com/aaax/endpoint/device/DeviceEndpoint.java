@@ -8,7 +8,7 @@ import java.util.Map;
 import com.aaax.entity.po.Account;
 import com.aaax.repository.AccountRepository;
 import com.aaax.entity.po.TrustedDevice;
-import com.aaax.service.TrustedDeviceService;
+import com.aaax.usecase.device.TrustedDeviceUseCase;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,10 +31,10 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("isAuthenticated()")
 public class DeviceEndpoint {
 
-    private final TrustedDeviceService devices;
+    private final TrustedDeviceUseCase devices;
     private final AccountRepository accounts;
 
-    public DeviceEndpoint(TrustedDeviceService devices, AccountRepository accounts) {
+    public DeviceEndpoint(TrustedDeviceUseCase devices, AccountRepository accounts) {
         this.devices = devices;
         this.accounts = accounts;
     }

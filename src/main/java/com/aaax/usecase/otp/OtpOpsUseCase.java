@@ -1,4 +1,4 @@
-package com.aaax.service;
+package com.aaax.usecase.otp;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -12,15 +12,15 @@ import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.aaax.entity.dto.response.OtpRequestResponse;
 import com.aaax.entity.dto.response.OtpVerifyResponse;
 import com.aaax.spi.otp.OtpCodeStore;
 import com.aaax.spi.otp.OtpSender;
 
-@Service
-public class OtpService {
+@Component
+public class OtpOpsUseCase {
 
     private final AccountRepository accountRepository;
     private final OtpCodeStore store;
@@ -31,7 +31,7 @@ public class OtpService {
     private final int length;
     private final SecureRandom random = new SecureRandom();
 
-    public OtpService(
+    public OtpOpsUseCase(
             AccountRepository accountRepository,
             OtpCodeStore store,
             OtpSender sender,
