@@ -30,23 +30,30 @@ Then optionally:
 
 ```text
 com.aaax
+├── core/                   # Foundation (public stand-in for private app-core)
+│   ├── entity/             # AuditableEntity
+│   ├── exception/          # BizException
+│   ├── id/                 # Ids
+│   └── web/                # GlobalExceptionHandler
 ├── config/                 # Spring Security, JWK, Kafka, Social, SAML
 ├── account/                # User entity + register/password/MFA use cases
 │   └── application/
-├── auth/                   # Login / logout / magic-link use cases
+├── auth/                   # Login / logout / magic-link / QR use cases
 │   └── application/
 ├── otp/                    # One-time codes + channel SPI (console/mail/kafka/sms)
 ├── events/                 # Identity Event Bus (product differentiator)
 ├── session/                # Tracked sessions for /user
-├── passkey/                # Experimental WebAuthn
+├── device/                 # Trusted devices (cookie skip-MFA)
+├── passkey/                # WebAuthn (opt-in)
 ├── client/                 # OAuth2 registered clients
 ├── audit/                  # DB audit trail
-├── web/                    # REST controllers (HTTP only)
+├── web/                    # REST *Endpoint (HTTP only)
 └── compat/                 # Optional qs/uaa-shaped path aliases
 ```
 
 **Rule of thumb for readers:**
 
+- Want **shared entity/error primitives** → `core/*`
 - Want **HTTP contract** → `web/*Endpoint`
 - Want **business steps** → `*/application/*UseCase`
 - Want **security wiring** → `config/SecurityConfig`

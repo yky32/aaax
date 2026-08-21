@@ -4,11 +4,16 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.6.0-SNAPSHOT] — unreleased
 
+### Core foundation package
+- `com.aaax.core` — `AuditableEntity`, `BizException`, `Ids`, `GlobalExceptionHandler`
+- Docs: `docs/CORE.md` (ledger-style public stand-in for private app-core)
+
 ### Naming
 - HTTP classes renamed `*Controller` → `*Endpoint` (Spring annotations unchanged)
 
 ### CI
 - Fixed false-positive ban on enforcer `<exclude>` lines mentioning quinsic/app-core
+- Enforcer runs execution `enforce-java-and-oss`
 
 ### Trusted devices
 - Cookie `AAAX_DEVICE` + hashed store; optional skip TOTP on password login

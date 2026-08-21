@@ -1,13 +1,12 @@
 package com.aaax.passkey;
 
-import java.time.Instant;
+import com.aaax.core.entity.AuditableEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -15,7 +14,7 @@ import jakarta.persistence.Table;
         @Index(name = "idx_passkey_account", columnList = "account_id"),
         @Index(name = "idx_passkey_cred", columnList = "credential_id", unique = true)
 })
-public class PasskeyCredential {
+public class PasskeyCredential extends AuditableEntity {
 
     @Id
     @Column(length = 36)
@@ -39,16 +38,6 @@ public class PasskeyCredential {
 
     @Column(name = "label", length = 128)
     private String label;
-
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @PrePersist
-    void pre() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
-    }
 
     public String getId() {
         return id;
@@ -104,9 +93,5 @@ public class PasskeyCredential {
 
     public void setLabel(String label) {
         this.label = label;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 }

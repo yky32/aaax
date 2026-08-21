@@ -2,6 +2,8 @@ package com.aaax.device;
 
 import java.time.Instant;
 
+import com.aaax.core.entity.AuditableEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -14,7 +16,7 @@ import jakarta.persistence.Table;
         @Index(name = "idx_device_account", columnList = "account_id"),
         @Index(name = "idx_device_token", columnList = "token_hash", unique = true)
 })
-public class TrustedDevice {
+public class TrustedDevice extends AuditableEntity {
 
     @Id
     @Column(length = 36)
@@ -36,9 +38,6 @@ public class TrustedDevice {
     @Column(name = "ip", length = 64)
     private String ip;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
     @Column(name = "last_seen_at", nullable = false)
     private Instant lastSeenAt;
 
@@ -49,13 +48,9 @@ public class TrustedDevice {
     private Instant revokedAt;
 
     @PrePersist
-    void pre() {
-        Instant now = Instant.now();
-        if (createdAt == null) {
-            createdAt = now;
-        }
+    void preDevice() {
         if (lastSeenAt == null) {
-            lastSeenAt = now;
+            lastSeenAt = Instant.now();
         }
     }
 
@@ -109,10 +104,6 @@ public class TrustedDevice {
 
     public void setIp(String ip) {
         this.ip = ip;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 
     public Instant getLastSeenAt() {

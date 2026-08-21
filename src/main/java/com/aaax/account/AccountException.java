@@ -1,9 +1,11 @@
 package com.aaax.account;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
 
-public class AccountException extends ResponseStatusException {
+import org.springframework.http.HttpStatus;
+
+/** Account-domain errors (thin alias over core {@link BizException}). */
+public class AccountException extends BizException {
 
     public AccountException(HttpStatus status, String reason) {
         super(status, reason);

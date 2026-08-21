@@ -1,22 +1,22 @@
 package com.aaax.account;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.aaax.core.entity.AuditableEntity;
+import com.aaax.core.id.Ids;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "accounts")
-public class Account {
+public class Account extends AuditableEntity {
 
     @Id
     @Column(length = 36, nullable = false, updatable = false)
@@ -56,12 +56,6 @@ public class Account {
     @Column(name = "phone", length = 32)
     private String phone;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
     protected Account() {
     }
 
@@ -78,20 +72,12 @@ public class Account {
 
     @PrePersist
     void onCreate() {
-        Instant now = Instant.now();
         if (id == null) {
-            id = UUID.randomUUID().toString();
+            id = Ids.uuid();
         }
         if (roles == null || roles.isBlank()) {
             roles = "USER";
         }
-        createdAt = now;
-        updatedAt = now;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = Instant.now();
     }
 
     public String getId() {
@@ -147,14 +133,6 @@ public class Account {
 
     public String getPhone() {
         return phone;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     public void setEmail(String email) {

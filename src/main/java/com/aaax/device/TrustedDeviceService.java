@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import com.aaax.account.Account;
+import com.aaax.core.id.Ids;
 import com.aaax.events.IdentityEventBus;
 
 import jakarta.servlet.http.Cookie;
@@ -100,7 +100,7 @@ public class TrustedDeviceService {
             HttpServletResponse response) {
         String raw = newToken();
         TrustedDevice d = new TrustedDevice();
-        d.setId(UUID.randomUUID().toString());
+        d.setId(Ids.uuid());
         d.setAccountId(account.getId());
         d.setTokenHash(hash(raw));
         d.setLabel(label != null && !label.isBlank() ? label : guessLabel(request));
