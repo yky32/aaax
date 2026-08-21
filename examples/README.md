@@ -2,6 +2,7 @@
 
 | Path | |
 |------|--|
+| [**spa-pkce/**](./spa-pkce/) | **Browser PKCE** — thin `aaax.js` + public client `aaax-spa` |
 | [**compose-mesh/**](./compose-mesh/) | **v0.6 golden path** — Postgres + Redis + Kafka + HMAC webhook + notify |
 | [curl/](./curl/) | health, token, register, OTP, admin events |
 | [compose-kafka-notify/](./compose-kafka-notify/) | Lighter Kafka-only demo |

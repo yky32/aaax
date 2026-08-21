@@ -118,7 +118,7 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 | LDAP / AD | ❌ | 🟡 | ✅★ | 🟡 | ✅★ | ❌ | ❌ | ✅ | diy |
 | Audit | ✅ basic | 🟡/✅ | ✅★ | ✅ | ✅ | ✅ | ❌ | ✅★ | diy |
 | **Outbound identity event bus** | ✅★ first-class | 🟡 webhooks | 🟡 events SPI | ✅★ | 🟡 | 🟡 webhooks | ❌ | ✅ Logs/Hooks | diy |
-| Official SPA/mobile SDK | ❌ | ✅★ | 🟡 | ✅ | 🟡 | ✅★ | ✅★ | ✅★ | ❌ |
+| Official SPA/mobile SDK | ❌ full SDK · ✅ thin `examples/spa-pkce/aaax.js` + client `aaax-spa` | ✅★ | 🟡 | ✅ | 🟡 | ✅★ | ✅★ | ✅★ | ❌ |
 | Seat / MAU tax | ✅★ $0 | ✅ OSS | ✅ | OSS+cloud | ✅ | ❌ | ✅ | ❌ | ✅ |
 | Ops weight | Low | Med | **High** | Med–High | Med | none (SaaS) | App-coupled | none (SaaS) | You own all |
 | OSS community / stars | Early | Strong | Huge | Strong | Strong | n/a | Strong | n/a | Spring eco |
@@ -441,6 +441,23 @@ Hosted: `/sign-in/` · `/sign-up/` · `/user/` · `/admin/`
 | `/oauth2/jwks` | JWKS |
 | `/oauth2/token` | code / refresh / client_credentials |
 | `/oauth2/authorize` | Auth code |
+
+### Demo clients (local seed)
+
+| client_id | Type |
+|-----------|------|
+| `aaax-demo` | confidential · secret `aaax-demo-secret` |
+| `aaax-spa` | **public** · PKCE required · no secret |
+
+### SPA PKCE (browser)
+
+```bash
+# AAAX on :8081
+cd examples/spa-pkce && python3 -m http.server 4173
+# open http://127.0.0.1:4173/
+```
+
+Thin helper: `examples/spa-pkce/aaax.js` (`Aaax.create` → `login` → `handleRedirectCallback` → `fetchJson`).
 
 ---
 

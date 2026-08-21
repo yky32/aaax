@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AAAX SPA PKCE</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+    button { margin: .25rem .25rem .25rem 0; padding: .5rem .9rem; cursor: pointer; }
+    pre { background: #111; color: #d7ffd7; padding: 1rem; overflow: auto; border-radius: 8px; }
+    .muted { color: #666; font-size: .9rem; }
+    code { background: #f2f2f2; padding: .1rem .3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>AAAX · SPA PKCE</h1>
+  <p class="muted">Public client <code>aaax-spa</code> · thin helper <code>aaax.js</code></p>
+  <p>
+    <button id="login">Sign in with AAAX</button>
+    <button id="hello">GET /v1/api/hello</button>
+    <button id="logout">Clear tokens</button>
+  </p>
+  <pre id="out">Not signed in. Start AAAX on :8081, then Sign in.</pre>
+  <script src="./aaax.js"></script>
+  <script>
+    const out = (x) => { document.getElementById("out").textContent = typeof x === "string" ? x : JSON.stringify(x, null, 2); };
+    const aaax = Aaax.create({
+      issuer: localStorage.getItem("aaax_issuer") || "http://localhost:8081",
+      clientId: "aaax-spa",
+      redirectUri: location.origin + "/callback.html",
+    });
+    if (aaax.isAuthenticated()) {
+      out({ access_token_present: true, token_preview: aaax.getAccessToken().slice(0, 24) + "…" });
+    }
+    document.getElementById("login").onclick = () => aaax.login();
+    document.getElementById("logout").onclick = () => { aaax.logoutLocal(); out("cleared"); };
+    document.getElementById("hello").onclick = async () => {
+      try { out(await aaax.fetchJson("/v1/api/hello")); }
+      catch (e) { out(String(e.message || e)); }
+    };
+  </script>
+</body>
+</html>

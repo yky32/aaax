@@ -36,10 +36,13 @@ public class DemoClientSeed implements ApplicationRunner {
         if (!enabled) {
             return;
         }
-        if (clients.findByClientId("aaax-demo") != null) {
-            return;
+        if (clients.findByClientId("aaax-demo") == null) {
+            clients.save(SecurityConfig.demoClient(passwordEncoder));
+            log.info("Seeded OAuth client aaax-demo");
         }
-        clients.save(SecurityConfig.demoClient(passwordEncoder));
-        log.info("Seeded OAuth client aaax-demo");
+        if (clients.findByClientId("aaax-spa") == null) {
+            clients.save(SecurityConfig.spaPublicClient());
+            log.info("Seeded public SPA client aaax-spa (PKCE)");
+        }
     }
 }

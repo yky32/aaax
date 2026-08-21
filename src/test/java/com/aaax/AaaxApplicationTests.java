@@ -45,6 +45,21 @@ class AaaxApplicationTests {
     com.aaax.mfa.TotpService totpService;
 
     @Test
+    void demoSpaPublicClientSeeded() throws Exception {
+        // admin list clients includes aaax-spa after seed
+        MvcResult login = mockMvc.perform(post("/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"admin12345\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession();
+        mockMvc.perform(get("/v1/admin/clients").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.clientId=='aaax-spa')]").exists())
+                .andExpect(jsonPath("$[?(@.clientId=='aaax-demo')]").exists());
+    }
+
+    @Test
     void contextLoads() {
     }
 

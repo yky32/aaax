@@ -62,6 +62,8 @@ public class SecurityConfig {
                 .securityMatcher(endpointsMatcher)
                 .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
@@ -78,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/api/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAuthority("SCOPE_api.read"))
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
         return http.build();
@@ -168,6 +171,9 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/v1/**", config);
+        source.registerCorsConfiguration("/oauth2/**", config);
+        source.registerCorsConfiguration("/.well-known/**", config);
+        source.registerCorsConfiguration("/userinfo", config);
         return source;
     }
 
@@ -222,6 +228,35 @@ public class SecurityConfig {
                 .tokenSettings(TokenSettings.builder()
                         .accessTokenTimeToLive(Duration.ofHours(1))
                         .refreshTokenTimeToLive(Duration.ofDays(30))
+                        .build())
+                .build();
+    }
+
+    /** Public SPA client — PKCE required, no client secret (browser). */
+    public static RegisteredClient spaPublicClient() {
+        return RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("aaax-spa")
+                .clientName("AAAX SPA (PKCE)")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://127.0.0.1:4173/callback.html")
+                .redirectUri("http://localhost:4173/callback.html")
+                .redirectUri("http://127.0.0.1:4173/")
+                .redirectUri("http://localhost:4173/")
+                .postLogoutRedirectUri("http://127.0.0.1:4173/")
+                .postLogoutRedirectUri("http://localhost:4173/")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .scope("api.read")
+                .clientSettings(ClientSettings.builder()
+                        .requireProofKey(true)
+                        .requireAuthorizationConsent(false)
+                        .build())
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofHours(1))
+                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .reuseRefreshTokens(false)
                         .build())
                 .build();
     }

@@ -41,7 +41,7 @@ sequenceDiagram
 | | |
 |--|--|
 | **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) |
-| **Examples** | [**Mesh golden path**](./examples/compose-mesh/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
+| **Examples** | [**SPA PKCE**](./examples/spa-pkce/) · [**Mesh**](./examples/compose-mesh/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
 | **Version** | **`v0.6.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 

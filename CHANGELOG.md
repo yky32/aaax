@@ -4,6 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.7.0-SNAPSHOT] — unreleased
 
+### SPA / App DX
+- Public OAuth client **`aaax-spa`** (PKCE required, no secret)
+- Example: `examples/spa-pkce/` + thin helper `aaax.js`
+- CORS on `/oauth2/**` for browser token exchange
+
 Development follows **v0.6.0**.
 
 ## [0.6.0] — 2026-08-21
