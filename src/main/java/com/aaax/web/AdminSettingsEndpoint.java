@@ -220,6 +220,7 @@ public class AdminSettingsEndpoint {
         f.put("qrLogin", true);
         f.put("trustedDevices", true);
         f.put("otpStore", environment.getProperty("aaax.otp.store", "memory"));
+        f.put("qrStore", environment.getProperty("aaax.qr.store", "memory"));
         f.put("hostedExperiences", true);
         f.put("sessions", true);
         f.put("orgsModel", "single");

@@ -73,6 +73,7 @@ services:
       DB_DRIVER: org.postgresql.Driver
       # HA-ish OTP/magic store
       AAAX_OTP_STORE: redis
+      AAAX_QR_STORE: redis
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       # Event Bus → Kafka + signed webhook

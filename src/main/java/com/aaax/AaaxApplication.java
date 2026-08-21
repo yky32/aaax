@@ -6,8 +6,8 @@ import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfigurat
 import org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration;
 
 /**
- * Redis is only wired when {@code aaax.otp.store=redis}
- * ({@link com.aaax.config.RedisTokenStoreConfig}). Default memory store needs no broker.
+ * Redis is only wired when {@code aaax.otp.store=redis} and/or {@code aaax.qr.store=redis}
+ * ({@link com.aaax.config.RedisTokenStoreConfig}). Default memory stores need no broker.
  */
 @SpringBootApplication(exclude = {
         DataRedisAutoConfiguration.class,

@@ -61,6 +61,8 @@ aaax:
   qr:
     # desktop QR login session TTL (seconds)
     ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}
+    # memory (default) | redis (multi-node; shares Redis with OTP when both redis)
+    store: ${AAAX_QR_STORE:memory}
   # single-realm only (no multi-tenant orgs yet)
   orgs:
     model: single

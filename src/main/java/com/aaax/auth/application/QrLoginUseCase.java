@@ -84,6 +84,7 @@ public class QrLoginUseCase {
         QrLoginSession s = require(sessionId);
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
+            store.save(s);
             throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
         }
         if (s.status() == QrLoginSession.Status.CONSUMED) {
@@ -96,6 +97,7 @@ public class QrLoginUseCase {
         queries.requireEntityByUsername(principal.getName());
         s.setApprovedUsername(principal.getName());
         s.setStatus(QrLoginSession.Status.APPROVED);
+        store.save(s);
         events.emit(
                 IdentityEvent.Types.AUTH_QR_APPROVED,
                 principal.getName(),
@@ -115,6 +117,7 @@ public class QrLoginUseCase {
         QrLoginSession s = require(sessionId);
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
+            store.save(s);
             throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
         }
         if (s.status() != QrLoginSession.Status.APPROVED) {
@@ -122,6 +125,7 @@ public class QrLoginUseCase {
         }
         String username = s.approvedUsername();
         s.setStatus(QrLoginSession.Status.CONSUMED);
+        store.save(s);
         store.remove(s.id());
         return finish.execute(
                 queries.requireEntityByUsername(username),

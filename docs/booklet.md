@@ -170,7 +170,7 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 | Event Bus + admin Events | Admin UX polish | SAML IdP |
 | OTP + kafka/sms dual | Audit depth | LDAP / AD |
 | TOTP + trusted device | Passkeys default-off | Official React SDK |
-| Magic link + QR login | HA defaults (memory) | Drop-in components |
+| Magic link + QR login | Redis OTP **and** QR optional | Drop-in components |
 | Hosted sign-in/up/user | RBAC = roles+scopes | Huge community |
 | `/admin` clients/users | — | — |
 | Resource-server example | — | — |
@@ -370,8 +370,8 @@ Examples: `examples/curl/` · `examples/compose-mesh/` · `examples/compose-kafk
 | Mode | OTP/magic/QR store | Events | DB |
 |------|-------------------|--------|-----|
 | **Dev laptop** | `memory` (default) | log + buffer | H2 |
-| **Multi-node / prod** | `AAAX_OTP_STORE=redis` | Kafka and/or signed webhook | Postgres |
-| **QR sessions** | still in-memory in 0.6 — sticky sessions or single node until Redis QR store | | |
+| Multi-node / prod | `AAAX_OTP_STORE=redis` · `AAAX_QR_STORE=redis` | Kafka and/or signed webhook | Postgres |
+| **QR sessions** | `memory` default · **redis** for multi-node (`aaax.qr.store`) | | |
 
 See [compose-mesh](../examples/compose-mesh/).
 

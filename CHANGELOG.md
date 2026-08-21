@@ -9,6 +9,10 @@ All notable changes to **AAAX** are documented here.
 - Example: `examples/spa-pkce/` + thin helper `aaax.js`
 - CORS on `/oauth2/**` for browser token exchange
 
+### QR multi-node
+- `aaax.qr.store=memory|redis` (default memory)
+- Redis QR sessions share Redis when `AAAX_QR_STORE=redis` (compose-mesh enables it)
+
 Development follows **v0.6.0**.
 
 ## [0.6.0] — 2026-08-21
