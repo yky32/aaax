@@ -54,4 +54,4 @@ docker compose logs -f sample-notify
 
 Point your real notification-service at the same topic (or set `AAAX_EVENTS_WEBHOOK_URL` instead of Kafka).
 
-See [docs/IDENTITY_EVENTS.md](../../docs/IDENTITY_EVENTS.md).
+See [docs/booklet.md#15-identity-event-bus](../../docs/booklet.md#15-identity-event-bus).

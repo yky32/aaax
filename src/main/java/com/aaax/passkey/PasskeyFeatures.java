@@ -26,7 +26,7 @@ public class PasskeyFeatures {
         if (!enabled) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "passkeys disabled (set aaax.passkeys.enabled=true; webauthn4j verify when on — see docs/PASSKEYS.md)");
+                    "passkeys disabled (set aaax.passkeys.enabled=true; webauthn4j when on — see docs/booklet.md#17-passkeys)");
         }
     }
 }

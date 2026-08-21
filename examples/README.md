@@ -37,4 +37,4 @@ Demo user: `demo` / `demo1234`
 ./examples/curl/otp-login-session.sh demo   # code printed in server logs (console channel)
 ```
 
-Full product docs: [../docs/AAAX_BOOKLET.md](../docs/AAAX_BOOKLET.md)
+Full product docs: [../docs/booklet.md](../docs/booklet.md)

@@ -6,7 +6,7 @@ All notable changes to **AAAX** are documented here.
 
 ### Core foundation package
 - `com.aaax.core` — `AuditableEntity`, `BizException`, `Ids`, `GlobalExceptionHandler`
-- Docs: `docs/CORE.md` (ledger-style public stand-in for private app-core)
+- **Docs centralized:** `docs/booklet.md` (single SoT; other `docs/*` are stubs)
 
 ### Naming
 - HTTP classes renamed `*Controller` → `*Endpoint` (Spring annotations unchanged)
@@ -18,15 +18,10 @@ All notable changes to **AAAX** are documented here.
 ### Trusted devices
 - Cookie `AAAX_DEVICE` + hashed store; optional skip TOTP on password login
 - `/v1/devices` CRUD; sign-in checkbox; `/user/` management
-- Docs: `docs/TRUSTED_DEVICES.md`
 
 ### QR code login
 - `POST/GET /v1/auth/qr/sessions/*` + approve/consume
 - Hosted `/sign-in/` QR tab + `qr-approve.html`
-- Docs: `docs/QR_LOGIN.md`
-
-### Util polish
-- ROADMAP · passkeys-off test · parity
 
 Development follows **v0.5.0**.
 

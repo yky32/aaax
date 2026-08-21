@@ -6,7 +6,7 @@
 
 Self-host **OIDC** for **Spring / platform teams** — without SaaS seat tax, without Keycloak weight, without private Maven.
 
-**Primary win:** [Identity Event Bus](./docs/IDENTITY_EVENTS.md)  
+**Primary win:** [Identity Event Bus](./docs/booklet.md#15-identity-event-bus)  
 → login · MFA · OTP · clients as CloudEvents → **your** Kafka / webhook / notification-service  
 → **you keep SMS** (no Twilio lock-in)
 
@@ -31,7 +31,7 @@ sequenceDiagram
 ```
 
 > **ICP:** JVM teams that already run (or want) Kafka + notification-service and need a lean OIDC issuer.  
-> Not a Clerk SaaS clone — see [Clerk parity (honest)](./docs/CLERK_PARITY.md).
+> Not a Clerk SaaS clone — see [Clerk parity (honest)](./docs/booklet.md#24-clerk--qs-uaa-parity-honest).
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
@@ -40,7 +40,7 @@ sequenceDiagram
 
 | | |
 |--|--|
-| **Docs** | [Booklet](./docs/AAAX_BOOKLET.md) · [Core](./docs/CORE.md) · [QR login](./docs/QR_LOGIN.md) · [Trusted devices](./docs/TRUSTED_DEVICES.md) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) |
+| **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) |
 | **Examples** | [examples/](./examples/) · [Kafka notify](./examples/compose-kafka-notify/) · [**Resource server**](./examples/resource-server-boot4/) · [Redis OTP](./examples/redis-otp-store.md) |
 | **Version** | **`v0.5.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
@@ -59,7 +59,7 @@ mvn test
 mvn spring-boot:run
 ```
 
-**Reading the code (OSS tour):** [docs/CODEMAP.md](./docs/CODEMAP.md) — SecurityConfig → login use cases → Event Bus.
+**Reading the code (OSS tour):** [docs/booklet.md#8-code-map-clone-tour](./docs/booklet.md#8-code-map-clone-tour) — SecurityConfig → login use cases → Event Bus.
 
 **Another terminal:**
 
@@ -132,7 +132,7 @@ Lifecycle events: `AAAX_EVENTS_KAFKA_ENABLED=true` → topic `aaax.identity.even
 export SPRING_PROFILES_ACTIVE=social
 export GOOGLE_CLIENT_ID=...
 export GOOGLE_CLIENT_SECRET=...
-# optional GitHub — see docs/SOCIAL.md
+# optional GitHub — see docs/booklet.md#16-otp--sms--saml--social
 ```
 
 ---

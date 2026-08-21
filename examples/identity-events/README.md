@@ -33,4 +33,4 @@ export AAAX_EVENTS_WEBHOOK_URL=http://127.0.0.1:9999/hook
 # run any HTTP dump server, then login on AAAX
 ```
 
-Spec: [docs/IDENTITY_EVENTS.md](../../docs/IDENTITY_EVENTS.md)
+Spec: [docs/booklet.md#15-identity-event-bus](../../docs/booklet.md#15-identity-event-bus)

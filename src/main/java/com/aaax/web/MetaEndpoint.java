@@ -36,18 +36,12 @@ public class MetaEndpoint {
         endpoints.put("health", "/actuator/health");
         endpoints.put("oidc", issuer + "/.well-known/openid-configuration");
         if (passkeysEnabled) {
-            endpoints.put("passkeys", "/v1/passkeys/* (experimental)");
+            endpoints.put("passkeys", "/v1/passkeys/*");
         }
 
         Map<String, Object> docs = new LinkedHashMap<>();
-        docs.put("booklet", "docs/AAAX_BOOKLET.md");
-        docs.put("codemap", "docs/CODEMAP.md");
-        docs.put("passkeys", "docs/PASSKEYS.md");
-        docs.put("trustedDevices", "docs/TRUSTED_DEVICES.md");
-        docs.put("qrLogin", "docs/QR_LOGIN.md");
-        docs.put("roadmap", "docs/ROADMAP.md");
-        docs.put("events", "docs/IDENTITY_EVENTS.md");
-        docs.put("smsSaml", "docs/SMS_SAML.md");
+        docs.put("booklet", "docs/booklet.md");
+        docs.put("note", "Single SoT — other docs/* are stubs");
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("product", "AAAX");
