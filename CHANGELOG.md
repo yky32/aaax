@@ -2,60 +2,40 @@
 
 All notable changes to **AAAX** are documented here.
 
-## [0.6.0-SNAPSHOT] — unreleased
+## [0.7.0-SNAPSHOT] — unreleased
 
-### P1 Event Bus production-grade
-- Frozen **catalog v1.0** (`IdentityEventCatalog`) + `GET /v1/admin/events/catalog`
-- Events carry `dataschema`, `data.eventId`, `data.catalogVersion`
-- Webhook: **HMAC** (`AAAX_EVENTS_WEBHOOK_SECRET`), delivery id headers, retries
-- Audit rows store **`eventId`** correlated to bus id
-- OTP `com.aaax.otp.dispatch` remains single OTP signal (kafka channel = bus-only delivery)
+Development follows **v0.6.0**.
 
-### Core foundation package
-- `com.aaax.core` — `AuditableEntity`, `BizException`, `Ids`, `GlobalExceptionHandler`
-- **Docs centralized:** `docs/booklet.md` (single SoT; other `docs/*` are stubs)
+## [0.6.0] — 2026-08-21
 
-### Naming
-- HTTP classes renamed `*Controller` → `*Endpoint` (Spring annotations unchanged)
+### Highlights
+- **QR code login** — desktop QR / code, phone approve, consume
+- **Trusted devices** — `AAAX_DEVICE` cookie, optional TOTP skip
+- **`com.aaax.core`** foundation — AuditableEntity, BizException, Ids
+- **HTTP `*Endpoint` naming** (not Controller)
+- **Event Bus P1** — catalog v1.0, webhook HMAC + retry, audit `eventId`
+- **Docs** — single SoT `docs/booklet.md`
+- **Mesh golden path** — `examples/compose-mesh/` (Postgres + Redis + Kafka + signed webhook)
+- CI green (enforcer + Central-only checks)
 
-### CI
-- Fixed false-positive ban on enforcer `<exclude>` lines mentioning quinsic/app-core
-- Enforcer runs execution `enforce-java-and-oss`
+### Event Bus
+- `GET /v1/admin/events/catalog`
+- `dataschema`, `data.eventId`, `data.catalogVersion`
+- `AAAX_EVENTS_WEBHOOK_SECRET` → `X-AAAX-Signature: sha256=…`
+- Delivery id headers + retries on 408/429/5xx
 
-### Trusted devices
-- Cookie `AAAX_DEVICE` + hashed store; optional skip TOTP on password login
-- `/v1/devices` CRUD; sign-in checkbox; `/user/` management
-
-### QR code login
-- `POST/GET /v1/auth/qr/sessions/*` + approve/consume
-- Hosted `/sign-in/` QR tab + `qr-approve.html`
-
-Development follows **v0.5.0**.
+### Auth / UX
+- `/sign-in/` QR tab · `/v1/auth/qr/*`
+- Remember device checkbox · `/v1/devices`
+- Passkeys still opt-in (`AAAX_PASSKEYS_ENABLED`) with webauthn4j
 
 ## [0.5.0] — 2026-08-21
 
 ### Highlights
-- **UseCase application layer** (no GodService)
-- **Pluggable OTP/magic store** — `memory` (default) | `redis`
-- **All logins** → `FinishAuthenticatedSession` (password/OTP/magic/social/SAML/passkey)
-- **Resource server example** — Boot 4.1 JWT RS (`examples/resource-server-boot4/`)
-- **Passkeys** — webauthn4j registration + assertion verify; **off by default** (`AAAX_PASSKEYS_ENABLED`)
-- OSS tour: CODEMAP, mermaid Event Bus path, overnight A–D polish
-
-### Supported
-- OIDC AS, accounts, password, OTP, magic link, TOTP MFA, sessions
-- Identity Event Bus (log/audit/buffer/Kafka/webhook)
-- Hosted `/sign-in` `/sign-up` `/user` `/admin`
-- Google/GitHub social (opt), SAML SP (opt)
-- SMS dual-mode (Kafka | webhook)
-
-### Opt-in
-- Passkeys when `aaax.passkeys.enabled=true` (webauthn4j verified; RP/origin must match)
-- Redis OTP store when `aaax.otp.store=redis`
-
-### Out of 0.5
-- Multi-tenant orgs, SAML IdP, official React SDK, LDAP
-
-## [0.4.0] — 2026-08-20
-
-Event Bus wedge + hosted experiences + Kafka notify example. See git tag `v0.4.0`.
+- UseCase application layer (no GodService)
+- Pluggable OTP/magic store — `memory` | `redis`
+- FinishAuthenticatedSession unified login finish
+- Passkeys webauthn4j (opt-in, off by default)
+- Resource-server Boot 4 example
+- Identity Event Bus E2E · SMS dual-mode · SAML SP · Google/GitHub social
+- Hosted `/sign-in` `/sign-up` `/user` · admin portal

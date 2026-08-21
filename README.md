@@ -36,13 +36,13 @@ sequenceDiagram
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](./pom.xml)
-[![Release](https://img.shields.io/badge/release-v0.5.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.5.0)
+[![Release](https://img.shields.io/badge/release-v0.6.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.6.0)
 
 | | |
 |--|--|
 | **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) |
-| **Examples** | [examples/](./examples/) · [Kafka notify](./examples/compose-kafka-notify/) · [**Resource server**](./examples/resource-server-boot4/) · [Redis OTP](./examples/redis-otp-store.md) |
-| **Version** | **`v0.5.0`** (Boot 4.1 / JDK 21) |
+| **Examples** | [**Mesh golden path**](./examples/compose-mesh/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
+| **Version** | **`v0.6.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 
 ---
@@ -54,7 +54,7 @@ sequenceDiagram
 ```bash
 git clone https://github.com/yky32/aaax.git
 cd aaax
-git checkout v0.5.0   # or main
+git checkout v0.6.0   # or main
 mvn test
 mvn spring-boot:run
 ```
@@ -76,27 +76,26 @@ mvn -DskipTests package
 docker compose up --build
 ```
 
-**Production-shaped path (AAAX + Kafka + sample notify consumer):**
+**Mesh golden path (Postgres + Redis OTP + Kafka + HMAC webhook):**
 
 ```bash
-cd examples/compose-kafka-notify
-docker compose up --build
-# see README in that folder
+mvn -DskipTests package
+cd examples/compose-mesh && docker compose up --build
 ```
 
 ---
 
-## What v0.5.0 commits to
+## What v0.6.0 commits to
 
-| ✅ Supported | 🧪 Opt-in | ❌ Out of 0.5 |
-|--------------|-----------------|---------------|
-| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** default; `AAAX_PASSKEYS_ENABLED=true` → webauthn4j verify) | Multi-tenant orgs |
-| Accounts · password · OTP · magic link | — | SAML IdP |
-| TOTP MFA · sessions list/revoke | — | Official React SDK |
-| Identity Event Bus (log · audit · buffer · Kafka · webhook) | — | LDAP |
-| Admin `/admin/` · users/clients | — | |
-| Hosted `/sign-in/` `/sign-up/` `/user/` | — | |
+| ✅ Supported | 🧪 Opt-in | ❌ Out of 0.6 |
+|--------------|----------------|---------------|
+| OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** default; webauthn4j) | Multi-tenant orgs |
+| Accounts · password · OTP · magic link · **QR login** | — | SAML IdP |
+| TOTP MFA · **trusted devices** · sessions | — | Official React SDK |
+| Identity Event Bus **catalog v1.0** · HMAC webhook · Kafka | — | LDAP |
+| Admin `/admin/` · hosted sign-in/up/user | — | |
 | Social Google + GitHub (optional) | — | |
+| Redis OTP store · resource-server example · `com.aaax.core` | — | |
 | SAML SP (optional) | — | |
 | SMS via **kafka event** or **webhook** (your provider) | — | |
 

@@ -6,7 +6,7 @@
 |--|--|
 | **This file** | **Single source of truth** for product + eng |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | tag **`v0.5.0`** · main **`0.6.0-SNAPSHOT`** |
+| **Version** | **`v0.6.0`** (Boot 4.1 / JDK 21) · tag `v0.6.0` |
 | **Stack** | JDK **21** · Spring Boot **4.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-08-21 |
@@ -229,7 +229,7 @@ Accounts · password · OTP · magic link · OIDC · TOTP · sessions · Event B
 
 SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list · Apple/Microsoft social
 
-### Status table (0.6-SNAPSHOT)
+### Status table (0.6.0)
 
 | Area | |
 |------|--|
@@ -239,13 +239,14 @@ SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list �
 | Magic link | ✅ |
 | TOTP MFA | ✅ |
 | Sessions list/revoke | ✅ |
-| Event Bus + admin Events | ✅ |
+| Event Bus catalog v1.0 + HMAC webhook + audit eventId | ✅ |
 | `/admin` · `/sign-in` · `/sign-up` · `/user` | ✅ |
 | SAML SP · social profile | ✅ optional |
 | Passkeys webauthn4j | 🔒 `AAAX_PASSKEYS_ENABLED` |
 | QR login | ✅ |
 | Trusted devices | ✅ |
 | `core` foundation | ✅ |
+| Mesh compose example | ✅ `examples/compose-mesh/` |
 | Orgs / SAML IdP / React SDK | ❌ |
 
 ---
@@ -345,7 +346,7 @@ Enforcer still **bans** private `com.quinsic.*` and `app-core` coordinates.
 
 ```bash
 git clone https://github.com/yky32/aaax.git && cd aaax
-git checkout v0.5.0   # or main
+git checkout v0.6.0   # or main
 mvn test
 mvn spring-boot:run
 ```
@@ -355,7 +356,24 @@ mvn -DskipTests package
 docker compose up --build
 ```
 
-Examples: `examples/curl/` · `examples/compose-kafka-notify/` · `examples/resource-server-boot4/` · `examples/compose-redis-otp/`
+**Mesh golden path (Event Bus + Redis OTP + HMAC webhook):**
+
+```bash
+mvn -DskipTests package
+cd examples/compose-mesh && docker compose up --build
+```
+
+Examples: `examples/curl/` · `examples/compose-mesh/` · `examples/compose-kafka-notify/` · `examples/resource-server-boot4/` · `examples/compose-redis-otp/`
+
+### Production / HA notes
+
+| Mode | OTP/magic/QR store | Events | DB |
+|------|-------------------|--------|-----|
+| **Dev laptop** | `memory` (default) | log + buffer | H2 |
+| **Multi-node / prod** | `AAAX_OTP_STORE=redis` | Kafka and/or signed webhook | Postgres |
+| **QR sessions** | still in-memory in 0.6 — sticky sessions or single node until Redis QR store | | |
+
+See [compose-mesh](../examples/compose-mesh/).
 
 ---
 
