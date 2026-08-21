@@ -89,35 +89,121 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 
 **Positioning:** Spring-native lean self-host OIDC — not Keycloak kitchen-sink, not Clerk hosted UX.
 
-### Capability snapshot
+**Legend:** ✅ strong · 🟡 partial / optional · ❌ no/weak · ★ category leader · 🔒 off-by-default
 
-| Capability | AAAX |
-|------------|:----:|
-| Self-host / own data | ✅ |
-| OIDC AS | ✅ |
-| Clone → run (no private Maven) | ✅ |
-| Spring/JVM native | ✅ |
-| OTP + dual SMS (Kafka/webhook) | ✅ |
-| TOTP MFA | ✅ |
-| Passkeys | 🔒 opt-in webauthn4j |
-| Social Google+GitHub | 🟡 optional |
-| SAML SP | ✅ optional |
-| SAML IdP | ❌ |
-| Orgs multi-tenant | ❌ single-realm |
-| QR login | ✅ |
-| Trusted device (skip MFA) | ✅ |
-| Event Bus | ✅★ |
-| Official React SDK | ❌ |
+### 4.1 Full capability matrix (2026-08, AAAX v0.5 + 0.6-SNAPSHOT)
 
-### How we win
+| Capability | **AAAX** | **Logto** | **Keycloak** | **Ory** | **Authentik** | **Clerk** | **better-auth** | **Auth0 / Cognito** | **Spring Auth Server alone** |
+|------------|:--------:|:---------:|:------------:|:-------:|:-------------:|:---------:|:---------------:|:-------------------:|:----------------------------:|
+| Self-host / own data | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ SaaS | ✅ lib | 🟡 | ✅ (you build) |
+| OIDC AS (discover/JWKS/code/refresh/CC) | ✅ | ✅★ | ✅★ | ✅★ | ✅ | ✅ | 🟡 | ✅★ | ✅★ |
+| Clone → token (minutes) | ✅★ | ✅ | 🟡 heavy | 🟡 multi-svc | 🟡 | n/a hosted | ✅★ app | n/a | 🟡 diy |
+| No private / proprietary Maven | ✅★ | ✅ | ✅ | ✅ | ✅ | n/a | ✅ | n/a | ✅ |
+| **Spring / JVM native product** | ✅★ | ❌ Node | 🟡 Java heavy | Go | Python | ❌ | ❌ TS | ❌ | ✅ lib only |
+| Admin console | ✅ `/admin` | ✅★ | ✅★ | 🟡 | ✅★ | ✅★ | 🟡 | ✅★ | ❌ |
+| Hosted sign-in / user | ✅ | ✅★ | 🟡 | 🟡 | ✅ | ✅★ | ✅★ | ✅ | ❌ |
+| Password + register | ✅ | ✅ | ✅ | ✅ | ✅ | ✅★ | ✅★ | ✅ | diy |
+| Passwordless OTP | ✅ | ✅ | ✅ | ✅ | ✅ | ✅★ | ✅ | ✅ | diy |
+| Magic link | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅★ | ✅★ | ✅ | diy |
+| SMS without vendor lock-in | ✅★ Kafka/webhook | 🟡 | 🟡 SPI | 🟡 | 🟡 | ❌ their rails | 🟡 | their SMS | diy |
+| TOTP MFA | ✅ | ✅ | ✅★ | ✅ | ✅ | ✅★ | 🟡 | ✅★ | diy |
+| Passkeys / WebAuthn | 🔒 | ✅ | ✅ | ✅ | ✅ | ✅★ | ✅ | ✅ | diy |
+| QR login (phone approve desktop) | ✅ | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | diy |
+| Trusted device / remember MFA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅★ | 🟡 | ✅ | diy |
+| Social login pack | 🟡 G+GH | ✅★ | ✅★ | ✅ | ✅ | ✅★ | ✅★ | ✅★ | diy |
+| SAML SP | ✅ | ✅ | ✅★ | ✅ | ✅★ | ✅ | ❌ | ✅★ | diy |
+| SAML IdP | ❌ | 🟡/✅ | ✅★ | 🟡 | ✅★ | ✅ | ❌ | ✅★ | ❌ |
+| Orgs / multi-tenant | ❌ single | ✅★ | ✅★ | ✅ | ✅ | ✅★ | 🟡 | ✅★ | diy |
+| Fine RBAC / policies | 🟡 roles+scopes | ✅ | ✅★ | ✅★ | ✅ | ✅ | 🟡 | ✅★ | diy |
+| LDAP / AD | ❌ | 🟡 | ✅★ | 🟡 | ✅★ | ❌ | ❌ | ✅ | diy |
+| Audit | ✅ basic | 🟡/✅ | ✅★ | ✅ | ✅ | ✅ | ❌ | ✅★ | diy |
+| **Outbound identity event bus** | ✅★ first-class | 🟡 webhooks | 🟡 events SPI | ✅★ | 🟡 | 🟡 webhooks | ❌ | ✅ Logs/Hooks | diy |
+| Official SPA/mobile SDK | ❌ | ✅★ | 🟡 | ✅ | 🟡 | ✅★ | ✅★ | ✅★ | ❌ |
+| Seat / MAU tax | ✅★ $0 | ✅ OSS | ✅ | OSS+cloud | ✅ | ❌ | ✅ | ❌ | ✅ |
+| Ops weight | Low | Med | **High** | Med–High | Med | none (SaaS) | App-coupled | none (SaaS) | You own all |
+| OSS community / stars | Early | Strong | Huge | Strong | Strong | n/a | Strong | n/a | Spring eco |
 
-| Double down | Why |
-|-------------|-----|
-| **Identity Event Bus** | CloudEvents-ish → Kafka/webhook; mesh owns SMS |
-| **Caller-owned SMS** | No Twilio lock-in inside the IdP |
-| **Spring AS + clone DX** | Central deps, booklet, `/admin`, examples |
+### 4.2 Scorecard (0–100 = credible pick in that lane)
 
-> **AAAX authenticates. Your mesh notifies.**
+| Lane | AAAX | Logto | Keycloak | Ory | Authentik | Clerk | better-auth | SAS alone |
+|------|-----:|------:|---------:|----:|----------:|------:|------------:|----------:|
+| Self-host OIDC core | **78** | 88 | 92 | 90 | 85 | — | 55 | 70 |
+| Admin / ops UX | **58** | 85 | 82 | 65 | 88 | 95 | 40 | 15 |
+| Auth methods breadth | **68** | 86 | 95 | 85 | 88 | 95 | 78 | 30 |
+| Enterprise federation | **42** | 72 | **95** | 80 | 90 | 80 | 15 | 20 |
+| App DX (SDK / components) | **28** | 82 | 48 | 75 | 45 | **98** | **92** | 25 |
+| **Spring / platform mesh fit** | **95** | 22 | 55 | 40 | 25 | 12 | 8 | 90 |
+| Time-to-first-token | **90** | 82 | 42 | 55 | 50 | 96 hosted | 90 | 50 |
+| **Event-driven notify mesh** | **92** | 55 | 50 | 78 | 45 | 50 | 20 | 25 |
+| Clone honesty (no private deps) | **95** | 90 | 70 | 85 | 85 | — | 95 | 95 |
+| Market / community | **15** | 80 | **95** | 78 | 70 | 90 | 82 | 85 (Spring) |
+
+### 4.3 When to pick whom
+
+| If you need… | Pick | Not AAAX because |
+|--------------|------|------------------|
+| Enterprise IdP + LDAP + every protocol | **Keycloak** / **Authentik** | Federation surface thin |
+| Beautiful multi-tenant + JS SDK fast | **Logto** or **Clerk** | Orgs + SDK missing |
+| Next.js drop-in session lib | **better-auth** | AAAX is a **server**, not an app lib |
+| Cloud SLA + compliance checkbox | **Auth0 / Cognito** | Not a managed service |
+| Micro-IAM building blocks | **Ory** | You assemble; AAAX is one jar product |
+| **Spring AS + Kafka notify mesh, no seat tax** | **AAAX** | — |
+
+### 4.4 Head-to-head (AAAX wins / loses)
+
+| vs | AAAX wins | AAAX loses |
+|----|-----------|------------|
+| **Logto** | JVM AS; Event Bus + SMS dual-mode; QR + trusted device in-box | Orgs, passkeys default, JS SDK, console polish, community |
+| **Keycloak** | 10× lighter; clone DX; intentional event wedge | SAML IdP, LDAP, fine RBAC, ecosystem, ops mindshare |
+| **Ory** | One-process product story; Spring shop fit | Modular depth, cloud option, policy engine |
+| **Authentik** | Spring-native; simpler Java mental model for JVM teams | UI maturity, IdP breadth, community |
+| **Clerk** | Self-host, $0 seats, your SMS rails | Components, hosted UX perfection, passkeys UX, brand |
+| **better-auth** | Real OIDC **server** + clients admin + RS example | TS DX, install-in-app ergonomics |
+| **Auth0/Cognito** | Cost, data ownership, OSS auditability | Enterprise checklist, SLA, global edge |
+| **SAS alone** | Product shell: accounts, admin, events, hosted UX | You still wrote all of that yourself |
+
+### 4.5 Honest AAAX state (post-0.6-SNAPSHOT)
+
+| ✅ Solid | 🟡 Thin | ❌ Out |
+|----------|---------|--------|
+| OIDC AS + JWK | Social pack (G+GH only) | Orgs / multi-tenant |
+| Event Bus + admin Events | Admin UX polish | SAML IdP |
+| OTP + kafka/sms dual | Audit depth | LDAP / AD |
+| TOTP + trusted device | Passkeys default-off | Official React SDK |
+| Magic link + QR login | HA defaults (memory) | Drop-in components |
+| Hosted sign-in/up/user | RBAC = roles+scopes | Huge community |
+| `/admin` clients/users | — | — |
+| Resource-server example | — | — |
+| Booklet SoT + Central-only | — | — |
+
+### 4.6 How we win (deliberate wedge)
+
+**Do not try to out-Clerk Clerk or out-Keycloak Keycloak.**
+
+| We double down | Why competitors are weaker here |
+|----------------|----------------------------------|
+| **Identity Event Bus** | Lifecycle → Kafka/webhook first-class; platform owns notify |
+| **Caller-owned SMS** | `kafka` + `sms` webhook — no Twilio tax inside IdP |
+| **Spring/JVM product** | Logto Node; better-auth app-lib; KC heavy; SAS = bare library |
+| **Clone → token DX** | Central/public deps, booklet, examples, CI |
+
+Primary story:
+
+> **AAAX authenticates. Your mesh notifies.**  
+> Best lean IdP for teams that already run Kafka + notification-service + Spring.
+
+### 4.7 One-line map
+
+```text
+Clerk        ──►  best hosted UX / components
+Keycloak     ──►  best enterprise kitchen sink
+Logto        ──►  best modern self-host + JS DX
+Ory          ──►  best composable cloud-native IAM parts
+Authentik    ──►  best all-in-one FOSS IdP UI (non-JVM)
+better-auth  ──►  best install-into-Next auth lib
+AAAX         ──►  best lean Spring OIDC + event mesh handoff
+SAS alone    ──►  best raw Spring Security building block
+```
 
 ---
 
