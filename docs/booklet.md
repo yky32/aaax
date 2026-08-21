@@ -170,7 +170,8 @@ AAAX is an **IT / developer product**, not an internal monorepo extract.
 | Event Bus + admin Events | Admin UX polish | SAML IdP |
 | OTP + kafka/sms dual | Audit depth | LDAP / AD |
 | TOTP + trusted device | Passkeys default-off | Official React SDK |
-| Magic link + QR login | Passkeys default-off | Drop-in components |
+| Magic link + QR login (+ Redis store) | Passkeys default-off | Drop-in components |
+| Hosted sign-in/up/user | RBAC = roles+scopes | Huge community |
 | `/admin` clients/users | — | — |
 | Resource-server example | — | — |
 | Booklet SoT + Central-only | — | — |
