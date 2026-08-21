@@ -2,11 +2,11 @@ package com.aaax.config;
 
 import java.util.Map;
 
-import com.aaax.account.Account;
-import com.aaax.account.AccountUserDetailsService;
-import com.aaax.account.application.AccountQueries;
-import com.aaax.account.application.FederateAccountUseCase;
-import com.aaax.auth.application.FinishAuthenticatedSession;
+import com.aaax.entity.po.Account;
+import com.aaax.service.AccountUserDetailsService;
+import com.aaax.usecase.account.AccountQueries;
+import com.aaax.usecase.account.FederateAccountUseCase;
+import com.aaax.usecase.auth.FinishAuthenticatedSession;
 import com.aaax.events.IdentityEvent;
 
 import org.springframework.beans.factory.annotation.Value;

@@ -4,6 +4,10 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.7.0-SNAPSHOT] — unreleased
 
+### Structure (ledger-aligned)
+- Packages: `endpoint/<domain>`, `usecase/<domain>`, `repository`, `entity/po|dto`, `service`, `spi`, `exception`
+- Removed flat `web/` + feature-mixed trees; same behavior, clone-tour matches ledger-engine sample
+
 ### SPA / App DX
 - Public OAuth client **`aaax-spa`** (PKCE required, no secret)
 - Example: `examples/spa-pkce/` + thin helper `aaax.js`

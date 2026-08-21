@@ -3,9 +3,9 @@ package com.aaax.config;
 import java.io.IOException;
 import java.util.Map;
 
-import com.aaax.account.Account;
-import com.aaax.account.application.FederateAccountUseCase;
-import com.aaax.auth.application.FinishAuthenticatedSession;
+import com.aaax.entity.po.Account;
+import com.aaax.usecase.account.FederateAccountUseCase;
+import com.aaax.usecase.auth.FinishAuthenticatedSession;
 import com.aaax.events.IdentityEvent;
 
 import jakarta.servlet.ServletException;

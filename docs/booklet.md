@@ -272,20 +272,24 @@ SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list �
 | 2 | `/v1/api/**` | JWT · scopes |
 | 3 | default | session · public auth · admin needs `ROLE_ADMIN` |
 
-### Layering
+### Layering (ledger-aligned)
 
 ```text
-web/*Endpoint            HTTP adapt only
+endpoint/<domain>/*Endpoint   HTTP only
   ↓
-*.application.*UseCase   one user intent
+usecase/<domain>/*UseCase     one user intent
   ↓
-core/*                   AuditableEntity · BizException · Ids
-  ↓
-Repository / SPI         JPA, OtpSender, EventBus sinks
-config/*                 Security, SAML, Social
+service/*                     technical helpers / seeds (prefer UseCase for new biz)
+spi/*                         ports (OTP/QR stores, senders)
+repository/*                  JPA
+entity/po · entity/dto        persistence + API shapes
+core/*                        AuditableEntity · BizException · Ids
+events/*                      Identity Event Bus wedge
+config/*
+exception/*
 ```
 
-**Rules:** Endpoints thin · UseCase for writes · domain → core only · no GodService · no interface-per-use-case.
+**Rules:** Endpoints thin · UseCase for writes · domain → core only · no new business `@Service` when a UseCase fits · SPI for pluggable infra.
 
 ---
 
@@ -295,27 +299,24 @@ config/*                 Security, SAML, Social
 |-----:|------|-----|
 | 1 | `AaaxApplication.java` | Boot |
 | 2 | `config/SecurityConfig.java` | 3 filter chains |
-| 3 | `auth/application/PasswordLoginUseCase.java` | Login |
-| 4 | `auth/application/FinishAuthenticatedSession.java` | All logins end here |
+| 3 | `usecase/auth/PasswordLoginUseCase.java` | Login |
+| 4 | `usecase/auth/FinishAuthenticatedSession.java` | All logins end here |
 | 5 | `events/IdentityEventBus.java` | Wedge |
-| 6 | `web/AuthEndpoint.java` | `/v1/auth/*` |
+| 6 | `endpoint/auth/AuthEndpoint.java` | `/v1/auth/*` |
 | 7 | `core/entity/AuditableEntity.java` | Foundation |
 
 ```text
 com.aaax
-├── core/          # AuditableEntity, BizException, Ids, GlobalExceptionHandler
+├── core/              # AuditableEntity, BizException, Ids, GlobalExceptionHandler
 ├── config/
-├── account/application/
-├── auth/application/   # password, OTP, magic, QR, finish session
-├── otp/
-├── events/
-├── session/
-├── device/
-├── passkey/
-├── client/
-├── audit/
-├── web/           # *Endpoint
-└── compat/
+├── endpoint/          # auth · account · admin · device · passkey · session · otp · meta · compat
+├── usecase/           # account · auth · otp
+├── repository/
+├── entity/po · dto/
+├── service/           # OTP/passkey/session/device helpers + seeds
+├── spi/               # otp + auth stores/senders
+├── events/            # Event Bus
+└── exception/
 ```
 
 ---

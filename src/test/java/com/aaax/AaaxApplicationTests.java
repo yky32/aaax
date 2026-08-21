@@ -3,7 +3,7 @@ package com.aaax;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import com.aaax.otp.OtpCodeStore;
+import com.aaax.spi.otp.OtpCodeStore;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.aaax.service.TotpService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,7 +43,7 @@ class AaaxApplicationTests {
     OtpCodeStore otpStore;
 
     @Autowired
-    com.aaax.mfa.TotpService totpService;
+    com.aaax.service.TotpService totpService;
 
     @Test
     void demoSpaPublicClientSeeded() throws Exception {

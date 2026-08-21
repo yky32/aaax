@@ -1,11 +1,11 @@
 package com.aaax.config;
 
-import com.aaax.auth.MagicLinkTokenStore;
-import com.aaax.auth.QrLoginSessionStore;
-import com.aaax.auth.RedisMagicLinkTokenStore;
-import com.aaax.auth.RedisQrLoginSessionStore;
-import com.aaax.otp.OtpCodeStore;
-import com.aaax.otp.RedisOtpCodeStore;
+import com.aaax.spi.auth.MagicLinkTokenStore;
+import com.aaax.spi.auth.QrLoginSessionStore;
+import com.aaax.spi.auth.RedisMagicLinkTokenStore;
+import com.aaax.spi.auth.RedisQrLoginSessionStore;
+import com.aaax.spi.otp.OtpCodeStore;
+import com.aaax.spi.otp.RedisOtpCodeStore;
 
 import tools.jackson.databind.ObjectMapper;
 
