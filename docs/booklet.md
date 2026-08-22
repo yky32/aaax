@@ -272,24 +272,26 @@ SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list �
 | 2 | `/v1/api/**` | JWT · scopes |
 | 3 | default | session · public auth · admin needs `ROLE_ADMIN` |
 
-### Layering (ledger-aligned)
+### Layering (qs/uaa + ledger layout)
 
 ```text
 endpoint/<domain>/*Endpoint   HTTP only
   ↓
 usecase/<domain>/*UseCase     one user intent
   ↓
-service/*                     technical helpers / seeds (prefer UseCase for new biz)
-spi/*                         ports (OTP/QR stores, senders)
-repository/*                  JPA
-entity/po · entity/dto        persistence + API shapes
-core/*                        AuditableEntity · BizException · Ids
-events/*                      Identity Event Bus wedge
-config/*
+repository/*
+entity/po                     extends AuditEntity / AuditEntityWithIsActive
+entity/dto/request|response   *RequestDto · Get*|…*ResponseDto
+spi/*                         ports
+core/*                        AuditEntity · BizException · Ids
+events/*
+config/*                      + JpaAuditingConfig
 exception/*
 ```
 
-**Rules:** Endpoints thin · UseCase for writes · domain → core only · no new business `@Service` when a UseCase fits · SPI for pluggable infra.
+**PO rules (uaa):** bare `@Entity` / `@Column` (no `name=`) · trust naming strategy · `@Version` + `createDt`/`updateDt`/`createdBy`/`updatedBy` via `AuditEntity`.
+
+**DTO rules (uaa):** one type per file · suffix `RequestDto` / `ResponseDto` · no bag classes · records OK.
 
 ---
 
@@ -303,19 +305,19 @@ exception/*
 | 4 | `usecase/auth/FinishAuthenticatedSession.java` | All logins end here |
 | 5 | `events/IdentityEventBus.java` | Wedge |
 | 6 | `endpoint/auth/AuthEndpoint.java` | `/v1/auth/*` |
-| 7 | `core/entity/AuditableEntity.java` | Foundation |
+| 7 | `core/entity/AuditEntity.java` | qs/uaa foundation (@Version) |
 
 ```text
 com.aaax
-├── core/              # AuditableEntity, BizException, Ids, GlobalExceptionHandler
-├── config/
+├── core/              # AuditEntity · AuditEntityWithIsActive · BizException · Ids
+├── config/            # + JpaAuditingConfig
 ├── endpoint/          # auth · account · admin · device · passkey · session · otp · meta · compat
-├── usecase/           # account · auth · otp · passkey · device · session · client
+├── usecase/
 ├── repository/
-├── entity/po · dto/
-├── service/           # Security UDS · TOTP crypto · audit · seeds only
-├── spi/               # otp + auth stores/senders
-├── events/            # Event Bus
+├── entity/po · dto/request · dto/response · dto/event
+├── service/           # UDS · TotpService · AuditService · seeds only
+├── spi/
+├── events/
 └── exception/
 ```
 

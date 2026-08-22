@@ -385,7 +385,7 @@ async function loadAudit() {
   $("#auditBody").innerHTML =
     rows
       .map((e) => {
-        const when = String(e.createdAt || "").replace("T", " ").replace(/\.\d+Z?$/, "");
+        const when = String(e.createDt || "").replace("T", " ").replace(/\.\d+Z?$/, "");
         return `<tr>
       <td class="small mono">${esc(when)}</td>
       <td><code>${esc(e.action)}</code></td>

@@ -2,9 +2,11 @@ package com.aaax.entity.dto.response;
 
 import java.time.Instant;
 import java.util.Set;
+
 import com.aaax.entity.po.Account;
 
-public record AccountResponse(
+/** Account public shape (qs/uaa: Get*ResponseDto). */
+public record GetAccountResponseDto(
         String id,
         String username,
         String email,
@@ -13,10 +15,10 @@ public record AccountResponse(
         boolean mfaEnabled,
         boolean googleLinked,
         boolean githubLinked,
-        Instant createdAt
+        Instant createDt
 ) {
-    public static AccountResponse from(Account account) {
-        return new AccountResponse(
+    public static GetAccountResponseDto from(Account account) {
+        return new GetAccountResponseDto(
                 account.getId(),
                 account.getUsername(),
                 account.getEmail(),
@@ -25,6 +27,6 @@ public record AccountResponse(
                 account.isTotpEnabled(),
                 account.getGoogleSub() != null && !account.getGoogleSub().isBlank(),
                 account.getGithubId() != null && !account.getGithubId().isBlank(),
-                account.getCreatedAt());
+                account.getCreateDt());
     }
 }

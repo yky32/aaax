@@ -69,7 +69,7 @@ public class TrustedDeviceUseCase {
             return false;
         }
         return repository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
-                .filter(TrustedDevice::isActive)
+                .filter(TrustedDevice::isValid)
                 .filter(d -> d.getAccountId().equals(accountId))
                 .isPresent();
     }
@@ -77,7 +77,7 @@ public class TrustedDeviceUseCase {
     @Transactional
     public void touch(String accountId, String rawToken, HttpServletRequest request) {
         repository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
-                .filter(TrustedDevice::isActive)
+                .filter(TrustedDevice::isValid)
                 .filter(d -> d.getAccountId().equals(accountId))
                 .ifPresent(d -> {
                     d.setLastSeenAt(Instant.now());
@@ -122,7 +122,7 @@ public class TrustedDeviceUseCase {
     @Transactional(readOnly = true)
     public List<TrustedDevice> listActive(String accountId) {
         return repository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId).stream()
-                .filter(TrustedDevice::isActive)
+                .filter(TrustedDevice::isValid)
                 .toList();
     }
 

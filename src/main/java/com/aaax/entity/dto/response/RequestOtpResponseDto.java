@@ -2,7 +2,7 @@ package com.aaax.entity.dto.response;
 
 import java.time.Instant;
 
-public record OtpRequestResponse(
+public record RequestOtpResponseDto(
         String username,
         String destination,
         int ttlSeconds,

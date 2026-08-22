@@ -105,7 +105,7 @@ async function loadSessions() {
     rows
       .map(
         (s) => `<div class="row">
-      <div><strong>${(s.userAgent || "session").slice(0, 48)}</strong><div class="small">${s.ip || ""} · ${s.createdAt || ""}</div></div>
+      <div><strong>${(s.userAgent || "session").slice(0, 48)}</strong><div class="small">${s.ip || ""} · ${s.createDt || ""}</div></div>
       <button type="button" class="btn ghost" style="width:auto;padding:.35rem .6rem" data-id="${s.id}">Revoke</button>
     </div>`
       )

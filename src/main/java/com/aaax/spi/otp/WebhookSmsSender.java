@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import com.aaax.entity.dto.OtpDispatchEvent;
+import com.aaax.entity.dto.event.OtpDispatchEventDto;
 
 /**
  * Mode 2 — configurable own SMS provider via HTTP webhook.
@@ -47,8 +47,8 @@ public class WebhookSmsSender implements SmsSender, OtpSender {
 
     @Override
     public void send(String destination, String code) {
-        OtpDispatchEvent event = new OtpDispatchEvent(
-                OtpDispatchEvent.TYPE,
+        OtpDispatchEventDto event = new OtpDispatchEventDto(
+                OtpDispatchEventDto.TYPE,
                 destination,
                 destination,
                 "sms",
@@ -60,7 +60,7 @@ public class WebhookSmsSender implements SmsSender, OtpSender {
     }
 
     @Override
-    public void sendSms(String phone, String messageBody, OtpDispatchEvent event) {
+    public void sendSms(String phone, String messageBody, OtpDispatchEventDto event) {
         if (!StringUtils.hasText(webhookUrl)) {
             log.warn("SMS webhook URL empty — console fallback. phone={} code={}", phone, event.code());
             log.info("AAAX OTP for {} => {}", phone, event.code());

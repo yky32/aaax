@@ -2,10 +2,10 @@ package com.aaax.endpoint.account;
 
 import java.security.Principal;
 
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.AccountDtos.DisableTotpRequest;
-import com.aaax.entity.dto.AccountDtos.TotpCodeRequest;
-import com.aaax.entity.dto.AccountDtos.TotpSetupResponse;
+import com.aaax.entity.dto.request.DisableTotpRequestDto;
+import com.aaax.entity.dto.request.TotpCodeRequestDto;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.response.TotpSetupResponseDto;
 import com.aaax.usecase.account.TotpMfaUseCase;
 
 import jakarta.validation.Valid;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.aaax.entity.dto.AccountDtos;
 
 @RestController
 @RequestMapping("/v1/accounts/me/mfa")
@@ -27,17 +26,17 @@ public class MfaEndpoint {
     }
 
     @PostMapping("/totp/setup")
-    public TotpSetupResponse setup(Principal principal) {
+    public TotpSetupResponseDto setup(Principal principal) {
         return totpMfa.beginSetup(principal.getName());
     }
 
     @PostMapping("/totp/confirm")
-    public AccountResponse confirm(Principal principal, @Valid @RequestBody TotpCodeRequest body) {
+    public GetAccountResponseDto confirm(Principal principal, @Valid @RequestBody TotpCodeRequestDto body) {
         return totpMfa.confirm(principal.getName(), body.code());
     }
 
     @PostMapping("/totp/disable")
-    public AccountResponse disable(Principal principal, @Valid @RequestBody DisableTotpRequest body) {
+    public GetAccountResponseDto disable(Principal principal, @Valid @RequestBody DisableTotpRequestDto body) {
         return totpMfa.disable(principal.getName(), body.password(), body.code());
     }
 }

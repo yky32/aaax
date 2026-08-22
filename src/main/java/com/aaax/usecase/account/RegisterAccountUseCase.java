@@ -5,8 +5,8 @@ import java.util.Locale;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.request.RegisterAccountRequest;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.request.RegisterAccountRequestDto;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
@@ -30,7 +30,7 @@ public class RegisterAccountUseCase {
     }
 
     @Transactional
-    public AccountResponse execute(RegisterAccountRequest request) {
+    public GetAccountResponseDto execute(RegisterAccountRequestDto request) {
         String username = request.username().trim();
         String email = normalizeEmail(request.email());
         if (accounts.existsByUsernameIgnoreCase(username)) {
@@ -42,7 +42,7 @@ public class RegisterAccountUseCase {
         Account saved = accounts.save(new Account(username, email, passwordEncoder.encode(request.password())));
         events.emit(IdentityEvent.Types.ACCOUNT_REGISTERED, username, "self-register",
                 java.util.Map.of("email", email == null ? "" : email));
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 
     static String normalizeEmail(String email) {

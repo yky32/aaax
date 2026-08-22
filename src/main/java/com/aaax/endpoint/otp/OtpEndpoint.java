@@ -1,12 +1,12 @@
 package com.aaax.endpoint.otp;
 
-import com.aaax.entity.dto.response.OtpRequestResponse;
-import com.aaax.entity.dto.response.OtpVerifyResponse;
+import com.aaax.entity.dto.request.RequestOtpRequestDto;
+import com.aaax.entity.dto.request.VerifyOtpRequestDto;
+import com.aaax.entity.dto.response.RequestOtpResponseDto;
+import com.aaax.entity.dto.response.VerifyOtpResponseDto;
 import com.aaax.usecase.otp.RequestOtpUseCase;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,19 +24,12 @@ public class OtpEndpoint {
     }
 
     @PostMapping("/request")
-    public OtpRequestResponse request(@Valid @RequestBody OtpRequestBody body) {
+    public RequestOtpResponseDto request(@Valid @RequestBody RequestOtpRequestDto body) {
         return requestOtp.execute(body.username());
     }
 
     @PostMapping("/verify")
-    public OtpVerifyResponse verify(@Valid @RequestBody OtpVerifyBody body) {
+    public VerifyOtpResponseDto verify(@Valid @RequestBody VerifyOtpRequestDto body) {
         return requestOtp.verify(body.username(), body.code());
-    }
-
-    public record OtpRequestBody(@NotBlank @Size(max = 64) String username) {
-    }
-
-    public record OtpVerifyBody(
-            @NotBlank @Size(max = 64) String username, @NotBlank @Size(min = 4, max = 10) String code) {
     }
 }

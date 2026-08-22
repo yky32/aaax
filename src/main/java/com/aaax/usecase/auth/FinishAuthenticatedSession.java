@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.aaax.entity.po.Account;
-import com.aaax.entity.dto.response.AccountResponse;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
 import com.aaax.service.AccountUserDetailsService;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
@@ -77,7 +77,7 @@ public class FinishAuthenticatedSession {
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("mfaRequired", false);
-        m.put("account", AccountResponse.from(account));
+        m.put("account", GetAccountResponseDto.from(account));
         m.put("sessionId", tracked.getId());
         return m;
     }

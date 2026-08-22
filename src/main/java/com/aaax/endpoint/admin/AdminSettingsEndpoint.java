@@ -252,7 +252,7 @@ public class AdminSettingsEndpoint {
         m.put("action", e.getAction());
         m.put("actor", e.getActor());
         m.put("detail", e.getDetail());
-        m.put("createdAt", e.getCreatedAt());
+        m.put("createDt", e.getCreateDt());
         return m;
     }
 

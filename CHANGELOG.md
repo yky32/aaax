@@ -4,11 +4,17 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.7.0-SNAPSHOT] — unreleased
 
-### Structure (ledger-aligned)
+### Structure — qs/uaa align (stop-feature)
+- **AuditEntity** + **AuditEntityWithIsActive** (`@Version`, `createDt`/`updateDt`/`createdBy`/`updatedBy`) + `JpaAuditingConfig`
+- Bare `@Entity`/`@Column` (no `name=`) — trust Hibernate naming
+- DTOs: `entity/dto/request|*RequestDto`, `response|*ResponseDto`, `event|` — **no bag classes**
+- Renames: `GetAccountResponseDto`, `RegisterAccountRequestDto`, `RequestOtp*`, …
+- Repos order by `createDt`; dropped invented `AuditableEntity`
+
+### Structure (ledger package tree)
 - Packages: `endpoint/<domain>`, `usecase/<domain>`, `repository`, `entity/po|dto`, `service`, `spi`, `exception`
-- Removed flat `web/` + feature-mixed trees; same behavior, clone-tour matches ledger-engine sample
-- Business services → UseCase: `PasskeyUseCase`, `TrustedDeviceUseCase`, `AuthSessionUseCase`, `ClientAdminUseCase`, `OtpOpsUseCase`
-- `service/` left for UDS / TOTP crypto / audit / seeds only
+- Business services → UseCase: Passkey/Device/Session/Client/OtpOps
+- `service/` = UDS / TOTP crypto / audit / seeds only
 
 ### SPA / App DX
 - Public OAuth client **`aaax-spa`** (PKCE required, no secret)

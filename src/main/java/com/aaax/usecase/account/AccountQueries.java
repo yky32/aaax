@@ -5,7 +5,7 @@ import java.util.List;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.AccountResponse;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +21,8 @@ public class AccountQueries {
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse requireByUsername(String username) {
-        return AccountResponse.from(requireEntityByUsername(username));
+    public GetAccountResponseDto requireByUsername(String username) {
+        return GetAccountResponseDto.from(requireEntityByUsername(username));
     }
 
     @Transactional(readOnly = true)
@@ -32,14 +32,14 @@ public class AccountQueries {
     }
 
     @Transactional(readOnly = true)
-    public List<AccountResponse> listAll() {
-        return accounts.findAllByOrderByCreatedAtDesc().stream().map(AccountResponse::from).toList();
+    public List<GetAccountResponseDto> listAll() {
+        return accounts.findAllByOrderByCreateDtDesc().stream().map(GetAccountResponseDto::from).toList();
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse getById(String id) {
+    public GetAccountResponseDto getById(String id) {
         return accounts.findById(id)
-                .map(AccountResponse::from)
+                .map(GetAccountResponseDto::from)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 

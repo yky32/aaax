@@ -3,11 +3,11 @@ package com.aaax.endpoint.account;
 import java.security.Principal;
 import java.util.Map;
 
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.request.RegisterAccountRequest;
-import com.aaax.entity.dto.AccountDtos.ChangePasswordRequest;
-import com.aaax.entity.dto.AccountDtos.ForgotPasswordRequest;
-import com.aaax.entity.dto.AccountDtos.ResetPasswordRequest;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.request.RegisterAccountRequestDto;
+import com.aaax.entity.dto.request.ChangePasswordRequestDto;
+import com.aaax.entity.dto.request.ForgotPasswordRequestDto;
+import com.aaax.entity.dto.request.ResetPasswordRequestDto;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.PasswordUseCase;
 import com.aaax.usecase.account.RegisterAccountUseCase;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import com.aaax.entity.dto.AccountDtos;
 
 @RestController
 @RequestMapping("/v1/accounts")
@@ -41,30 +40,30 @@ public class AccountEndpoint {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountResponse register(@Valid @RequestBody RegisterAccountRequest request) {
+    public GetAccountResponseDto register(@Valid @RequestBody RegisterAccountRequestDto request) {
         return registerAccount.execute(request);
     }
 
     @GetMapping("/me")
-    public AccountResponse me(Principal principal) {
+    public GetAccountResponseDto me(Principal principal) {
         return queries.requireByUsername(principal.getName());
     }
 
     @PutMapping("/me/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(Principal principal, @Valid @RequestBody ChangePasswordRequest request) {
+    public void changePassword(Principal principal, @Valid @RequestBody ChangePasswordRequestDto request) {
         passwords.changePassword(principal.getName(), request.currentPassword(), request.newPassword());
     }
 
     @PostMapping("/password/forgot")
-    public Map<String, Object> forgot(@Valid @RequestBody ForgotPasswordRequest request) {
+    public Map<String, Object> forgot(@Valid @RequestBody ForgotPasswordRequestDto request) {
         passwords.requestPasswordReset(request.usernameOrEmail());
         return Map.of("accepted", true, "message", "If the account exists, a reset code was sent");
     }
 
     @PostMapping("/password/reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void reset(@Valid @RequestBody ResetPasswordRequest request) {
+    public void reset(@Valid @RequestBody ResetPasswordRequestDto request) {
         passwords.resetPassword(request.username(), request.code(), request.newPassword());
     }
 }

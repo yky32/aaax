@@ -5,18 +5,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.aaax.core.entity.AuditableEntity;
+import com.aaax.core.entity.AuditEntityWithIsActive;
 import com.aaax.core.id.Ids;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "accounts")
-public class Account extends AuditableEntity {
+public class Account extends AuditEntityWithIsActive {
 
     @Id
     @Column(length = 36, nullable = false, updatable = false)
@@ -28,7 +26,7 @@ public class Account extends AuditableEntity {
     @Column(unique = true, length = 320)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String passwordHash;
 
     /** Comma-separated roles without ROLE_ prefix, e.g. USER,ADMIN */
@@ -38,22 +36,22 @@ public class Account extends AuditableEntity {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    @Column(name = "totp_secret", length = 64)
+    @Column(length = 64)
     private String totpSecret;
 
-    @Column(name = "totp_enabled", nullable = false)
+    @Column(nullable = false)
     private boolean totpEnabled = false;
 
-    @Column(name = "google_sub", length = 128, unique = true)
+    @Column(length = 128, unique = true)
     private String googleSub;
 
-    @Column(name = "github_id", length = 64, unique = true)
+    @Column(length = 64, unique = true)
     private String githubId;
 
-    @Column(name = "saml_name_id", length = 256, unique = true)
+    @Column(length = 256, unique = true)
     private String samlNameId;
 
-    @Column(name = "phone", length = 32)
+    @Column(length = 32)
     private String phone;
 
     protected Account() {

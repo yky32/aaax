@@ -3,7 +3,7 @@ package com.aaax.usecase.auth;
 import java.util.Map;
 
 import com.aaax.entity.po.Account;
-import com.aaax.entity.dto.AccountDtos.TotpCodeRequest;
+import com.aaax.entity.dto.request.TotpCodeRequestDto;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.TotpMfaUseCase;
 import com.aaax.usecase.device.TrustedDeviceUseCase;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import com.aaax.entity.dto.AccountDtos;
 
 @Component
 public class CompleteTotpLoginUseCase {
@@ -42,7 +41,7 @@ public class CompleteTotpLoginUseCase {
     }
 
     public Map<String, Object> execute(
-            TotpCodeRequest body, HttpServletRequest request, HttpServletResponse response) {
+            TotpCodeRequestDto body, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute(PasswordLoginUseCase.MFA_PENDING_USER) == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no pending mfa login");

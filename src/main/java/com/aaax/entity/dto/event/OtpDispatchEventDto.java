@@ -1,12 +1,11 @@
-package com.aaax.entity.dto;
+package com.aaax.entity.dto.event;
 
 import java.time.Instant;
 
 /**
- * Canonical OTP dispatch payload for external notification services.
- * Published to Kafka (channel=kafka) or POSTed to webhook (channel=sms).
+ * OTP dispatch payload for external notification (Kafka / SMS webhook).
  */
-public record OtpDispatchEvent(
+public record OtpDispatchEventDto(
         String eventType,
         String username,
         String destination,

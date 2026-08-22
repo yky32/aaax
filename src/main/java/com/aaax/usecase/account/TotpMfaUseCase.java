@@ -3,8 +3,8 @@ package com.aaax.usecase.account;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.AccountDtos.TotpSetupResponse;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.response.TotpSetupResponseDto;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 import com.aaax.service.TotpService;
@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import com.aaax.entity.dto.AccountDtos;
 
 @Component
 public class TotpMfaUseCase {
@@ -35,17 +34,17 @@ public class TotpMfaUseCase {
     }
 
     @Transactional
-    public TotpSetupResponse beginSetup(String username) {
+    public TotpSetupResponseDto beginSetup(String username) {
         Account account = require(username);
         String secret = totpService.generateSecret();
         account.setTotpSecret(secret);
         account.setTotpEnabled(false);
         accounts.save(account);
-        return new TotpSetupResponse(secret, totpService.otpAuthUrl("AAAX", account.getUsername(), secret));
+        return new TotpSetupResponseDto(secret, totpService.otpAuthUrl("AAAX", account.getUsername(), secret));
     }
 
     @Transactional
-    public AccountResponse confirm(String username, String code) {
+    public GetAccountResponseDto confirm(String username, String code) {
         Account account = require(username);
         if (!StringUtils.hasText(account.getTotpSecret())) {
             throw AccountException.badRequest("totp setup not started");
@@ -56,11 +55,11 @@ public class TotpMfaUseCase {
         account.setTotpEnabled(true);
         Account saved = accounts.save(account);
         events.emit(IdentityEvent.Types.MFA_TOTP_ENABLED, username, java.util.Map.of());
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 
     @Transactional
-    public AccountResponse disable(String username, String password, String code) {
+    public GetAccountResponseDto disable(String username, String password, String code) {
         Account account = require(username);
         if (!passwordEncoder.matches(password, account.getPasswordHash())) {
             throw AccountException.badRequest("password incorrect");
@@ -72,7 +71,7 @@ public class TotpMfaUseCase {
         account.setTotpSecret(null);
         Account saved = accounts.save(account);
         events.emit(IdentityEvent.Types.MFA_TOTP_DISABLED, username, java.util.Map.of());
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 
     @Transactional(readOnly = true)

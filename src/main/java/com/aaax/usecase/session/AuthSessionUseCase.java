@@ -44,7 +44,7 @@ public class AuthSessionUseCase {
     @Transactional
     public void revoke(String accountId, String sessionId) {
         repository.findById(sessionId).ifPresent(s -> {
-            if (accountId.equals(s.getAccountId()) && s.isActive()) {
+            if (accountId.equals(s.getAccountId()) && s.isSessionActive()) {
                 s.setRevokedAt(Instant.now());
                 repository.save(s);
             }

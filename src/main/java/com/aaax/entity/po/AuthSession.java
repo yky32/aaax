@@ -2,6 +2,8 @@ package com.aaax.entity.po;
 
 import java.time.Instant;
 
+import com.aaax.core.entity.AuditEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,46 +12,43 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "aaax_auth_session", indexes = {
-        @Index(name = "idx_session_account", columnList = "account_id"),
-        @Index(name = "idx_session_token", columnList = "session_token", unique = true)
+@Table(indexes = {
+        @Index(name = "idx_session_account", columnList = "accountId"),
+        @Index(name = "idx_session_token", columnList = "sessionToken", unique = true)
 })
-public class AuthSession {
+public class AuthSession extends AuditEntity {
 
     @Id
     @Column(length = 36)
     private String id;
 
-    @Column(name = "account_id", nullable = false, length = 36)
+    @Column(nullable = false, length = 36)
     private String accountId;
 
-    @Column(name = "session_token", nullable = false, length = 64, unique = true)
+    @Column(nullable = false, length = 64, unique = true)
     private String sessionToken;
 
-    @Column(name = "user_agent", length = 512)
+    @Column(length = 512)
     private String userAgent;
 
-    @Column(name = "ip", length = 64)
+    @Column(length = 64)
     private String ip;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @Column(name = "last_seen_at", nullable = false)
+    @Column(nullable = false)
     private Instant lastSeenAt;
 
-    @Column(name = "revoked_at")
+    @Column
     private Instant revokedAt;
 
     @PrePersist
     void onCreate() {
-        Instant now = Instant.now();
-        if (createdAt == null) {
-            createdAt = now;
-        }
         if (lastSeenAt == null) {
-            lastSeenAt = now;
+            lastSeenAt = Instant.now();
         }
+    }
+
+    public boolean isSessionActive() {
+        return revokedAt == null;
     }
 
     public String getId() {
@@ -92,10 +91,6 @@ public class AuthSession {
         this.ip = ip;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
     public Instant getLastSeenAt() {
         return lastSeenAt;
     }
@@ -110,9 +105,5 @@ public class AuthSession {
 
     public void setRevokedAt(Instant revokedAt) {
         this.revokedAt = revokedAt;
-    }
-
-    public boolean isActive() {
-        return revokedAt == null;
     }
 }

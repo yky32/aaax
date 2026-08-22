@@ -3,9 +3,9 @@ package com.aaax.endpoint.admin;
 import java.security.Principal;
 import java.util.List;
 
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.AccountDtos.SetEnabledRequest;
-import com.aaax.entity.dto.AccountDtos.SetRolesRequest;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.request.SetAccountEnabledRequestDto;
+import com.aaax.entity.dto.request.SetAccountRolesRequestDto;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.AdminManageUserUseCase;
 
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.aaax.entity.dto.AccountDtos;
 
 @RestController
 @RequestMapping("/v1/admin/users")
@@ -32,24 +31,24 @@ public class AdminUserEndpoint {
     }
 
     @GetMapping
-    public List<AccountResponse> list() {
+    public List<GetAccountResponseDto> list() {
         return queries.listAll();
     }
 
     @GetMapping("/{id}")
-    public AccountResponse get(@PathVariable String id) {
+    public GetAccountResponseDto get(@PathVariable String id) {
         return queries.getById(id);
     }
 
     @PatchMapping("/{id}/status")
-    public AccountResponse setStatus(
-            @PathVariable String id, @Valid @RequestBody SetEnabledRequest request, Principal principal) {
+    public GetAccountResponseDto setStatus(
+            @PathVariable String id, @Valid @RequestBody SetAccountEnabledRequestDto request, Principal principal) {
         return manageUser.setEnabled(id, request.enabled(), principal.getName());
     }
 
     @PatchMapping("/{id}/roles")
-    public AccountResponse setRoles(
-            @PathVariable String id, @Valid @RequestBody SetRolesRequest request, Principal principal) {
+    public GetAccountResponseDto setRoles(
+            @PathVariable String id, @Valid @RequestBody SetAccountRolesRequestDto request, Principal principal) {
         return manageUser.setRoles(id, request.roles(), principal.getName());
     }
 }

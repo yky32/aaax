@@ -14,8 +14,8 @@ import com.aaax.events.IdentityEventBus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.aaax.entity.dto.response.OtpRequestResponse;
-import com.aaax.entity.dto.response.OtpVerifyResponse;
+import com.aaax.entity.dto.response.RequestOtpResponseDto;
+import com.aaax.entity.dto.response.VerifyOtpResponseDto;
 import com.aaax.spi.otp.OtpCodeStore;
 import com.aaax.spi.otp.OtpSender;
 
@@ -49,7 +49,7 @@ public class OtpOpsUseCase {
     }
 
     @Transactional(readOnly = true)
-    public OtpRequestResponse request(String username) {
+    public RequestOtpResponseDto request(String username) {
         Account account = requireAccount(username);
         String code = generateCode();
         Instant expires = Instant.now().plusSeconds(ttlSeconds);
@@ -70,7 +70,7 @@ public class OtpOpsUseCase {
             sender.send(destination, code);
         }
 
-        return new OtpRequestResponse(account.getUsername(), maskDestination(destination), ttlSeconds, expires);
+        return new RequestOtpResponseDto(account.getUsername(), maskDestination(destination), ttlSeconds, expires);
     }
 
     @Transactional(readOnly = true)
@@ -90,9 +90,9 @@ public class OtpOpsUseCase {
         return account;
     }
 
-    public OtpVerifyResponse verify(String username, String code) {
+    public VerifyOtpResponseDto verify(String username, String code) {
         Account account = verifyForLogin(username, code);
-        return new OtpVerifyResponse(true, account.getUsername());
+        return new VerifyOtpResponseDto(true, account.getUsername());
     }
 
     private Account requireAccount(String username) {

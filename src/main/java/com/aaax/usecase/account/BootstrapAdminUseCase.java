@@ -3,8 +3,8 @@ package com.aaax.usecase.account;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.AccountDtos.BootstrapAdminRequest;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.request.BootstrapAdminRequestDto;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import com.aaax.entity.dto.AccountDtos;
 
 @Component
 public class BootstrapAdminUseCase {
@@ -35,7 +34,7 @@ public class BootstrapAdminUseCase {
     }
 
     @Transactional
-    public AccountResponse execute(BootstrapAdminRequest body) {
+    public GetAccountResponseDto execute(BootstrapAdminRequestDto body) {
         if (accounts.countByRolesContainingIgnoreCase("ADMIN") > 0) {
             throw AccountException.conflict("admin already exists");
         }
@@ -56,7 +55,7 @@ public class BootstrapAdminUseCase {
         Account saved = accounts.save(account);
         events.emit(IdentityEvent.Types.BOOTSTRAP_ADMIN, saved.getUsername(), "first admin",
                 java.util.Map.of("roles", "USER,ADMIN"));
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 
     public boolean tokenRequired() {

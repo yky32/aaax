@@ -1,25 +1,23 @@
 package com.aaax.entity.po;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import com.aaax.core.entity.AuditEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import com.aaax.events.IdentityEvent;
 
 @Entity
-@Table(name = "audit_events")
-public class AuditEvent {
+public class AuditEvent extends AuditEntity {
 
     @Id
     @Column(length = 36)
     private String id;
 
     /** Correlates to IdentityEvent.id when emitted via the bus. */
-    @Column(name = "event_id", length = 36)
+    @Column(length = 36)
     private String eventId;
 
     @Column(nullable = false, length = 128)
@@ -30,9 +28,6 @@ public class AuditEvent {
 
     @Column(length = 512)
     private String detail;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
     protected AuditEvent() {
     }
@@ -50,11 +45,10 @@ public class AuditEvent {
     }
 
     @PrePersist
-    void onCreate() {
+    void ensureId() {
         if (id == null) {
             id = UUID.randomUUID().toString();
         }
-        createdAt = Instant.now();
     }
 
     public String getId() {
@@ -75,9 +69,5 @@ public class AuditEvent {
 
     public String getDetail() {
         return detail;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 }

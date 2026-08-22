@@ -1,6 +1,6 @@
 package com.aaax.entity.po;
 
-import com.aaax.core.entity.AuditableEntity;
+import com.aaax.core.entity.AuditEntityWithIsActive;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,33 +10,33 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "aaax_passkey", indexes = {
-        @Index(name = "idx_passkey_account", columnList = "account_id"),
-        @Index(name = "idx_passkey_cred", columnList = "credential_id", unique = true)
+@Table(indexes = {
+        @Index(name = "idx_passkey_account", columnList = "accountId"),
+        @Index(name = "idx_passkey_cred", columnList = "credentialId", unique = true)
 })
-public class PasskeyCredential extends AuditableEntity {
+public class PasskeyCredential extends AuditEntityWithIsActive {
 
     @Id
     @Column(length = 36)
     private String id;
 
-    @Column(name = "account_id", nullable = false, length = 36)
+    @Column(nullable = false, length = 36)
     private String accountId;
 
-    @Column(name = "credential_id", nullable = false, length = 512, unique = true)
+    @Column(nullable = false, length = 512, unique = true)
     private String credentialId;
 
     @Lob
-    @Column(name = "public_key_cose", nullable = false)
+    @Column(nullable = false)
     private byte[] publicKeyCose;
 
-    @Column(name = "aaguid", length = 16)
+    @Column(length = 16)
     private byte[] aaguid;
 
-    @Column(name = "sign_count", nullable = false)
+    @Column(nullable = false)
     private long signCount;
 
-    @Column(name = "label", length = 128)
+    @Column(length = 128)
     private String label;
 
     public String getId() {

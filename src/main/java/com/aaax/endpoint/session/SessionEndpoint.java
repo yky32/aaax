@@ -64,7 +64,7 @@ public class SessionEndpoint {
         m.put("id", s.getId());
         m.put("userAgent", s.getUserAgent());
         m.put("ip", s.getIp());
-        m.put("createdAt", s.getCreatedAt());
+        m.put("createDt", s.getCreateDt());
         m.put("lastSeenAt", s.getLastSeenAt());
         return m;
     }

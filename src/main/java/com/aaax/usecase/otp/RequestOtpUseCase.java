@@ -1,7 +1,7 @@
 package com.aaax.usecase.otp;
 
-import com.aaax.entity.dto.response.OtpRequestResponse;
-import com.aaax.entity.dto.response.OtpVerifyResponse;
+import com.aaax.entity.dto.response.RequestOtpResponseDto;
+import com.aaax.entity.dto.response.VerifyOtpResponseDto;
 
 import org.springframework.stereotype.Component;
 
@@ -15,11 +15,11 @@ public class RequestOtpUseCase {
         this.otp = otp;
     }
 
-    public OtpRequestResponse execute(String username) {
+    public RequestOtpResponseDto execute(String username) {
         return otp.request(username);
     }
 
-    public OtpVerifyResponse verify(String username, String code) {
+    public VerifyOtpResponseDto verify(String username, String code) {
         return otp.verify(username, code);
     }
 }

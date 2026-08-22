@@ -2,7 +2,7 @@ package com.aaax.entity.po;
 
 import java.time.Instant;
 
-import com.aaax.core.entity.AuditableEntity;
+import com.aaax.core.entity.AuditEntityWithIsActive;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,39 +12,39 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "aaax_trusted_device", indexes = {
-        @Index(name = "idx_device_account", columnList = "account_id"),
-        @Index(name = "idx_device_token", columnList = "token_hash", unique = true)
+@Table(indexes = {
+        @Index(name = "idx_device_account", columnList = "accountId"),
+        @Index(name = "idx_device_token", columnList = "tokenHash", unique = true)
 })
-public class TrustedDevice extends AuditableEntity {
+public class TrustedDevice extends AuditEntityWithIsActive {
 
     @Id
     @Column(length = 36)
     private String id;
 
-    @Column(name = "account_id", nullable = false, length = 36)
+    @Column(nullable = false, length = 36)
     private String accountId;
 
     /** SHA-256 hex of the opaque device cookie value. */
-    @Column(name = "token_hash", nullable = false, length = 64, unique = true)
+    @Column(nullable = false, length = 64, unique = true)
     private String tokenHash;
 
-    @Column(name = "label", length = 128)
+    @Column(length = 128)
     private String label;
 
-    @Column(name = "user_agent", length = 512)
+    @Column(length = 512)
     private String userAgent;
 
-    @Column(name = "ip", length = 64)
+    @Column(length = 64)
     private String ip;
 
-    @Column(name = "last_seen_at", nullable = false)
+    @Column(nullable = false)
     private Instant lastSeenAt;
 
-    @Column(name = "expires_at", nullable = false)
+    @Column(nullable = false)
     private Instant expiresAt;
 
-    @Column(name = "revoked_at")
+    @Column
     private Instant revokedAt;
 
     @PrePersist
@@ -54,8 +54,11 @@ public class TrustedDevice extends AuditableEntity {
         }
     }
 
-    public boolean isActive() {
-        return revokedAt == null && Instant.now().isBefore(expiresAt);
+    /** Cookie still valid (not revoked / not expired). Soft {@code isActive} is separate. */
+    public boolean isValid() {
+        return Boolean.TRUE.equals(getIsActive())
+                && revokedAt == null
+                && Instant.now().isBefore(expiresAt);
     }
 
     public String getId() {

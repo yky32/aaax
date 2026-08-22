@@ -5,7 +5,7 @@ import java.util.Locale;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.AccountResponse;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
@@ -25,18 +25,18 @@ public class AdminManageUserUseCase {
     }
 
     @Transactional
-    public AccountResponse setEnabled(String id, boolean enabled, String actor) {
+    public GetAccountResponseDto setEnabled(String id, boolean enabled, String actor) {
         Account account = accounts.findById(id)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
         account.setEnabled(enabled);
         Account saved = accounts.save(account);
         events.emit(IdentityEvent.Types.USER_STATUS, actor, id + " enabled=" + enabled,
                 java.util.Map.of("userId", id, "enabled", enabled));
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 
     @Transactional
-    public AccountResponse setRoles(String id, String rolesCsv, String actor) {
+    public GetAccountResponseDto setRoles(String id, String rolesCsv, String actor) {
         Account account = accounts.findById(id)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
         if (!StringUtils.hasText(rolesCsv)) {
@@ -46,6 +46,6 @@ public class AdminManageUserUseCase {
         Account saved = accounts.save(account);
         events.emit(IdentityEvent.Types.USER_ROLES, actor, id + " -> " + saved.getRoles(),
                 java.util.Map.of("userId", id, "roles", saved.getRoles()));
-        return AccountResponse.from(saved);
+        return GetAccountResponseDto.from(saved);
     }
 }

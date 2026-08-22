@@ -27,6 +27,6 @@ public class AuditService {
 
     @Transactional(readOnly = true)
     public java.util.List<AuditEvent> recent(int limit) {
-        return repository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, Math.min(Math.max(limit, 1), 200)));
+        return repository.findAllByOrderByCreateDtDesc(PageRequest.of(0, Math.min(Math.max(limit, 1), 200)));
     }
 }

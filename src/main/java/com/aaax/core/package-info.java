@@ -1,14 +1,13 @@
 /**
- * AAAX foundation layer (public OSS stand-in for private app-core).
+ * AAAX foundation (public OSS stand-in for private app-core) — qs/uaa shape.
  *
  * <pre>
- * entity/      AuditableEntity — createdAt / updatedAt mapped superclass
- * exception/   BizException — domain/HTTP business errors
- * id/          Ids — UUID helpers
- * web/         Global exception → JSON error body
+ * entity/      AuditEntity · AuditEntityWithIsActive (@Version, createDt, updateDt, …)
+ * exception/   BizException
+ * id/          Ids
+ * web/         GlobalExceptionHandler
  * </pre>
  *
- * Domain packages (account, auth, …) depend on core — not the reverse.
- * No Quinsic / private app-core types.
+ * Domain packages depend on core — not the reverse. No Quinsic private types.
  */
 package com.aaax.core;

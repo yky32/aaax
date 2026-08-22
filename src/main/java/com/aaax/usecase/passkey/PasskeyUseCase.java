@@ -92,7 +92,7 @@ public class PasskeyUseCase {
         opts.put("authenticatorSelection", Map.of(
                 "residentKey", "preferred",
                 "userVerification", "preferred"));
-        opts.put("excludeCredentials", credentials.findByAccountIdOrderByCreatedAtDesc(account.getId()).stream()
+        opts.put("excludeCredentials", credentials.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
                 .map(c -> Map.of("type", "public-key", "id", c.getCredentialId()))
                 .toList());
         return opts;
@@ -143,7 +143,7 @@ public class PasskeyUseCase {
             cred.setLabel(body.label() != null ? body.label() : "Passkey");
             credentials.save(cred);
             events.emit("com.aaax.passkey.registered", username, Map.of("credentialId", credentialId));
-            return Map.of("id", cred.getId(), "label", cred.getLabel(), "createdAt", cred.getCreatedAt().toString());
+            return Map.of("id", cred.getId(), "label", cred.getLabel(), "createDt", cred.getCreateDt().toString());
         } catch (VerificationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "passkey registration verify failed: " + e.getMessage());
         } catch (ResponseStatusException e) {
@@ -167,7 +167,7 @@ public class PasskeyUseCase {
         opts.put("userVerification", "preferred");
         if (usernameOrNull != null && !usernameOrNull.isBlank()) {
             accounts.findByUsernameIgnoreCase(usernameOrNull).ifPresent(a ->
-                    opts.put("allowCredentials", credentials.findByAccountIdOrderByCreatedAtDesc(a.getId()).stream()
+                    opts.put("allowCredentials", credentials.findByAccountIdOrderByCreateDtDesc(a.getId()).stream()
                             .map(c -> Map.of("type", "public-key", "id", c.getCredentialId()))
                             .toList()));
         }
@@ -232,13 +232,13 @@ public class PasskeyUseCase {
     public List<Map<String, Object>> list(String username) {
         Account account = accounts.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        return credentials.findByAccountIdOrderByCreatedAtDesc(account.getId()).stream()
+        return credentials.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
                 .map(c -> {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("id", c.getId());
                     m.put("label", c.getLabel());
                     m.put("credentialId", c.getCredentialId());
-                    m.put("createdAt", c.getCreatedAt().toString());
+                    m.put("createDt", c.getCreateDt().toString());
                     return m;
                 })
                 .toList();

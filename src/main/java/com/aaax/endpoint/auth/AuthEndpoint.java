@@ -3,9 +3,9 @@ package com.aaax.endpoint.auth;
 import java.security.Principal;
 import java.util.Map;
 
-import com.aaax.entity.dto.response.AccountResponse;
-import com.aaax.entity.dto.AccountDtos.BootstrapAdminRequest;
-import com.aaax.entity.dto.AccountDtos.TotpCodeRequest;
+import com.aaax.entity.dto.response.GetAccountResponseDto;
+import com.aaax.entity.dto.request.BootstrapAdminRequestDto;
+import com.aaax.entity.dto.request.TotpCodeRequestDto;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.BootstrapAdminUseCase;
 import com.aaax.usecase.auth.CompleteTotpLoginUseCase;
@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import com.aaax.entity.dto.AccountDtos;
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -76,7 +75,7 @@ public class AuthEndpoint {
 
     @PostMapping("/bootstrap/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountResponse bootstrap(@Valid @RequestBody BootstrapAdminRequest body) {
+    public GetAccountResponseDto bootstrap(@Valid @RequestBody BootstrapAdminRequestDto body) {
         return bootstrapAdmin.execute(body);
     }
 
@@ -90,7 +89,7 @@ public class AuthEndpoint {
 
     @PostMapping("/mfa/totp")
     public Map<String, Object> completeTotp(
-            @Valid @RequestBody TotpCodeRequest body,
+            @Valid @RequestBody TotpCodeRequestDto body,
             HttpServletRequest request,
             HttpServletResponse response) {
         return completeTotpLogin.execute(body, request, response);

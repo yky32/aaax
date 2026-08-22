@@ -82,7 +82,7 @@ public class DeviceEndpoint {
         m.put("label", d.getLabel());
         m.put("userAgent", d.getUserAgent());
         m.put("ip", d.getIp());
-        m.put("createdAt", d.getCreatedAt());
+        m.put("createDt", d.getCreateDt());
         m.put("lastSeenAt", d.getLastSeenAt());
         m.put("expiresAt", d.getExpiresAt());
         return m;
