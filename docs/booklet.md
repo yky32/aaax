@@ -355,6 +355,11 @@ Enforcer still **bans** private `com.quinsic.*` and `app-core` coordinates.
 
 ## 10. Stack & run
 
+**Config:** one `src/main/resources/application.yml` only (qs/uaa style).  
+No `application-prod|social|google.yml` — Argo/Helm injects env values.
+
+
+
 ```bash
 git clone https://github.com/yky32/aaax.git && cd aaax
 git checkout v0.7.0   # or main
@@ -641,7 +646,7 @@ curl -sS -b /tmp/aaax.cj http://localhost:8081/v1/accounts/me
 - [ ] Postgres + migrations / schema  
 - [ ] `AAAX_ISSUER` = public https URL  
 - [ ] Persistent `AAAX_JWK_PATH` mode 600  
-- [ ] `SPRING_PROFILES_ACTIVE=prod` · seeds false  
+- [ ] `AAAX_DEMO_SEED_*=false` · `JPA_DDL_AUTO=validate` · `SQL_INIT_MODE=never` (Helm env)  
 - [ ] OTP mail or kafka/sms webhook  
 - [ ] TLS terminator · secure cookies  
 - [ ] Backup DB + JWK  

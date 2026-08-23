@@ -45,9 +45,9 @@ import com.aaax.repository.PasskeyCredentialRepository;
 @Component
 public class PasskeyUseCase {
 
-    private final PasskeyCredentialRepository credentials;
-    private final AccountRepository accounts;
-    private final IdentityEventBus events;
+    private final PasskeyCredentialRepository passkeyCredentialRepository;
+    private final AccountRepository accountRepository;
+    private final IdentityEventBus identityEventBus;
     private final String rpId;
     private final String rpName;
     private final String origin;
@@ -56,22 +56,22 @@ public class PasskeyUseCase {
     private final Map<String, Challenge> challenges = new ConcurrentHashMap<>();
 
     public PasskeyUseCase(
-            PasskeyCredentialRepository credentials,
-            AccountRepository accounts,
-            IdentityEventBus events,
+            PasskeyCredentialRepository passkeyCredentialRepository,
+            AccountRepository accountRepository,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.passkeys.rp-id:localhost}") String rpId,
             @Value("${aaax.passkeys.rp-name:AAAX}") String rpName,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer) {
-        this.credentials = credentials;
-        this.accounts = accounts;
-        this.events = events;
+        this.passkeyCredentialRepository = passkeyCredentialRepository;
+        this.accountRepository = accountRepository;
+        this.identityEventBus = identityEventBus;
         this.rpId = rpId;
         this.rpName = rpName;
         this.origin = issuer.endsWith("/") ? issuer.substring(0, issuer.length() - 1) : issuer;
     }
 
     public Map<String, Object> registrationOptions(String username) {
-        Account account = accounts.findByUsernameIgnoreCase(username)
+        Account account = accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         byte[] challengeBytes = new DefaultChallenge().getValue();
         String challenge = b64Url(challengeBytes);
@@ -92,7 +92,7 @@ public class PasskeyUseCase {
         opts.put("authenticatorSelection", Map.of(
                 "residentKey", "preferred",
                 "userVerification", "preferred"));
-        opts.put("excludeCredentials", credentials.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
+        opts.put("excludeCredentials", passkeyCredentialRepository.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
                 .map(c -> Map.of("type", "public-key", "id", c.getCredentialId()))
                 .toList());
         return opts;
@@ -104,7 +104,7 @@ public class PasskeyUseCase {
         if (ch == null || ch.expiresAt() < System.currentTimeMillis()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "registration challenge expired");
         }
-        Account account = accounts.findByUsernameIgnoreCase(username)
+        Account account = accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         if (body.clientDataJSON() == null || body.attestationObject() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -126,7 +126,7 @@ public class PasskeyUseCase {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no attested credential data");
             }
             String credentialId = b64Url(acd.getCredentialId());
-            if (credentials.findByCredentialId(credentialId).isPresent()) {
+            if (passkeyCredentialRepository.findByCredentialId(credentialId).isPresent()) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "credential already registered");
             }
             long counter = regData.getAttestationObject().getAuthenticatorData().getSignCount();
@@ -141,8 +141,8 @@ public class PasskeyUseCase {
             cred.setAaguid(aaguid);
             cred.setSignCount(counter);
             cred.setLabel(body.label() != null ? body.label() : "Passkey");
-            credentials.save(cred);
-            events.emit("com.aaax.passkey.registered", username, Map.of("credentialId", credentialId));
+            passkeyCredentialRepository.save(cred);
+            identityEventBus.emit("com.aaax.passkey.registered", username, Map.of("credentialId", credentialId));
             return Map.of("id", cred.getId(), "label", cred.getLabel(), "createDt", cred.getCreateDt().toString());
         } catch (VerificationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "passkey registration verify failed: " + e.getMessage());
@@ -166,8 +166,8 @@ public class PasskeyUseCase {
         opts.put("rpId", rpId);
         opts.put("userVerification", "preferred");
         if (usernameOrNull != null && !usernameOrNull.isBlank()) {
-            accounts.findByUsernameIgnoreCase(usernameOrNull).ifPresent(a ->
-                    opts.put("allowCredentials", credentials.findByAccountIdOrderByCreateDtDesc(a.getId()).stream()
+            accountRepository.findByUsernameIgnoreCase(usernameOrNull).ifPresent(a ->
+                    opts.put("allowCredentials", passkeyCredentialRepository.findByAccountIdOrderByCreateDtDesc(a.getId()).stream()
                             .map(c -> Map.of("type", "public-key", "id", c.getCredentialId()))
                             .toList()));
         }
@@ -186,7 +186,7 @@ public class PasskeyUseCase {
         if (ch == null || ch.expiresAt() < System.currentTimeMillis()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "auth challenge expired");
         }
-        PasskeyCredential cred = credentials.findByCredentialId(body.credentialId())
+        PasskeyCredential cred = passkeyCredentialRepository.findByCredentialId(body.credentialId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "unknown passkey"));
         try {
             byte[] credentialId = decode(body.credentialId());
@@ -212,11 +212,11 @@ public class PasskeyUseCase {
             long newCount = authData.getAuthenticatorData().getSignCount();
             if (newCount > 0) {
                 cred.setSignCount(newCount);
-                credentials.save(cred);
+                passkeyCredentialRepository.save(cred);
             }
-            Account account = accounts.findById(cred.getAccountId())
+            Account account = accountRepository.findById(cred.getAccountId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-            events.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "passkey",
+            identityEventBus.emit(IdentityEvent.Types.AUTH_LOGIN, account.getUsername(), "passkey",
                     Map.of("method", "passkey", "credentialId", body.credentialId(), "verified", true));
             return account;
         } catch (VerificationException e) {
@@ -230,9 +230,9 @@ public class PasskeyUseCase {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> list(String username) {
-        Account account = accounts.findByUsernameIgnoreCase(username)
+        Account account = accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        return credentials.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
+        return passkeyCredentialRepository.findByAccountIdOrderByCreateDtDesc(account.getId()).stream()
                 .map(c -> {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("id", c.getId());
@@ -246,9 +246,9 @@ public class PasskeyUseCase {
 
     @Transactional
     public void delete(String username, String id) {
-        Account account = accounts.findByUsernameIgnoreCase(username)
+        Account account = accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        credentials.deleteByIdAndAccountId(id, account.getId());
+        passkeyCredentialRepository.deleteByIdAndAccountId(id, account.getId());
     }
 
     private static byte[] decode(String b64url) {

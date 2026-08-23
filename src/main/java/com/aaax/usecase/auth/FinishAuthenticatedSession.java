@@ -29,17 +29,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class FinishAuthenticatedSession {
 
-    private final AccountUserDetailsService users;
-    private final AuthSessionUseCase authSessions;
-    private final IdentityEventBus events;
+    private final AccountUserDetailsService accountUserDetailsService;
+    private final AuthSessionUseCase authSessionUseCase;
+    private final IdentityEventBus identityEventBus;
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
 
     public FinishAuthenticatedSession(
-            AccountUserDetailsService users, AuthSessionUseCase authSessions, IdentityEventBus events) {
-        this.users = users;
-        this.authSessions = authSessions;
-        this.events = events;
+            AccountUserDetailsService accountUserDetailsService, AuthSessionUseCase authSessionUseCase, IdentityEventBus identityEventBus) {
+        this.accountUserDetailsService = accountUserDetailsService;
+        this.authSessionUseCase = authSessionUseCase;
+        this.identityEventBus = identityEventBus;
     }
 
     /** Default: emit {@link IdentityEvent.Types#AUTH_LOGIN}. */
@@ -65,7 +65,7 @@ public class FinishAuthenticatedSession {
             String eventType,
             Map<String, Object> eventData) {
         establishSpringSession(account.getUsername(), request, response);
-        AuthSession tracked = authSessions.open(account.getId(), request);
+        AuthSession tracked = authSessionUseCase.open(account.getId(), request);
         if (eventType != null) {
             Map<String, Object> data = new LinkedHashMap<>();
             if (eventData != null) {
@@ -73,7 +73,7 @@ public class FinishAuthenticatedSession {
             }
             data.putIfAbsent("method", method);
             data.put("sessionId", tracked.getId());
-            events.emit(eventType, account.getUsername(), method, data);
+            identityEventBus.emit(eventType, account.getUsername(), method, data);
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("mfaRequired", false);
@@ -83,7 +83,7 @@ public class FinishAuthenticatedSession {
     }
 
     private void establishSpringSession(String username, HttpServletRequest request, HttpServletResponse response) {
-        UserDetails user = users.loadUserByUsername(username);
+        UserDetails user = accountUserDetailsService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         SecurityContext context = SecurityContextHolder.createEmptyContext();

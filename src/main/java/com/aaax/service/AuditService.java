@@ -9,24 +9,24 @@ import com.aaax.repository.AuditEventRepository;
 @Service
 public class AuditService {
 
-    private final AuditEventRepository repository;
+    private final AuditEventRepository auditEventRepository;
 
-    public AuditService(AuditEventRepository repository) {
-        this.repository = repository;
+    public AuditService(AuditEventRepository auditEventRepository) {
+        this.auditEventRepository = auditEventRepository;
     }
 
     @Transactional
     public void record(String action, String actor, String detail) {
-        repository.save(new AuditEvent(null, action, actor, detail));
+        auditEventRepository.save(new AuditEvent(null, action, actor, detail));
     }
 
     @Transactional
     public void record(String eventId, String action, String actor, String detail) {
-        repository.save(new AuditEvent(eventId, action, actor, detail));
+        auditEventRepository.save(new AuditEvent(eventId, action, actor, detail));
     }
 
     @Transactional(readOnly = true)
     public java.util.List<AuditEvent> recent(int limit) {
-        return repository.findAllByOrderByCreateDtDesc(PageRequest.of(0, Math.min(Math.max(limit, 1), 200)));
+        return auditEventRepository.findAllByOrderByCreateDtDesc(PageRequest.of(0, Math.min(Math.max(limit, 1), 200)));
     }
 }

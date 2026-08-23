@@ -21,23 +21,23 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class CompleteTotpLoginUseCase {
 
-    private final TotpMfaUseCase totp;
-    private final AccountQueries queries;
-    private final FinishAuthenticatedSession finish;
+    private final TotpMfaUseCase totpMfaUseCase;
+    private final AccountQueries accountQueries;
+    private final FinishAuthenticatedSession finishAuthenticatedSession;
     private final IdentityEventBus events;
-    private final TrustedDeviceUseCase devices;
+    private final TrustedDeviceUseCase trustedDeviceUseCase;
 
     public CompleteTotpLoginUseCase(
-            TotpMfaUseCase totp,
-            AccountQueries queries,
-            FinishAuthenticatedSession finish,
+            TotpMfaUseCase totpMfaUseCase,
+            AccountQueries accountQueries,
+            FinishAuthenticatedSession finishAuthenticatedSession,
             IdentityEventBus events,
-            TrustedDeviceUseCase devices) {
-        this.totp = totp;
-        this.queries = queries;
-        this.finish = finish;
+            TrustedDeviceUseCase trustedDeviceUseCase) {
+        this.totpMfaUseCase = totpMfaUseCase;
+        this.accountQueries = accountQueries;
+        this.finishAuthenticatedSession = finishAuthenticatedSession;
         this.events = events;
-        this.devices = devices;
+        this.trustedDeviceUseCase = trustedDeviceUseCase;
     }
 
     public Map<String, Object> execute(
@@ -50,24 +50,24 @@ public class CompleteTotpLoginUseCase {
         boolean remember = Boolean.TRUE.equals(session.getAttribute(PasswordLoginUseCase.MFA_REMEMBER_DEVICE))
                 || Boolean.TRUE.equals(body.rememberDevice());
         String label = body.deviceLabel();
-        if (!totp.verify(username, body.code())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid totp code");
+        if (!totpMfaUseCase.verify(username, body.code())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid totpMfaUseCase code");
         }
         session.removeAttribute(PasswordLoginUseCase.MFA_PENDING_USER);
         session.removeAttribute(PasswordLoginUseCase.MFA_REMEMBER_DEVICE);
-        Account account = queries.requireEntityByUsername(username);
+        Account account = accountQueries.requireEntityByUsername(username);
         Map<String, Object> m =
-                finish.execute(account, "password+totp", request, response, false);
+                finishAuthenticatedSession.execute(account, "password+totpMfaUseCase", request, response, false);
         if (remember) {
-            var d = devices.registerAndSetCookie(account, label, request, response);
+            var d = trustedDeviceUseCase.registerAndSetCookie(account, label, request, response);
             m.put("trustedDeviceId", d.getId());
             m.put("trustedDevice", true);
         }
         events.emit(
                 IdentityEvent.Types.AUTH_LOGIN_MFA,
                 username,
-                "password+totp",
-                Map.of("method", "password+totp", "sessionId", m.get("sessionId"), "rememberDevice", remember));
+                "password+totpMfaUseCase",
+                Map.of("method", "password+totpMfaUseCase", "sessionId", m.get("sessionId"), "rememberDevice", remember));
         return m;
     }
 }

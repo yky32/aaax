@@ -34,19 +34,19 @@ public class TrustedDeviceUseCase {
 
     public static final String COOKIE_NAME = "AAAX_DEVICE";
 
-    private final TrustedDeviceRepository repository;
-    private final IdentityEventBus events;
+    private final TrustedDeviceRepository trustedDeviceRepository;
+    private final IdentityEventBus identityEventBus;
     private final int ttlDays;
     private final boolean cookieSecure;
     private final SecureRandom random = new SecureRandom();
 
     public TrustedDeviceUseCase(
-            TrustedDeviceRepository repository,
-            IdentityEventBus events,
+            TrustedDeviceRepository trustedDeviceRepository,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.devices.ttl-days:30}") int ttlDays,
             @Value("${aaax.devices.cookie-secure:false}") boolean cookieSecure) {
-        this.repository = repository;
-        this.events = events;
+        this.trustedDeviceRepository = trustedDeviceRepository;
+        this.identityEventBus = identityEventBus;
         this.ttlDays = ttlDays;
         this.cookieSecure = cookieSecure;
     }
@@ -68,7 +68,7 @@ public class TrustedDeviceUseCase {
         if (rawToken == null || rawToken.isBlank()) {
             return false;
         }
-        return repository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
+        return trustedDeviceRepository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
                 .filter(TrustedDevice::isValid)
                 .filter(d -> d.getAccountId().equals(accountId))
                 .isPresent();
@@ -76,7 +76,7 @@ public class TrustedDeviceUseCase {
 
     @Transactional
     public void touch(String accountId, String rawToken, HttpServletRequest request) {
-        repository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
+        trustedDeviceRepository.findByTokenHashAndRevokedAtIsNull(hash(rawToken))
                 .filter(TrustedDevice::isValid)
                 .filter(d -> d.getAccountId().equals(accountId))
                 .ifPresent(d -> {
@@ -88,7 +88,7 @@ public class TrustedDeviceUseCase {
                             d.setUserAgent(ua.length() > 512 ? ua.substring(0, 512) : ua);
                         }
                     }
-                    repository.save(d);
+                    trustedDeviceRepository.save(d);
                 });
     }
 
@@ -110,9 +110,9 @@ public class TrustedDeviceUseCase {
         d.setUserAgent(ua(request));
         d.setIp(clientIp(request));
         d.setExpiresAt(Instant.now().plusSeconds(ttlDays * 86400L));
-        repository.save(d);
+        trustedDeviceRepository.save(d);
         writeCookie(response, raw);
-        events.emit(
+        identityEventBus.emit(
                 IdentityEvent.Types.DEVICE_TRUSTED,
                 account.getUsername(),
                 Mapish(d));
@@ -121,26 +121,26 @@ public class TrustedDeviceUseCase {
 
     @Transactional(readOnly = true)
     public List<TrustedDevice> listActive(String accountId) {
-        return repository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId).stream()
+        return trustedDeviceRepository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId).stream()
                 .filter(TrustedDevice::isValid)
                 .toList();
     }
 
     @Transactional
     public void revoke(String accountId, String deviceId) {
-        repository.findById(deviceId).ifPresent(d -> {
+        trustedDeviceRepository.findById(deviceId).ifPresent(d -> {
             if (d.getAccountId().equals(accountId) && d.getRevokedAt() == null) {
                 d.setRevokedAt(Instant.now());
-                repository.save(d);
+                trustedDeviceRepository.save(d);
             }
         });
     }
 
     @Transactional
     public void revokeAll(String accountId) {
-        for (TrustedDevice d : repository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId)) {
+        for (TrustedDevice d : trustedDeviceRepository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId)) {
             d.setRevokedAt(Instant.now());
-            repository.save(d);
+            trustedDeviceRepository.save(d);
         }
     }
 

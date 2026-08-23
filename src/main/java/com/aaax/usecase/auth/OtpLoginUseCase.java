@@ -14,17 +14,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class OtpLoginUseCase {
 
-    private final OtpOpsUseCase otpService;
-    private final FinishAuthenticatedSession finish;
+    private final OtpOpsUseCase otpOpsUseCase;
+    private final FinishAuthenticatedSession finishAuthenticatedSession;
 
-    public OtpLoginUseCase(OtpOpsUseCase otpService, FinishAuthenticatedSession finish) {
-        this.otpService = otpService;
-        this.finish = finish;
+    public OtpLoginUseCase(OtpOpsUseCase otpOpsUseCase, FinishAuthenticatedSession finishAuthenticatedSession) {
+        this.otpOpsUseCase = otpOpsUseCase;
+        this.finishAuthenticatedSession = finishAuthenticatedSession;
     }
 
     public Map<String, Object> execute(
             OtpLoginCommand cmd, HttpServletRequest request, HttpServletResponse response) {
-        return finish.execute(otpService.verifyForLogin(cmd.username(), cmd.code()), "otp", request, response, true);
+        return finishAuthenticatedSession.execute(otpOpsUseCase.verifyForLogin(cmd.username(), cmd.code()), "otp", request, response, true);
     }
 
     public record OtpLoginCommand(

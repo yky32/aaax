@@ -30,50 +30,50 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/passkeys")
 public class PasskeyEndpoint {
 
-    private final PasskeyUseCase passkeys;
-    private final PasskeyFeatures features;
-    private final FinishAuthenticatedSession finishSession;
+    private final PasskeyUseCase passkeyUseCase;
+    private final PasskeyFeatures passkeyFeatures;
+    private final FinishAuthenticatedSession finishAuthenticatedSession;
 
     public PasskeyEndpoint(
-            PasskeyUseCase passkeys, PasskeyFeatures features, FinishAuthenticatedSession finishSession) {
-        this.passkeys = passkeys;
-        this.features = features;
-        this.finishSession = finishSession;
+            PasskeyUseCase passkeyUseCase, PasskeyFeatures passkeyFeatures, FinishAuthenticatedSession finishAuthenticatedSession) {
+        this.passkeyUseCase = passkeyUseCase;
+        this.passkeyFeatures = passkeyFeatures;
+        this.finishAuthenticatedSession = finishAuthenticatedSession;
     }
 
     @GetMapping("/register/options")
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> registerOptions(Principal principal) {
-        features.requireEnabled();
-        return passkeys.registrationOptions(principal.getName());
+        passkeyFeatures.requireEnabled();
+        return passkeyUseCase.registrationOptions(principal.getName());
     }
 
     @PostMapping("/register")
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> register(Principal principal, @RequestBody RegisterRequest body) {
-        features.requireEnabled();
-        return passkeys.register(principal.getName(), body);
+        passkeyFeatures.requireEnabled();
+        return passkeyUseCase.register(principal.getName(), body);
     }
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public List<Map<String, Object>> list(Principal principal) {
-        features.requireEnabled();
-        return passkeys.list(principal.getName());
+        passkeyFeatures.requireEnabled();
+        return passkeyUseCase.list(principal.getName());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(Principal principal, @PathVariable String id) {
-        features.requireEnabled();
-        passkeys.delete(principal.getName(), id);
+        passkeyFeatures.requireEnabled();
+        passkeyUseCase.delete(principal.getName(), id);
     }
 
     @GetMapping("/authenticate/options")
     public Map<String, Object> authOptions(@RequestParam(required = false) String username) {
-        features.requireEnabled();
-        return passkeys.authenticationOptions(username);
+        passkeyFeatures.requireEnabled();
+        return passkeyUseCase.authenticationOptions(username);
     }
 
     @PostMapping("/authenticate")
@@ -81,7 +81,7 @@ public class PasskeyEndpoint {
             @Valid @RequestBody AuthenticateRequest body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        features.requireEnabled();
-        return finishSession.execute(passkeys.authenticate(body), "passkey", request, response, true);
+        passkeyFeatures.requireEnabled();
+        return finishAuthenticatedSession.execute(passkeyUseCase.authenticate(body), "passkey", request, response, true);
     }
 }

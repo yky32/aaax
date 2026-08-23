@@ -29,42 +29,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UaaCompatEndpoint {
 
-    private final RegisterAccountUseCase registerAccount;
-    private final PasswordUseCase passwords;
-    private final RequestOtpUseCase requestOtp;
+    private final RegisterAccountUseCase registerAccountUseCase;
+    private final PasswordUseCase passwordUseCase;
+    private final RequestOtpUseCase requestOtpUseCase;
 
     public UaaCompatEndpoint(
-            RegisterAccountUseCase registerAccount, PasswordUseCase passwords, RequestOtpUseCase requestOtp) {
-        this.registerAccount = registerAccount;
-        this.passwords = passwords;
-        this.requestOtp = requestOtp;
+            RegisterAccountUseCase registerAccountUseCase, PasswordUseCase passwordUseCase, RequestOtpUseCase requestOtpUseCase) {
+        this.registerAccountUseCase = registerAccountUseCase;
+        this.passwordUseCase = passwordUseCase;
+        this.requestOtpUseCase = requestOtpUseCase;
     }
 
     @PostMapping("/users/registrations")
     @ResponseStatus(HttpStatus.CREATED)
     public GetAccountResponseDto register(@Valid @RequestBody RegisterAccountRequestDto request) {
-        return registerAccount.execute(request);
+        return registerAccountUseCase.execute(request);
     }
 
     @PostMapping("/authentications/one-time-passwords/general")
     public RequestOtpResponseDto otpIssue(@Valid @RequestBody RequestOtpRequestDto body) {
-        return requestOtp.execute(body.username());
+        return requestOtpUseCase.execute(body.username());
     }
 
     @PostMapping("/authentications/one-time-passwords/general/verifications")
     public VerifyOtpResponseDto otpVerify(@Valid @RequestBody VerifyOtpRequestDto body) {
-        return requestOtp.verify(body.username(), body.code());
+        return requestOtpUseCase.verify(body.username(), body.code());
     }
 
     @PostMapping("/users/credentials/reset")
     public Map<String, Object> forgot(@Valid @RequestBody ForgotPasswordRequestDto request) {
-        passwords.requestPasswordReset(request.usernameOrEmail());
+        passwordUseCase.requestPasswordReset(request.usernameOrEmail());
         return Map.of("accepted", true);
     }
 
     @PutMapping("/users/credentials/reset/one-time-passwords")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reset(@Valid @RequestBody ResetPasswordRequestDto request) {
-        passwords.resetPassword(request.username(), request.code(), request.newPassword());
+        passwordUseCase.resetPassword(request.username(), request.code(), request.newPassword());
     }
 }

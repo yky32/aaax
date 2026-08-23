@@ -28,10 +28,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class MagicLinkUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final AccountQueries queries;
     private final OtpSender otpSender;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
     private final FinishAuthenticatedSession finish;
     private final MagicLinkTokenStore tokenStore;
     private final String issuer;
@@ -39,18 +39,18 @@ public class MagicLinkUseCase {
     private final SecureRandom random = new SecureRandom();
 
     public MagicLinkUseCase(
-            AccountRepository accounts,
+            AccountRepository accountRepository,
             AccountQueries queries,
             OtpSender otpSender,
-            IdentityEventBus events,
+            IdentityEventBus identityEventBus,
             FinishAuthenticatedSession finish,
             MagicLinkTokenStore tokenStore,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer,
             @Value("${aaax.magic.ttl-seconds:900}") int ttlSeconds) {
-        this.accounts = accounts;
+        this.accountRepository = accountRepository;
         this.queries = queries;
         this.otpSender = otpSender;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
         this.finish = finish;
         this.tokenStore = tokenStore;
         this.issuer = issuer.endsWith("/") ? issuer.substring(0, issuer.length() - 1) : issuer;
@@ -59,8 +59,8 @@ public class MagicLinkUseCase {
 
     public Map<String, Object> request(RequestCommand cmd) {
         String usernameOrEmail = cmd.identifier().trim();
-        Account account = accounts.findByUsernameIgnoreCase(usernameOrEmail)
-                .or(() -> accounts.findByEmailIgnoreCase(usernameOrEmail))
+        Account account = accountRepository.findByUsernameIgnoreCase(usernameOrEmail)
+                .or(() -> accountRepository.findByEmailIgnoreCase(usernameOrEmail))
                 .orElseThrow(() -> new AccountException(HttpStatus.NOT_FOUND, "account not found"));
         String token = newToken();
         tokenStore.put(token, account.getUsername(), Instant.now().plusSeconds(ttlSeconds));
@@ -69,7 +69,7 @@ public class MagicLinkUseCase {
                 ? account.getEmail()
                 : account.getUsername();
         otpSender.send(dest, "MAGIC:" + link);
-        events.emit(
+        identityEventBus.emit(
                 IdentityEvent.Types.OTP_DISPATCH,
                 account.getUsername(),
                 Map.of("channel", "magic_link", "purpose", "magic_link", "destination", dest));

@@ -23,9 +23,9 @@ import com.aaax.spi.otp.OtpSender;
 public class OtpOpsUseCase {
 
     private final AccountRepository accountRepository;
-    private final OtpCodeStore store;
-    private final OtpSender sender;
-    private final IdentityEventBus events;
+    private final OtpCodeStore otpCodeStore;
+    private final OtpSender otpSender;
+    private final IdentityEventBus identityEventBus;
     private final String channel;
     private final int ttlSeconds;
     private final int length;
@@ -33,16 +33,16 @@ public class OtpOpsUseCase {
 
     public OtpOpsUseCase(
             AccountRepository accountRepository,
-            OtpCodeStore store,
-            OtpSender sender,
-            IdentityEventBus events,
+            OtpCodeStore otpCodeStore,
+            OtpSender otpSender,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.otp.channel:console}") String channel,
             @Value("${aaax.otp.ttl-seconds:300}") int ttlSeconds,
             @Value("${aaax.otp.length:6}") int length) {
         this.accountRepository = accountRepository;
-        this.store = store;
-        this.sender = sender;
-        this.events = events;
+        this.otpCodeStore = otpCodeStore;
+        this.otpSender = otpSender;
+        this.identityEventBus = identityEventBus;
         this.channel = channel;
         this.ttlSeconds = ttlSeconds;
         this.length = Math.max(4, Math.min(length, 10));
@@ -53,7 +53,7 @@ public class OtpOpsUseCase {
         Account account = requireAccount(username);
         String code = generateCode();
         Instant expires = Instant.now().plusSeconds(ttlSeconds);
-        store.put(account.getUsername(), code, expires);
+        otpCodeStore.put(account.getUsername(), code, expires);
         String destination = resolveDestination(account);
 
         Map<String, Object> data = new LinkedHashMap<>();
@@ -63,11 +63,11 @@ public class OtpOpsUseCase {
         data.put("purpose", "login_otp");
         data.put("expiresAt", expires.toString());
         data.put("username", account.getUsername());
-        events.emit(IdentityEvent.Types.OTP_DISPATCH, account.getUsername(), "otp requested", data);
+        identityEventBus.emit(IdentityEvent.Types.OTP_DISPATCH, account.getUsername(), "otp requested", data);
 
         // channel-specific delivery (mail/sms/console). kafka relies on event bus sinks.
         if (!"kafka".equalsIgnoreCase(channel)) {
-            sender.send(destination, code);
+            otpSender.send(destination, code);
         }
 
         return new RequestOtpResponseDto(account.getUsername(), maskDestination(destination), ttlSeconds, expires);
@@ -79,11 +79,11 @@ public class OtpOpsUseCase {
             throw AccountException.badRequest("code required");
         }
         Account account = requireAccount(username);
-        OtpCodeStore.Entry entry = store.get(account.getUsername());
+        OtpCodeStore.Entry entry = otpCodeStore.get(account.getUsername());
         if (entry == null || !entry.code().equals(code.trim())) {
             throw AccountException.badRequest("invalid or expired otp");
         }
-        store.remove(account.getUsername());
+        otpCodeStore.remove(account.getUsername());
         if (!account.isEnabled()) {
             throw AccountException.badRequest("account disabled");
         }

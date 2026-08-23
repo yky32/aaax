@@ -21,28 +21,28 @@ public class PasswordLoginUseCase {
     public static final String MFA_PENDING_USER = "AAAX_MFA_PENDING_USER";
     public static final String MFA_REMEMBER_DEVICE = "AAAX_MFA_REMEMBER_DEVICE";
 
-    private final PasswordUseCase passwords;
-    private final FinishAuthenticatedSession finish;
-    private final TrustedDeviceUseCase devices;
+    private final PasswordUseCase passwordUseCase;
+    private final FinishAuthenticatedSession finishAuthenticatedSession;
+    private final TrustedDeviceUseCase trustedDeviceUseCase;
 
     public PasswordLoginUseCase(
-            PasswordUseCase passwords, FinishAuthenticatedSession finish, TrustedDeviceUseCase devices) {
-        this.passwords = passwords;
-        this.finish = finish;
-        this.devices = devices;
+            PasswordUseCase passwordUseCase, FinishAuthenticatedSession finishAuthenticatedSession, TrustedDeviceUseCase trustedDeviceUseCase) {
+        this.passwordUseCase = passwordUseCase;
+        this.finishAuthenticatedSession = finishAuthenticatedSession;
+        this.trustedDeviceUseCase = trustedDeviceUseCase;
     }
 
     public Map<String, Object> execute(
             PasswordLoginCommand cmd, HttpServletRequest request, HttpServletResponse response) {
-        Account account = passwords.authenticatePassword(cmd.username(), cmd.password());
+        Account account = passwordUseCase.authenticatePassword(cmd.username(), cmd.password());
         boolean remember = Boolean.TRUE.equals(cmd.rememberDevice());
-        String rawDevice = devices.readRawToken(request).orElse(null);
+        String rawDevice = trustedDeviceUseCase.readRawToken(request).orElse(null);
 
         if (account.isTotpEnabled()) {
-            if (rawDevice != null && devices.isTrusted(account.getId(), rawDevice)) {
-                devices.touch(account.getId(), rawDevice, request);
+            if (rawDevice != null && trustedDeviceUseCase.isTrusted(account.getId(), rawDevice)) {
+                trustedDeviceUseCase.touch(account.getId(), rawDevice, request);
                 Map<String, Object> m =
-                        finish.execute(account, "password+trusted-device", request, response, true);
+                        finishAuthenticatedSession.execute(account, "password+trusted-device", request, response, true);
                 m.put("trustedDevice", true);
                 m.put("mfaSkipped", true);
                 return m;
@@ -58,9 +58,9 @@ public class PasswordLoginUseCase {
             return m;
         }
 
-        Map<String, Object> m = finish.execute(account, "password", request, response, true);
+        Map<String, Object> m = finishAuthenticatedSession.execute(account, "password", request, response, true);
         if (remember) {
-            var d = devices.registerAndSetCookie(account, cmd.deviceLabel(), request, response);
+            var d = trustedDeviceUseCase.registerAndSetCookie(account, cmd.deviceLabel(), request, response);
             m.put("trustedDeviceId", d.getId());
             m.put("trustedDevice", true);
         }

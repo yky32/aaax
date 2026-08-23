@@ -16,25 +16,25 @@ import org.springframework.util.StringUtils;
 @Component
 public class FederateAccountUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
 
     public FederateAccountUseCase(
-            AccountRepository accounts, PasswordEncoder passwordEncoder, IdentityEventBus events) {
-        this.accounts = accounts;
+            AccountRepository accountRepository, PasswordEncoder passwordEncoder, IdentityEventBus identityEventBus) {
+        this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
     }
 
     @Transactional
     public Account linkOrCreateGoogle(String sub, String email, String nameHint) {
-        return accounts.findByGoogleSub(sub)
-                .or(() -> email != null ? accounts.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+        return accountRepository.findByGoogleSub(sub)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
                 .map(existing -> {
                     if (existing.getGoogleSub() == null) {
                         existing.setGoogleSub(sub);
-                        return accounts.save(existing);
+                        return accountRepository.save(existing);
                     }
                     return existing;
                 })
@@ -43,12 +43,12 @@ public class FederateAccountUseCase {
 
     @Transactional
     public Account linkOrCreateGithub(String githubId, String email, String login) {
-        return accounts.findByGithubId(githubId)
-                .or(() -> email != null ? accounts.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+        return accountRepository.findByGithubId(githubId)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
                 .map(existing -> {
                     if (existing.getGithubId() == null) {
                         existing.setGithubId(githubId);
-                        return accounts.save(existing);
+                        return accountRepository.save(existing);
                     }
                     return existing;
                 })
@@ -58,12 +58,12 @@ public class FederateAccountUseCase {
 
     @Transactional
     public Account linkOrCreateSaml(String nameId, String email, String nameHint) {
-        return accounts.findBySamlNameId(nameId)
-                .or(() -> email != null ? accounts.findByEmailIgnoreCase(email) : java.util.Optional.empty())
+        return accountRepository.findBySamlNameId(nameId)
+                .or(() -> email != null ? accountRepository.findByEmailIgnoreCase(email) : java.util.Optional.empty())
                 .map(existing -> {
                     if (existing.getSamlNameId() == null) {
                         existing.setSamlNameId(nameId);
-                        return accounts.save(existing);
+                        return accountRepository.save(existing);
                     }
                     return existing;
                 })
@@ -77,7 +77,7 @@ public class FederateAccountUseCase {
         }
         String username = base.substring(0, Math.min(base.length(), 40));
         int i = 0;
-        while (accounts.existsByUsernameIgnoreCase(username)) {
+        while (accountRepository.existsByUsernameIgnoreCase(username)) {
             i++;
             username = base.substring(0, Math.min(base.length(), 36)) + i;
         }
@@ -87,8 +87,8 @@ public class FederateAccountUseCase {
                 passwordEncoder.encode(UUID.randomUUID().toString()),
                 "USER");
         linker.accept(created);
-        Account saved = accounts.save(created);
-        events.emit(IdentityEvent.Types.ACCOUNT_FEDERATED, username, detail,
+        Account saved = accountRepository.save(created);
+        identityEventBus.emit(IdentityEvent.Types.ACCOUNT_FEDERATED, username, detail,
                 java.util.Map.of("federation", detail == null ? "" : detail));
         return saved;
     }

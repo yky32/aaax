@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminSettingsEndpoint {
 
     private final AccountQueries accountService;
-    private final ClientAdminUseCase clientAdminService;
+    private final ClientAdminUseCase clientAdminUseCase;
     private final AuditService auditService;
     private final BufferIdentityEventSink eventBuffer;
     private final Environment environment;
@@ -46,7 +46,7 @@ public class AdminSettingsEndpoint {
 
     public AdminSettingsEndpoint(
             AccountQueries accountService,
-            ClientAdminUseCase clientAdminService,
+            ClientAdminUseCase clientAdminUseCase,
             AuditService auditService,
             BufferIdentityEventSink eventBuffer,
             Environment environment,
@@ -62,7 +62,7 @@ public class AdminSettingsEndpoint {
             @Value("${aaax.events.kafka.topic:aaax.identity.events}") String eventsKafkaTopic,
             @Value("${aaax.events.webhook-url:}") String eventsWebhook) {
         this.accountService = accountService;
-        this.clientAdminService = clientAdminService;
+        this.clientAdminUseCase = clientAdminUseCase;
         this.auditService = auditService;
         this.eventBuffer = eventBuffer;
         this.environment = environment;
@@ -156,7 +156,7 @@ public class AdminSettingsEndpoint {
                         "admins",
                         accountService.countAdmins(),
                         "clients",
-                        clientAdminService.list().size(),
+                        clientAdminUseCase.list().size(),
                         "eventsBuffered",
                         eventBuffer.size()));
         m.put("features", featureMap(kafkaLive));

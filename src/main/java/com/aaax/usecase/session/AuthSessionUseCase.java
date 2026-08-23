@@ -16,11 +16,11 @@ import com.aaax.repository.AuthSessionRepository;
 @Component
 public class AuthSessionUseCase {
 
-    private final AuthSessionRepository repository;
+    private final AuthSessionRepository authSessionRepository;
     private final SecureRandom random = new SecureRandom();
 
-    public AuthSessionUseCase(AuthSessionRepository repository) {
-        this.repository = repository;
+    public AuthSessionUseCase(AuthSessionRepository authSessionRepository) {
+        this.authSessionRepository = authSessionRepository;
     }
 
     @Transactional
@@ -33,20 +33,20 @@ public class AuthSessionUseCase {
             s.setUserAgent(trim(request.getHeader("User-Agent"), 512));
             s.setIp(trim(request.getRemoteAddr(), 64));
         }
-        return repository.save(s);
+        return authSessionRepository.save(s);
     }
 
     @Transactional(readOnly = true)
     public List<AuthSession> listActive(String accountId) {
-        return repository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId);
+        return authSessionRepository.findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(accountId);
     }
 
     @Transactional
     public void revoke(String accountId, String sessionId) {
-        repository.findById(sessionId).ifPresent(s -> {
+        authSessionRepository.findById(sessionId).ifPresent(s -> {
             if (accountId.equals(s.getAccountId()) && s.isSessionActive()) {
                 s.setRevokedAt(Instant.now());
-                repository.save(s);
+                authSessionRepository.save(s);
             }
         });
     }
@@ -55,7 +55,7 @@ public class AuthSessionUseCase {
     public void revokeAll(String accountId) {
         for (AuthSession s : listActive(accountId)) {
             s.setRevokedAt(Instant.now());
-            repository.save(s);
+            authSessionRepository.save(s);
         }
     }
 

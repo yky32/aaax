@@ -17,19 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/otp")
 public class OtpEndpoint {
 
-    private final RequestOtpUseCase requestOtp;
+    private final RequestOtpUseCase requestOtpUseCase;
 
-    public OtpEndpoint(RequestOtpUseCase requestOtp) {
-        this.requestOtp = requestOtp;
+    public OtpEndpoint(RequestOtpUseCase requestOtpUseCase) {
+        this.requestOtpUseCase = requestOtpUseCase;
     }
 
     @PostMapping("/request")
     public RequestOtpResponseDto request(@Valid @RequestBody RequestOtpRequestDto body) {
-        return requestOtp.execute(body.username());
+        return requestOtpUseCase.execute(body.username());
     }
 
     @PostMapping("/verify")
     public VerifyOtpResponseDto verify(@Valid @RequestBody VerifyOtpRequestDto body) {
-        return requestOtp.verify(body.username(), body.code());
+        return requestOtpUseCase.verify(body.username(), body.code());
     }
 }

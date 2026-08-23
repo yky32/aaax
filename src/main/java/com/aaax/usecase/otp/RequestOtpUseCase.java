@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestOtpUseCase {
 
-    private final OtpOpsUseCase otp;
+    private final OtpOpsUseCase otpOpsUseCase;
 
-    public RequestOtpUseCase(OtpOpsUseCase otp) {
-        this.otp = otp;
+    public RequestOtpUseCase(OtpOpsUseCase otpOpsUseCase) {
+        this.otpOpsUseCase = otpOpsUseCase;
     }
 
     public RequestOtpResponseDto execute(String username) {
-        return otp.request(username);
+        return otpOpsUseCase.request(username);
     }
 
     public VerifyOtpResponseDto verify(String username, String code) {
-        return otp.verify(username, code);
+        return otpOpsUseCase.verify(username, code);
     }
 }

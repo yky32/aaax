@@ -31,18 +31,18 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("isAuthenticated()")
 public class DeviceEndpoint {
 
-    private final TrustedDeviceUseCase devices;
-    private final AccountRepository accounts;
+    private final TrustedDeviceUseCase trustedDeviceUseCase;
+    private final AccountRepository accountRepository;
 
-    public DeviceEndpoint(TrustedDeviceUseCase devices, AccountRepository accounts) {
-        this.devices = devices;
-        this.accounts = accounts;
+    public DeviceEndpoint(TrustedDeviceUseCase trustedDeviceUseCase, AccountRepository accountRepository) {
+        this.trustedDeviceUseCase = trustedDeviceUseCase;
+        this.accountRepository = accountRepository;
     }
 
     @GetMapping
     public List<Map<String, Object>> list(Principal principal) {
         Account a = require(principal);
-        return devices.listActive(a.getId()).stream().map(this::toMap).toList();
+        return trustedDeviceUseCase.listActive(a.getId()).stream().map(this::toMap).toList();
     }
 
     @PostMapping
@@ -54,25 +54,25 @@ public class DeviceEndpoint {
             HttpServletResponse response) {
         Account a = require(principal);
         String label = body != null ? body.label() : null;
-        TrustedDevice d = devices.registerAndSetCookie(a, label, request, response);
+        TrustedDevice d = trustedDeviceUseCase.registerAndSetCookie(a, label, request, response);
         return toMap(d);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revoke(@PathVariable String id, Principal principal) {
-        devices.revoke(require(principal).getId(), id);
+        trustedDeviceUseCase.revoke(require(principal).getId(), id);
     }
 
     @PostMapping("/revoke-all")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revokeAll(Principal principal, HttpServletResponse response) {
-        devices.revokeAll(require(principal).getId());
-        devices.clearCookie(response);
+        trustedDeviceUseCase.revokeAll(require(principal).getId());
+        trustedDeviceUseCase.clearCookie(response);
     }
 
     private Account require(Principal principal) {
-        return accounts.findByUsernameIgnoreCase(principal.getName())
+        return accountRepository.findByUsernameIgnoreCase(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
     }
 

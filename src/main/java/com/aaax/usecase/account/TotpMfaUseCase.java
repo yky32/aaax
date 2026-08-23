@@ -17,20 +17,20 @@ import org.springframework.util.StringUtils;
 @Component
 public class TotpMfaUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
 
     public TotpMfaUseCase(
-            AccountRepository accounts,
+            AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
             TotpService totpService,
-            IdentityEventBus events) {
-        this.accounts = accounts;
+            IdentityEventBus identityEventBus) {
+        this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.totpService = totpService;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
     }
 
     @Transactional
@@ -39,7 +39,7 @@ public class TotpMfaUseCase {
         String secret = totpService.generateSecret();
         account.setTotpSecret(secret);
         account.setTotpEnabled(false);
-        accounts.save(account);
+        accountRepository.save(account);
         return new TotpSetupResponseDto(secret, totpService.otpAuthUrl("AAAX", account.getUsername(), secret));
     }
 
@@ -53,8 +53,8 @@ public class TotpMfaUseCase {
             throw AccountException.badRequest("invalid totp code");
         }
         account.setTotpEnabled(true);
-        Account saved = accounts.save(account);
-        events.emit(IdentityEvent.Types.MFA_TOTP_ENABLED, username, java.util.Map.of());
+        Account saved = accountRepository.save(account);
+        identityEventBus.emit(IdentityEvent.Types.MFA_TOTP_ENABLED, username, java.util.Map.of());
         return GetAccountResponseDto.from(saved);
     }
 
@@ -69,8 +69,8 @@ public class TotpMfaUseCase {
         }
         account.setTotpEnabled(false);
         account.setTotpSecret(null);
-        Account saved = accounts.save(account);
-        events.emit(IdentityEvent.Types.MFA_TOTP_DISABLED, username, java.util.Map.of());
+        Account saved = accountRepository.save(account);
+        identityEventBus.emit(IdentityEvent.Types.MFA_TOTP_DISABLED, username, java.util.Map.of());
         return GetAccountResponseDto.from(saved);
     }
 
@@ -84,7 +84,7 @@ public class TotpMfaUseCase {
     }
 
     private Account require(String username) {
-        return accounts.findByUsernameIgnoreCase(username)
+        return accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 }

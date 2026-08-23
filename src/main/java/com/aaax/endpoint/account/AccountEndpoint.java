@@ -27,43 +27,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/accounts")
 public class AccountEndpoint {
 
-    private final RegisterAccountUseCase registerAccount;
-    private final AccountQueries queries;
-    private final PasswordUseCase passwords;
+    private final RegisterAccountUseCase registerAccountUseCase;
+    private final AccountQueries accountQueries;
+    private final PasswordUseCase passwordUseCase;
 
     public AccountEndpoint(
-            RegisterAccountUseCase registerAccount, AccountQueries queries, PasswordUseCase passwords) {
-        this.registerAccount = registerAccount;
-        this.queries = queries;
-        this.passwords = passwords;
+            RegisterAccountUseCase registerAccountUseCase, AccountQueries accountQueries, PasswordUseCase passwordUseCase) {
+        this.registerAccountUseCase = registerAccountUseCase;
+        this.accountQueries = accountQueries;
+        this.passwordUseCase = passwordUseCase;
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public GetAccountResponseDto register(@Valid @RequestBody RegisterAccountRequestDto request) {
-        return registerAccount.execute(request);
+        return registerAccountUseCase.execute(request);
     }
 
     @GetMapping("/me")
     public GetAccountResponseDto me(Principal principal) {
-        return queries.requireByUsername(principal.getName());
+        return accountQueries.requireByUsername(principal.getName());
     }
 
     @PutMapping("/me/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(Principal principal, @Valid @RequestBody ChangePasswordRequestDto request) {
-        passwords.changePassword(principal.getName(), request.currentPassword(), request.newPassword());
+        passwordUseCase.changePassword(principal.getName(), request.currentPassword(), request.newPassword());
     }
 
     @PostMapping("/password/forgot")
     public Map<String, Object> forgot(@Valid @RequestBody ForgotPasswordRequestDto request) {
-        passwords.requestPasswordReset(request.usernameOrEmail());
+        passwordUseCase.requestPasswordReset(request.usernameOrEmail());
         return Map.of("accepted", true, "message", "If the account exists, a reset code was sent");
     }
 
     @PostMapping("/password/reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reset(@Valid @RequestBody ResetPasswordRequestDto request) {
-        passwords.resetPassword(request.username(), request.code(), request.newPassword());
+        passwordUseCase.resetPassword(request.username(), request.code(), request.newPassword());
     }
 }

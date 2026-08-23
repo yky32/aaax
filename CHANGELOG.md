@@ -4,6 +4,11 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.8.0-SNAPSHOT] — unreleased
 
+### Config
+- **Single `application.yml` only** (removed `application-prod|social|google.yml`)
+- Social + prod knobs via **env / Helm** (qs/uaa style)
+
+
 Development follows **v0.7.0**.
 
 ## [0.7.0] — 2026-08-23

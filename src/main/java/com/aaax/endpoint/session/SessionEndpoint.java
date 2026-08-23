@@ -26,36 +26,36 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("isAuthenticated()")
 public class SessionEndpoint {
 
-    private final AuthSessionUseCase sessions;
-    private final AccountRepository accounts;
+    private final AuthSessionUseCase authSessionUseCase;
+    private final AccountRepository accountRepository;
 
-    public SessionEndpoint(AuthSessionUseCase sessions, AccountRepository accounts) {
-        this.sessions = sessions;
-        this.accounts = accounts;
+    public SessionEndpoint(AuthSessionUseCase authSessionUseCase, AccountRepository accountRepository) {
+        this.authSessionUseCase = authSessionUseCase;
+        this.accountRepository = accountRepository;
     }
 
     @GetMapping
     public List<Map<String, Object>> list(Principal principal) {
         Account a = require(principal);
-        return sessions.listActive(a.getId()).stream().map(this::toMap).toList();
+        return authSessionUseCase.listActive(a.getId()).stream().map(this::toMap).toList();
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revoke(@PathVariable String id, Principal principal) {
         Account a = require(principal);
-        sessions.revoke(a.getId(), id);
+        authSessionUseCase.revoke(a.getId(), id);
     }
 
     @PostMapping("/revoke-all")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revokeAll(Principal principal) {
         Account a = require(principal);
-        sessions.revokeAll(a.getId());
+        authSessionUseCase.revokeAll(a.getId());
     }
 
     private Account require(Principal principal) {
-        return accounts.findByUsernameIgnoreCase(principal.getName())
+        return accountRepository.findByUsernameIgnoreCase(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
     }
 

@@ -24,38 +24,38 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class QrLoginUseCase {
 
-    private final QrLoginSessionStore store;
-    private final AccountQueries queries;
-    private final FinishAuthenticatedSession finish;
-    private final IdentityEventBus events;
+    private final QrLoginSessionStore qrLoginSessionStore;
+    private final AccountQueries accountQueries;
+    private final FinishAuthenticatedSession finishAuthenticatedSession;
+    private final IdentityEventBus identityEventBus;
     private final String issuer;
 
     public QrLoginUseCase(
-            QrLoginSessionStore store,
-            AccountQueries queries,
-            FinishAuthenticatedSession finish,
-            IdentityEventBus events,
+            QrLoginSessionStore qrLoginSessionStore,
+            AccountQueries accountQueries,
+            FinishAuthenticatedSession finishAuthenticatedSession,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer) {
-        this.store = store;
-        this.queries = queries;
-        this.finish = finish;
-        this.events = events;
+        this.qrLoginSessionStore = qrLoginSessionStore;
+        this.accountQueries = accountQueries;
+        this.finishAuthenticatedSession = finishAuthenticatedSession;
+        this.identityEventBus = identityEventBus;
         this.issuer = issuer.endsWith("/") ? issuer.substring(0, issuer.length() - 1) : issuer;
     }
 
     public Map<String, Object> create() {
-        QrLoginSession s = store.create();
+        QrLoginSession s = qrLoginSessionStore.create();
         String approvePath = "/sign-in/qr-approve.html?sid=" + s.id();
         String approveUrl = issuer + approvePath;
-        events.emit(
+        identityEventBus.emit(
                 IdentityEvent.Types.AUTH_QR_CREATED,
                 s.id(),
-                Map.of("sessionId", s.id(), "expiresInSeconds", store.ttlSeconds()));
+                Map.of("sessionId", s.id(), "expiresInSeconds", qrLoginSessionStore.ttlSeconds()));
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("sessionId", s.id());
         m.put("userCode", s.userCode());
         m.put("status", s.status().name());
-        m.put("expiresInSeconds", store.ttlSeconds());
+        m.put("expiresInSeconds", qrLoginSessionStore.ttlSeconds());
         m.put("expiresAt", s.expiresAt().toString());
         m.put("approveUrl", approveUrl);
         m.put("approvePath", approvePath);
@@ -84,7 +84,7 @@ public class QrLoginUseCase {
         QrLoginSession s = require(sessionId);
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
-            store.save(s);
+            qrLoginSessionStore.save(s);
             throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
         }
         if (s.status() == QrLoginSession.Status.CONSUMED) {
@@ -94,11 +94,11 @@ public class QrLoginUseCase {
             return Map.of("sessionId", s.id(), "status", "APPROVED", "approvedUsername", s.approvedUsername());
         }
         // ensure account exists / active
-        queries.requireEntityByUsername(principal.getName());
+        accountQueries.requireEntityByUsername(principal.getName());
         s.setApprovedUsername(principal.getName());
         s.setStatus(QrLoginSession.Status.APPROVED);
-        store.save(s);
-        events.emit(
+        qrLoginSessionStore.save(s);
+        identityEventBus.emit(
                 IdentityEvent.Types.AUTH_QR_APPROVED,
                 principal.getName(),
                 Map.of("sessionId", s.id(), "method", "qr"));
@@ -107,7 +107,7 @@ public class QrLoginUseCase {
 
     /** Approve by short user code (phone typed code). */
     public Map<String, Object> approveByCode(String userCode, Principal principal) {
-        QrLoginSession s = store.getByUserCode(userCode)
+        QrLoginSession s = qrLoginSessionStore.getByUserCode(userCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown code"));
         return approve(s.id(), principal);
     }
@@ -117,7 +117,7 @@ public class QrLoginUseCase {
         QrLoginSession s = require(sessionId);
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
-            store.save(s);
+            qrLoginSessionStore.save(s);
             throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
         }
         if (s.status() != QrLoginSession.Status.APPROVED) {
@@ -125,10 +125,10 @@ public class QrLoginUseCase {
         }
         String username = s.approvedUsername();
         s.setStatus(QrLoginSession.Status.CONSUMED);
-        store.save(s);
-        store.remove(s.id());
-        return finish.execute(
-                queries.requireEntityByUsername(username),
+        qrLoginSessionStore.save(s);
+        qrLoginSessionStore.remove(s.id());
+        return finishAuthenticatedSession.execute(
+                accountQueries.requireEntityByUsername(username),
                 "qr",
                 request,
                 response,
@@ -137,7 +137,7 @@ public class QrLoginUseCase {
     }
 
     private QrLoginSession require(String sessionId) {
-        return store.get(sessionId)
+        return qrLoginSessionStore.get(sessionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown QR session"));
     }
 }

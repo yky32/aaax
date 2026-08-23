@@ -17,25 +17,25 @@ import org.springframework.util.StringUtils;
 @Component
 public class BootstrapAdminUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
     private final String configuredToken;
 
     public BootstrapAdminUseCase(
-            AccountRepository accounts,
+            AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
-            IdentityEventBus events,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.bootstrap.token:}") String configuredToken) {
-        this.accounts = accounts;
+        this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
         this.configuredToken = configuredToken;
     }
 
     @Transactional
     public GetAccountResponseDto execute(BootstrapAdminRequestDto body) {
-        if (accounts.countByRolesContainingIgnoreCase("ADMIN") > 0) {
+        if (accountRepository.countByRolesContainingIgnoreCase("ADMIN") > 0) {
             throw AccountException.conflict("admin already exists");
         }
         if (StringUtils.hasText(configuredToken) && !configuredToken.equals(body.bootstrapToken())) {
@@ -44,7 +44,7 @@ public class BootstrapAdminUseCase {
         if (!StringUtils.hasText(body.username()) || !StringUtils.hasText(body.password()) || body.password().length() < 8) {
             throw AccountException.badRequest("username and password (min 8) required");
         }
-        if (accounts.existsByUsernameIgnoreCase(body.username().trim())) {
+        if (accountRepository.existsByUsernameIgnoreCase(body.username().trim())) {
             throw AccountException.conflict("username already taken");
         }
         Account account = new Account(
@@ -52,8 +52,8 @@ public class BootstrapAdminUseCase {
                 RegisterAccountUseCase.normalizeEmail(body.email()),
                 passwordEncoder.encode(body.password()),
                 "USER,ADMIN");
-        Account saved = accounts.save(account);
-        events.emit(IdentityEvent.Types.BOOTSTRAP_ADMIN, saved.getUsername(), "first admin",
+        Account saved = accountRepository.save(account);
+        identityEventBus.emit(IdentityEvent.Types.BOOTSTRAP_ADMIN, saved.getUsername(), "first admin",
                 java.util.Map.of("roles", "USER,ADMIN"));
         return GetAccountResponseDto.from(saved);
     }

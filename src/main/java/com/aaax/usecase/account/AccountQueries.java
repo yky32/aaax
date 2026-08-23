@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class AccountQueries {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
 
-    public AccountQueries(AccountRepository accounts) {
-        this.accounts = accounts;
+    public AccountQueries(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     @Transactional(readOnly = true)
@@ -27,32 +27,32 @@ public class AccountQueries {
 
     @Transactional(readOnly = true)
     public Account requireEntityByUsername(String username) {
-        return accounts.findByUsernameIgnoreCase(username)
+        return accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 
     @Transactional(readOnly = true)
     public List<GetAccountResponseDto> listAll() {
-        return accounts.findAllByOrderByCreateDtDesc().stream().map(GetAccountResponseDto::from).toList();
+        return accountRepository.findAllByOrderByCreateDtDesc().stream().map(GetAccountResponseDto::from).toList();
     }
 
     @Transactional(readOnly = true)
     public GetAccountResponseDto getById(String id) {
-        return accounts.findById(id)
+        return accountRepository.findById(id)
                 .map(GetAccountResponseDto::from)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 
     @Transactional(readOnly = true)
     public boolean needsBootstrap() {
-        return accounts.countByRolesContainingIgnoreCase("ADMIN") == 0;
+        return accountRepository.countByRolesContainingIgnoreCase("ADMIN") == 0;
     }
 
     public long countUsers() {
-        return accounts.count();
+        return accountRepository.count();
     }
 
     public long countAdmins() {
-        return accounts.countByRolesContainingIgnoreCase("ADMIN");
+        return accountRepository.countByRolesContainingIgnoreCase("ADMIN");
     }
 }

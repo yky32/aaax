@@ -19,24 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/accounts/me/mfa")
 public class MfaEndpoint {
 
-    private final TotpMfaUseCase totpMfa;
+    private final TotpMfaUseCase totpMfaUseCase;
 
-    public MfaEndpoint(TotpMfaUseCase totpMfa) {
-        this.totpMfa = totpMfa;
+    public MfaEndpoint(TotpMfaUseCase totpMfaUseCase) {
+        this.totpMfaUseCase = totpMfaUseCase;
     }
 
     @PostMapping("/totp/setup")
     public TotpSetupResponseDto setup(Principal principal) {
-        return totpMfa.beginSetup(principal.getName());
+        return totpMfaUseCase.beginSetup(principal.getName());
     }
 
     @PostMapping("/totp/confirm")
     public GetAccountResponseDto confirm(Principal principal, @Valid @RequestBody TotpCodeRequestDto body) {
-        return totpMfa.confirm(principal.getName(), body.code());
+        return totpMfaUseCase.confirm(principal.getName(), body.code());
     }
 
     @PostMapping("/totp/disable")
     public GetAccountResponseDto disable(Principal principal, @Valid @RequestBody DisableTotpRequestDto body) {
-        return totpMfa.disable(principal.getName(), body.password(), body.code());
+        return totpMfaUseCase.disable(principal.getName(), body.password(), body.code());
     }
 }

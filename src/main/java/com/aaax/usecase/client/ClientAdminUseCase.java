@@ -29,20 +29,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ClientAdminUseCase {
 
-    private final RegisteredClientRepository clients;
+    private final RegisteredClientRepository registeredClientRepository;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
 
     public ClientAdminUseCase(
-            RegisteredClientRepository clients,
+            RegisteredClientRepository registeredClientRepository,
             PasswordEncoder passwordEncoder,
             JdbcTemplate jdbcTemplate,
-            IdentityEventBus events) {
-        this.clients = clients;
+            IdentityEventBus identityEventBus) {
+        this.registeredClientRepository = registeredClientRepository;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTemplate = jdbcTemplate;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
     }
 
     @Transactional(readOnly = true)
@@ -50,14 +50,14 @@ public class ClientAdminUseCase {
         return jdbcTemplate.query(
                 "SELECT client_id FROM oauth2_registered_client ORDER BY client_id",
                 (rs, i) -> {
-                    RegisteredClient c = clients.findByClientId(rs.getString("client_id"));
+                    RegisteredClient c = registeredClientRepository.findByClientId(rs.getString("client_id"));
                     return c == null ? null : ClientResponse.from(c);
                 }).stream().filter(c -> c != null).toList();
     }
 
     @Transactional(readOnly = true)
     public ClientResponse get(String clientId) {
-        RegisteredClient client = clients.findByClientId(clientId);
+        RegisteredClient client = registeredClientRepository.findByClientId(clientId);
         if (client == null) {
             throw AccountException.notFound("client not found");
         }
@@ -66,7 +66,7 @@ public class ClientAdminUseCase {
 
     @Transactional
     public ClientCreatedResponse create(@Valid CreateClientRequest request) {
-        if (clients.findByClientId(request.clientId()) != null) {
+        if (registeredClientRepository.findByClientId(request.clientId()) != null) {
             throw AccountException.conflict("client_id already exists");
         }
         String rawSecret = request.clientSecret() != null && !request.clientSecret().isBlank()
@@ -101,22 +101,22 @@ public class ClientAdminUseCase {
                                 request.refreshTokenDays() == null ? 30 : request.refreshTokenDays()))
                         .build());
 
-        clients.save(builder.build());
-        events.emit(IdentityEvent.Types.CLIENT_CREATED, request.clientId().trim(),
+        registeredClientRepository.save(builder.build());
+        identityEventBus.emit(IdentityEvent.Types.CLIENT_CREATED, request.clientId().trim(),
                 java.util.Map.of("clientId", request.clientId().trim()));
-        return new ClientCreatedResponse(ClientResponse.from(clients.findByClientId(request.clientId())), rawSecret);
+        return new ClientCreatedResponse(ClientResponse.from(registeredClientRepository.findByClientId(request.clientId())), rawSecret);
     }
 
     @Transactional
     public void delete(String clientId) {
-        RegisteredClient client = clients.findByClientId(clientId);
+        RegisteredClient client = registeredClientRepository.findByClientId(clientId);
         if (client == null) {
             throw AccountException.notFound("client not found");
         }
         jdbcTemplate.update("DELETE FROM oauth2_authorization_consent WHERE registered_client_id = ?", client.getId());
         jdbcTemplate.update("DELETE FROM oauth2_authorization WHERE registered_client_id = ?", client.getId());
         jdbcTemplate.update("DELETE FROM oauth2_registered_client WHERE id = ?", client.getId());
-        events.emit(IdentityEvent.Types.CLIENT_DELETED, clientId, java.util.Map.of("clientId", clientId));
+        identityEventBus.emit(IdentityEvent.Types.CLIENT_DELETED, clientId, java.util.Map.of("clientId", clientId));
     }
 
     private static Set<AuthorizationGrantType> grantTypes(CreateClientRequest request) {

@@ -19,27 +19,27 @@ import org.springframework.util.StringUtils;
 @Component
 public class PasswordUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpCodeStore otpStore;
     private final OtpSender otpSender;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
     private final int otpTtlSeconds;
     private final int otpLength;
 
     public PasswordUseCase(
-            AccountRepository accounts,
+            AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
             OtpCodeStore otpStore,
             OtpSender otpSender,
-            IdentityEventBus events,
+            IdentityEventBus identityEventBus,
             @Value("${aaax.otp.ttl-seconds:300}") int otpTtlSeconds,
             @Value("${aaax.otp.length:6}") int otpLength) {
-        this.accounts = accounts;
+        this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.otpStore = otpStore;
         this.otpSender = otpSender;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
         this.otpTtlSeconds = otpTtlSeconds;
         this.otpLength = Math.max(4, Math.min(otpLength, 10));
     }
@@ -54,8 +54,8 @@ public class PasswordUseCase {
             throw AccountException.badRequest("new password too short");
         }
         account.setPasswordHash(passwordEncoder.encode(newPassword));
-        accounts.save(account);
-        events.emit(IdentityEvent.Types.PASSWORD_CHANGED, username, java.util.Map.of());
+        accountRepository.save(account);
+        identityEventBus.emit(IdentityEvent.Types.PASSWORD_CHANGED, username, java.util.Map.of());
     }
 
     @Transactional(readOnly = true)
@@ -64,8 +64,8 @@ public class PasswordUseCase {
             return;
         }
         String q = usernameOrEmail.trim();
-        Account account = accounts.findByUsernameIgnoreCase(q)
-                .or(() -> accounts.findByEmailIgnoreCase(q.toLowerCase(Locale.ROOT)))
+        Account account = accountRepository.findByUsernameIgnoreCase(q)
+                .or(() -> accountRepository.findByEmailIgnoreCase(q.toLowerCase(Locale.ROOT)))
                 .orElse(null);
         if (account == null || !account.isEnabled()) {
             return;
@@ -88,13 +88,13 @@ public class PasswordUseCase {
         }
         otpStore.remove(resetKey(account.getUsername()));
         account.setPasswordHash(passwordEncoder.encode(newPassword));
-        accounts.save(account);
-        events.emit(IdentityEvent.Types.PASSWORD_RESET, username, java.util.Map.of());
+        accountRepository.save(account);
+        identityEventBus.emit(IdentityEvent.Types.PASSWORD_RESET, username, java.util.Map.of());
     }
 
     @Transactional(readOnly = true)
     public Account authenticatePassword(String username, String password) {
-        Account account = accounts.findByUsernameIgnoreCase(username.trim())
+        Account account = accountRepository.findByUsernameIgnoreCase(username.trim())
                 .orElseThrow(() -> AccountException.badRequest("invalid credentials"));
         if (!account.isEnabled() || !passwordEncoder.matches(password, account.getPasswordHash())) {
             throw AccountException.badRequest("invalid credentials");
@@ -103,7 +103,7 @@ public class PasswordUseCase {
     }
 
     private Account require(String username) {
-        return accounts.findByUsernameIgnoreCase(username)
+        return accountRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 

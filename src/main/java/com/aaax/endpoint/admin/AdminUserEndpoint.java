@@ -22,33 +22,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/admin/users")
 public class AdminUserEndpoint {
 
-    private final AccountQueries queries;
-    private final AdminManageUserUseCase manageUser;
+    private final AccountQueries accountQueries;
+    private final AdminManageUserUseCase adminManageUserUseCase;
 
-    public AdminUserEndpoint(AccountQueries queries, AdminManageUserUseCase manageUser) {
-        this.queries = queries;
-        this.manageUser = manageUser;
+    public AdminUserEndpoint(AccountQueries accountQueries, AdminManageUserUseCase adminManageUserUseCase) {
+        this.accountQueries = accountQueries;
+        this.adminManageUserUseCase = adminManageUserUseCase;
     }
 
     @GetMapping
     public List<GetAccountResponseDto> list() {
-        return queries.listAll();
+        return accountQueries.listAll();
     }
 
     @GetMapping("/{id}")
     public GetAccountResponseDto get(@PathVariable String id) {
-        return queries.getById(id);
+        return accountQueries.getById(id);
     }
 
     @PatchMapping("/{id}/status")
     public GetAccountResponseDto setStatus(
             @PathVariable String id, @Valid @RequestBody SetAccountEnabledRequestDto request, Principal principal) {
-        return manageUser.setEnabled(id, request.enabled(), principal.getName());
+        return adminManageUserUseCase.setEnabled(id, request.enabled(), principal.getName());
     }
 
     @PatchMapping("/{id}/roles")
     public GetAccountResponseDto setRoles(
             @PathVariable String id, @Valid @RequestBody SetAccountRolesRequestDto request, Principal principal) {
-        return manageUser.setRoles(id, request.roles(), principal.getName());
+        return adminManageUserUseCase.setRoles(id, request.roles(), principal.getName());
     }
 }

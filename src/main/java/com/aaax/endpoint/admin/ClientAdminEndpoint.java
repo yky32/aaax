@@ -23,31 +23,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/admin/clients")
 public class ClientAdminEndpoint {
 
-    private final ClientAdminUseCase clientAdminService;
+    private final ClientAdminUseCase clientAdminUseCase;
 
-    public ClientAdminEndpoint(ClientAdminUseCase clientAdminService) {
-        this.clientAdminService = clientAdminService;
+    public ClientAdminEndpoint(ClientAdminUseCase clientAdminUseCase) {
+        this.clientAdminUseCase = clientAdminUseCase;
     }
 
     @GetMapping
     public List<ClientResponse> list() {
-        return clientAdminService.list();
+        return clientAdminUseCase.list();
     }
 
     @GetMapping("/{clientId}")
     public ClientResponse get(@PathVariable String clientId) {
-        return clientAdminService.get(clientId);
+        return clientAdminUseCase.get(clientId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ClientCreatedResponse create(@Valid @RequestBody CreateClientRequest request) {
-        return clientAdminService.create(request);
+        return clientAdminUseCase.create(request);
     }
 
     @DeleteMapping("/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String clientId) {
-        clientAdminService.delete(clientId);
+        clientAdminUseCase.delete(clientId);
     }
 }

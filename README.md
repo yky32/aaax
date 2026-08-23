@@ -141,11 +141,15 @@ Signed webhook: `AAAX_EVENTS_WEBHOOK_URL` + `AAAX_EVENTS_WEBHOOK_SECRET` → `X-
 
 ## Social (optional)
 
+Single `application.yml` — set env (no profile file). Empty client-id = off.
+
 ```bash
-export SPRING_PROFILES_ACTIVE=social
 export GOOGLE_CLIENT_ID=...
 export GOOGLE_CLIENT_SECRET=...
-# optional GitHub — see docs/booklet.md
+# optional
+export GITHUB_CLIENT_ID=...
+export GITHUB_CLIENT_SECRET=...
+# redirects: {AAAX_ISSUER}/login/oauth2/code/google|github
 ```
 
 ---
@@ -159,7 +163,15 @@ export GOOGLE_CLIENT_SECRET=...
 | Confidential client | `aaax-demo` / `aaax-demo-secret` |
 | Public SPA | `aaax-spa` (PKCE, no secret) |
 
-Prod: `SPRING_PROFILES_ACTIVE=prod` or `AAAX_DEMO_SEED_*=false`.
+**Prod / Helm:** override env only (no Spring profile YAML):
+
+```bash
+AAAX_DEMO_SEED_CLIENT=false
+AAAX_DEMO_SEED_ACCOUNT=false
+JPA_DDL_AUTO=validate
+SQL_INIT_MODE=never
+# DB_URL / DB_USERNAME / DB_PASSWORD / AAAX_ISSUER / …
+```
 
 ---
 

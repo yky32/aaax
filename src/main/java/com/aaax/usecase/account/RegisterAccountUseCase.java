@@ -18,29 +18,29 @@ import org.springframework.util.StringUtils;
 @Component
 public class RegisterAccountUseCase {
 
-    private final AccountRepository accounts;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final IdentityEventBus events;
+    private final IdentityEventBus identityEventBus;
 
     public RegisterAccountUseCase(
-            AccountRepository accounts, PasswordEncoder passwordEncoder, IdentityEventBus events) {
-        this.accounts = accounts;
+            AccountRepository accountRepository, PasswordEncoder passwordEncoder, IdentityEventBus identityEventBus) {
+        this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-        this.events = events;
+        this.identityEventBus = identityEventBus;
     }
 
     @Transactional
     public GetAccountResponseDto execute(RegisterAccountRequestDto request) {
         String username = request.username().trim();
         String email = normalizeEmail(request.email());
-        if (accounts.existsByUsernameIgnoreCase(username)) {
+        if (accountRepository.existsByUsernameIgnoreCase(username)) {
             throw AccountException.conflict("username already taken");
         }
-        if (email != null && accounts.existsByEmailIgnoreCase(email)) {
+        if (email != null && accountRepository.existsByEmailIgnoreCase(email)) {
             throw AccountException.conflict("email already registered");
         }
-        Account saved = accounts.save(new Account(username, email, passwordEncoder.encode(request.password())));
-        events.emit(IdentityEvent.Types.ACCOUNT_REGISTERED, username, "self-register",
+        Account saved = accountRepository.save(new Account(username, email, passwordEncoder.encode(request.password())));
+        identityEventBus.emit(IdentityEvent.Types.ACCOUNT_REGISTERED, username, "self-register",
                 java.util.Map.of("email", email == null ? "" : email));
         return GetAccountResponseDto.from(saved);
     }

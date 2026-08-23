@@ -1,3 +1,6 @@
+# AAAX — single application.yml (qs/uaa style).
+# Deploy overrides via env / Argo Helm values — no profile YAML fragments.
+
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:aaax-server}
@@ -8,6 +11,7 @@ spring:
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
   jpa:
     hibernate:
+      # local default update; Helm prod → validate / none
       ddl-auto: ${JPA_DDL_AUTO:update}
     open-in-view: false
     defer-datasource-initialization: true
@@ -17,16 +21,17 @@ spring:
           time_zone: UTC
   sql:
     init:
-      mode: always
+      # local default always; Helm prod → never
+      mode: ${SQL_INIT_MODE:always}
       continue-on-error: true
   h2:
     console:
       enabled: false
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      host: ${REDIS_HOST:${SPRING_DATA_REDIS_HOST:localhost}}
+      port: ${REDIS_PORT:${SPRING_DATA_REDIS_PORT:6379}}
+      password: ${REDIS_PASSWORD:${SPRING_DATA_REDIS_PASSWORD:}}
   mail:
     host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}
@@ -38,6 +43,23 @@ spring:
           auth: ${MAIL_SMTP_AUTH:true}
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:true}
+  # Social OIDC — empty client-id = disabled (no profile file).
+  # Redirects: {issuer}/login/oauth2/code/google|github
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope: openid,profile,email
+          github:
+            client-id: ${GITHUB_CLIENT_ID:}
+            client-secret: ${GITHUB_CLIENT_SECRET:}
+            scope: read:user,user:email
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
 
 server:
   port: ${SERVER_PORT:8081}
@@ -49,7 +71,6 @@ aaax:
   bootstrap:
     token: ${AAAX_BOOTSTRAP_TOKEN:}
   passkeys:
-    # off by default; when true → webauthn4j registration + assertion verify
     enabled: ${AAAX_PASSKEYS_ENABLED:false}
     rp-id: ${AAAX_PASSKEYS_RP_ID:localhost}
     rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}
@@ -59,21 +80,15 @@ aaax:
     ttl-days: ${AAAX_DEVICES_TTL_DAYS:30}
     cookie-secure: ${AAAX_DEVICES_COOKIE_SECURE:false}
   qr:
-    # desktop QR login session TTL (seconds)
     ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}
-    # memory (default) | redis (multi-node; shares Redis with OTP when both redis)
     store: ${AAAX_QR_STORE:memory}
-  # single-realm only (no multi-tenant orgs yet)
   orgs:
     model: single
   otp:
-    # memory (default, single-node) | redis (multi-node OTP + magic-link tokens)
     store: ${AAAX_OTP_STORE:memory}
     ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
     length: ${AAAX_OTP_LENGTH:6}
     # console | mail | kafka | sms
-    # kafka = Mode1 event for caller notification-service
-    # sms   = Mode2 HTTP webhook to caller-owned SMS/provider
     channel: ${AAAX_OTP_CHANNEL:console}
     mail:
       from: ${AAAX_OTP_MAIL_FROM:noreply@aaax.local}
@@ -85,23 +100,21 @@ aaax:
       webhook-url: ${AAAX_OTP_SMS_WEBHOOK_URL:}
       webhook-auth: ${AAAX_OTP_SMS_WEBHOOK_AUTH:}
   saml:
-    # SAML 2 Service Provider (login with external IdP)
     enabled: ${AAAX_SAML_ENABLED:false}
     registration-id: ${AAAX_SAML_REGISTRATION_ID:idp}
     sp-entity-id: ${AAAX_SAML_SP_ENTITY_ID:}
     idp-metadata-uri: ${AAAX_SAML_IDP_METADATA_URI:}
   demo:
+    # local true; Helm prod → false
     seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
     seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
   events:
-    # Competitive wedge: fan-out identity lifecycle to platform notification-service
     kafka:
       enabled: ${AAAX_EVENTS_KAFKA_ENABLED:false}
       bootstrap-servers: ${AAAX_EVENTS_KAFKA_BOOTSTRAP:${aaax.otp.kafka.bootstrap-servers:localhost:9092}}
       topic: ${AAAX_EVENTS_KAFKA_TOPIC:aaax.identity.events}
     webhook-url: ${AAAX_EVENTS_WEBHOOK_URL:}
     webhook-auth: ${AAAX_EVENTS_WEBHOOK_AUTH:}
-    # HMAC-SHA256 of raw JSON body → header X-AAAX-Signature: sha256=<hex>
     webhook-secret: ${AAAX_EVENTS_WEBHOOK_SECRET:}
     webhook-max-attempts: ${AAAX_EVENTS_WEBHOOK_MAX_ATTEMPTS:3}
     webhook-backoff-ms: ${AAAX_EVENTS_WEBHOOK_BACKOFF_MS:200}

@@ -39,30 +39,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthEndpoint {
 
     private final AccountQueries accountQueries;
-    private final BootstrapAdminUseCase bootstrapAdmin;
-    private final PasswordLoginUseCase passwordLogin;
-    private final CompleteTotpLoginUseCase completeTotpLogin;
-    private final OtpLoginUseCase otpLogin;
-    private final MagicLinkUseCase magicLink;
-    private final QrLoginUseCase qrLogin;
+    private final BootstrapAdminUseCase bootstrapAdminUseCase;
+    private final PasswordLoginUseCase passwordLoginUseCase;
+    private final CompleteTotpLoginUseCase completeTotpLoginUseCase;
+    private final OtpLoginUseCase otpLoginUseCase;
+    private final MagicLinkUseCase magicLinkUseCase;
+    private final QrLoginUseCase qrLoginUseCase;
     private final LogoutUseCase logoutUseCase;
 
     public AuthEndpoint(
             AccountQueries accountQueries,
-            BootstrapAdminUseCase bootstrapAdmin,
-            PasswordLoginUseCase passwordLogin,
-            CompleteTotpLoginUseCase completeTotpLogin,
-            OtpLoginUseCase otpLogin,
-            MagicLinkUseCase magicLink,
-            QrLoginUseCase qrLogin,
+            BootstrapAdminUseCase bootstrapAdminUseCase,
+            PasswordLoginUseCase passwordLoginUseCase,
+            CompleteTotpLoginUseCase completeTotpLoginUseCase,
+            OtpLoginUseCase otpLoginUseCase,
+            MagicLinkUseCase magicLinkUseCase,
+            QrLoginUseCase qrLoginUseCase,
             LogoutUseCase logoutUseCase) {
         this.accountQueries = accountQueries;
-        this.bootstrapAdmin = bootstrapAdmin;
-        this.passwordLogin = passwordLogin;
-        this.completeTotpLogin = completeTotpLogin;
-        this.otpLogin = otpLogin;
-        this.magicLink = magicLink;
-        this.qrLogin = qrLogin;
+        this.bootstrapAdminUseCase = bootstrapAdminUseCase;
+        this.passwordLoginUseCase = passwordLoginUseCase;
+        this.completeTotpLoginUseCase = completeTotpLoginUseCase;
+        this.otpLoginUseCase = otpLoginUseCase;
+        this.magicLinkUseCase = magicLinkUseCase;
+        this.qrLoginUseCase = qrLoginUseCase;
         this.logoutUseCase = logoutUseCase;
     }
 
@@ -70,13 +70,13 @@ public class AuthEndpoint {
     public Map<String, Object> bootstrapStatus() {
         return Map.of(
                 "needsBootstrap", accountQueries.needsBootstrap(),
-                "tokenRequired", bootstrapAdmin.tokenRequired());
+                "tokenRequired", bootstrapAdminUseCase.tokenRequired());
     }
 
     @PostMapping("/bootstrap/admin")
     @ResponseStatus(HttpStatus.CREATED)
     public GetAccountResponseDto bootstrap(@Valid @RequestBody BootstrapAdminRequestDto body) {
-        return bootstrapAdmin.execute(body);
+        return bootstrapAdminUseCase.execute(body);
     }
 
     @PostMapping("/login")
@@ -84,7 +84,7 @@ public class AuthEndpoint {
             @Valid @RequestBody PasswordLoginCommand body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        return passwordLogin.execute(body, request, response);
+        return passwordLoginUseCase.execute(body, request, response);
     }
 
     @PostMapping("/mfa/totp")
@@ -92,7 +92,7 @@ public class AuthEndpoint {
             @Valid @RequestBody TotpCodeRequestDto body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        return completeTotpLogin.execute(body, request, response);
+        return completeTotpLoginUseCase.execute(body, request, response);
     }
 
     @PostMapping("/logout")
@@ -102,16 +102,16 @@ public class AuthEndpoint {
     }
 
     @PostMapping("/otp/login")
-    public Map<String, Object> otpLogin(
+    public Map<String, Object> otpLoginUseCase(
             @Valid @RequestBody OtpLoginCommand body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        return otpLogin.execute(body, request, response);
+        return otpLoginUseCase.execute(body, request, response);
     }
 
     @PostMapping("/magic/request")
     public Map<String, Object> magicRequest(@Valid @RequestBody RequestCommand body) {
-        return magicLink.request(body);
+        return magicLinkUseCase.request(body);
     }
 
     @PostMapping("/magic/consume")
@@ -119,13 +119,13 @@ public class AuthEndpoint {
             @Valid @RequestBody ConsumeCommand body,
             HttpServletRequest request,
             HttpServletResponse response) {
-        return magicLink.consume(body, request, response);
+        return magicLinkUseCase.consume(body, request, response);
     }
 
     @GetMapping("/magic/consume")
     public Map<String, Object> magicConsumeGet(
             @RequestParam String token, HttpServletRequest request, HttpServletResponse response) {
-        return magicLink.consume(new ConsumeCommand(token), request, response);
+        return magicLinkUseCase.consume(new ConsumeCommand(token), request, response);
     }
 
     // --- QR login (desktop pending → phone approve → desktop consume) ---
@@ -133,28 +133,28 @@ public class AuthEndpoint {
     @PostMapping("/qr/sessions")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> qrCreate() {
-        return qrLogin.create();
+        return qrLoginUseCase.create();
     }
 
     @GetMapping("/qr/sessions/{id}")
     public Map<String, Object> qrStatus(@PathVariable String id) {
-        return qrLogin.status(id);
+        return qrLoginUseCase.status(id);
     }
 
     @PostMapping("/qr/sessions/{id}/approve")
     public Map<String, Object> qrApprove(@PathVariable String id, Principal principal) {
-        return qrLogin.approve(id, principal);
+        return qrLoginUseCase.approve(id, principal);
     }
 
     @PostMapping("/qr/approve-code")
     public Map<String, Object> qrApproveCode(@Valid @RequestBody QrCodeBody body, Principal principal) {
-        return qrLogin.approveByCode(body.userCode(), principal);
+        return qrLoginUseCase.approveByCode(body.userCode(), principal);
     }
 
     @PostMapping("/qr/sessions/{id}/consume")
     public Map<String, Object> qrConsume(
             @PathVariable String id, HttpServletRequest request, HttpServletResponse response) {
-        return qrLogin.consume(id, request, response);
+        return qrLoginUseCase.consume(id, request, response);
     }
 
     public record QrCodeBody(@NotBlank String userCode) {
