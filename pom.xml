@@ -13,7 +13,7 @@
 
   <groupId>com.aaax</groupId>
   <artifactId>aaax-server</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>0.7.0</version>
   <name>aaax-server</name>
   <description>AAAX — Accounts · Authentication · Authorization · eXperiences</description>
 

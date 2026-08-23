@@ -2,67 +2,50 @@
 
 All notable changes to **AAAX** are documented here.
 
-## [0.7.0-SNAPSHOT] — unreleased
+## [0.8.0-SNAPSHOT] — unreleased
 
-### Structure — neat (OSS bar)
-- **Layer-first** locked in booklet §7
-- `entity/po` = JPA only · `entity/model` = non-JPA (QR session moved out of po)
-- `core.entity.dto.BaseResponseDto` reusable audit on API responses
-- `GetAccountResponseDto` carries full audit via BaseResponseDto
+Development follows **v0.7.0**.
 
-### Structure — qs/uaa align (stop-feature)
-- **AuditEntity** + **AuditEntityWithIsActive** (`@Version`, `createDt`/`updateDt`/`createdBy`/`updatedBy`) + `JpaAuditingConfig`
-- Bare `@Entity`/`@Column` (no `name=`) — trust Hibernate naming
-- DTOs: `entity/dto/request|*RequestDto`, `response|*ResponseDto`, `event|` — **no bag classes**
-- Renames: `GetAccountResponseDto`, `RegisterAccountRequestDto`, `RequestOtp*`, …
-- Repos order by `createDt`; dropped invented `AuditableEntity`
+## [0.7.0] — 2026-08-23
 
-### Structure (ledger package tree)
-- Packages: `endpoint/<domain>`, `usecase/<domain>`, `repository`, `entity/po|dto`, `service`, `spi`, `exception`
-- Business services → UseCase: Passkey/Device/Session/Client/OtpOps
-- `service/` = UDS / TOTP crypto / audit / seeds only
+### Highlights
+- **Layer-first** package layout (qs/uaa neat): `endpoint/` · `usecase/` · `entity/po|model|dto` · `repository/` · `spi/`
+- **AuditEntity** + **AuditEntityWithIsActive** (`@Version`, `createDt`/`updateDt`/`createdBy`/`updatedBy`) + JPA auditing
+- **DTO convention:** `*RequestDto` / `Get*|…*ResponseDto` · no bag classes · `BaseResponseDto`
+- **QR Redis store** · **SPA PKCE** public client `aaax-spa` + `examples/spa-pkce/`
+- **Event Bus P1** (from 0.6 line): catalog v1.0 · webhook HMAC + retry · audit `eventId`
+- **Mesh golden path:** `examples/compose-mesh/`
+- Booklet §7 structure bar · CONTRIBUTING aligned
 
-### SPA / App DX
-- Public OAuth client **`aaax-spa`** (PKCE required, no secret)
-- Example: `examples/spa-pkce/` + thin helper `aaax.js`
-- CORS on `/oauth2/**` for browser token exchange
+### Structure
+- `entity/po` = JPA only · `entity/model` = non-JPA (e.g. QR session)
+- Business logic in `usecase/*` · `service/` = UDS / Totp / AuditService / seeds only
+- Bare `@Entity`/`@Column` (no default `name=`)
 
-### QR multi-node
-- `aaax.qr.store=memory|redis` (default memory)
-- Redis QR sessions share Redis when `AAAX_QR_STORE=redis` (compose-mesh enables it)
+### App DX
+- Public client `aaax-spa` (PKCE, no secret)
+- CORS on `/oauth2/**` · thin helper `examples/spa-pkce/aaax.js`
 
-Development follows **v0.6.0**.
+### Breaking for integrators (vs ad-hoc 0.6 snapshots)
+- Package moves: use `endpoint.*` / `usecase.*` / `entity.dto.*` (not `web.*` / `*.application`)
+- Account JSON audit field preference: **`createDt`** (and full audit on `GetAccountResponseDto`)
 
 ## [0.6.0] — 2026-08-21
 
 ### Highlights
 - **QR code login** — desktop QR / code, phone approve, consume
 - **Trusted devices** — `AAAX_DEVICE` cookie, optional TOTP skip
-- **`com.aaax.core`** foundation — AuditableEntity, BizException, Ids
+- **`com.aaax.core`** foundation (pre-AuditEntity rename)
 - **HTTP `*Endpoint` naming** (not Controller)
 - **Event Bus P1** — catalog v1.0, webhook HMAC + retry, audit `eventId`
 - **Docs** — single SoT `docs/booklet.md`
-- **Mesh golden path** — `examples/compose-mesh/` (Postgres + Redis + Kafka + signed webhook)
+- **Mesh golden path** — `examples/compose-mesh/`
 - CI green (enforcer + Central-only checks)
 
 ### Event Bus
 - `GET /v1/admin/events/catalog`
 - `dataschema`, `data.eventId`, `data.catalogVersion`
-- `AAAX_EVENTS_WEBHOOK_SECRET` → `X-AAAX-Signature: sha256=…`
-- Delivery id headers + retries on 408/429/5xx
+- Webhook: `X-AAAX-Signature: sha256=` · delivery id headers · retries
 
-### Auth / UX
-- `/sign-in/` QR tab · `/v1/auth/qr/*`
-- Remember device checkbox · `/v1/devices`
-- Passkeys still opt-in (`AAAX_PASSKEYS_ENABLED`) with webauthn4j
-
-## [0.5.0] — 2026-08-21
-
-### Highlights
-- UseCase application layer (no GodService)
-- Pluggable OTP/magic store — `memory` | `redis`
-- FinishAuthenticatedSession unified login finish
-- Passkeys webauthn4j (opt-in, off by default)
-- Resource-server Boot 4 example
-- Identity Event Bus E2E · SMS dual-mode · SAML SP · Google/GitHub social
-- Hosted `/sign-in` `/sign-up` `/user` · admin portal
+### Upgrade from 0.5
+- See prior notes in git history for QR / devices / Endpoint rename.

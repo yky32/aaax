@@ -6,7 +6,7 @@
 |--|--|
 | **This file** | **Single source of truth** for product + eng |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | **`v0.6.0`** (Boot 4.1 / JDK 21) · tag `v0.6.0` |
+| **Version** | **`v0.7.0`** (Boot 4.1 / JDK 21) · tag `v0.6.0` |
 | **Stack** | JDK **21** · Spring Boot **4.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-08-21 |
@@ -229,7 +229,7 @@ Accounts · password · OTP · magic link · OIDC · TOTP · sessions · Event B
 
 SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list · Apple/Microsoft social
 
-### Status table (0.6.0)
+### Status table (0.7.0)
 
 | Area | |
 |------|--|
@@ -357,7 +357,7 @@ Enforcer still **bans** private `com.quinsic.*` and `app-core` coordinates.
 
 ```bash
 git clone https://github.com/yky32/aaax.git && cd aaax
-git checkout v0.6.0   # or main
+git checkout v0.7.0   # or main
 mvn test
 mvn spring-boot:run
 ```

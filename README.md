@@ -36,13 +36,15 @@ sequenceDiagram
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](./pom.xml)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](./pom.xml)
-[![Release](https://img.shields.io/badge/release-v0.6.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.6.0)
+[![Release](https://img.shields.io/badge/release-v0.7.0-success.svg)](https://github.com/yky32/aaax/releases/tag/v0.7.0)
+[![CI](https://img.shields.io/github/actions/workflow/status/yky32/aaax/ci.yml?branch=main)](https://github.com/yky32/aaax/actions)
 
 | | |
 |--|--|
-| **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) |
-| **Examples** | [**SPA PKCE**](./examples/spa-pkce/) · [**Mesh**](./examples/compose-mesh/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
-| **Version** | **`v0.6.0`** (Boot 4.1 / JDK 21) |
+| **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) |
+| **Layout** | **Layer-first** — `endpoint/` · `usecase/` · `entity/po|dto|model` · `repository/` · `spi/` ([§7](./docs/booklet.md#7-architecture)) |
+| **Examples** | [**Mesh**](./examples/compose-mesh/) · [**SPA PKCE**](./examples/spa-pkce/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
+| **Version** | **`v0.7.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
 
 ---
@@ -54,12 +56,13 @@ sequenceDiagram
 ```bash
 git clone https://github.com/yky32/aaax.git
 cd aaax
-git checkout v0.6.0   # or main
+git checkout v0.7.0   # or main
 mvn test
 mvn spring-boot:run
 ```
 
-**Reading the code (OSS tour):** [docs/booklet.md#8-code-map-clone-tour](./docs/booklet.md#8-code-map-clone-tour) — SecurityConfig → login use cases → Event Bus.
+**Reading the code (OSS tour):** [Code map](./docs/booklet.md#8-code-map-clone-tour) — SecurityConfig → login use cases → Event Bus.  
+**Conventions:** [Layering](./docs/booklet.md#7-architecture) — layer-first, qs/uaa neat (PO = JPA only, `*RequestDto` / `*ResponseDto`).
 
 **Another terminal:**
 
@@ -76,37 +79,47 @@ mvn -DskipTests package
 docker compose up --build
 ```
 
-**Mesh golden path (Postgres + Redis OTP + Kafka + HMAC webhook):**
+**Mesh golden path (Postgres + Redis OTP/QR + Kafka + HMAC webhook):**
 
 ```bash
 mvn -DskipTests package
 cd examples/compose-mesh && docker compose up --build
+# login as demo/demo1234 → watch sample-notify + webhook sink logs
+```
+
+**SPA PKCE (thin browser client):**
+
+```bash
+# terminal 1: AAAX on :8081
+# terminal 2:
+cd examples/spa-pkce && python3 -m http.server 4173
+# open http://127.0.0.1:4173/
 ```
 
 ---
 
-## What v0.6.0 commits to
+## What v0.7.0 commits to
 
-| ✅ Supported | 🧪 Opt-in | ❌ Out of 0.6 |
+| ✅ Supported | 🧪 Opt-in | ❌ Out of 0.7 |
 |--------------|----------------|---------------|
 | OIDC AS (discover / JWKS / code / refresh / client_credentials) | Passkeys (**off** default; webauthn4j) | Multi-tenant orgs |
 | Accounts · password · OTP · magic link · **QR login** | — | SAML IdP |
 | TOTP MFA · **trusted devices** · sessions | — | Official React SDK |
 | Identity Event Bus **catalog v1.0** · HMAC webhook · Kafka | — | LDAP |
-| Admin `/admin/` · hosted sign-in/up/user | — | |
+| Admin `/admin/` · hosted sign-in/up/user | — | Full Clerk component kit |
 | Social Google + GitHub (optional) | — | |
-| Redis OTP store · resource-server example · `com.aaax.core` | — | |
-| SAML SP (optional) | — | |
-| SMS via **kafka event** or **webhook** (your provider) | — | |
+| Redis OTP **and** QR store · SPA public client `aaax-spa` | — | |
+| Layer-first packages · `AuditEntity` · `*RequestDto`/`*ResponseDto` | — | |
+| SAML SP (optional) · SMS via kafka event or webhook | — | |
 
 ---
 
 ## Hosted UI (same jar)
 
 ```text
-/sign-in/   password · magic · OTP · social
+/sign-in/   password · magic · OTP · QR · social
 /sign-up/
-/user/      profile · sessions · passkeys (if enabled)
+/user/      profile · sessions · devices · passkeys (if enabled)
 /admin/     ops console (admin / admin12345 demo)
 ```
 
@@ -121,7 +134,8 @@ cd examples/compose-mesh && docker compose up --build
 | `kafka` | Event for **your** notification-service |
 | `sms` | HTTP webhook to **your** SMS adapter |
 
-Lifecycle events: `AAAX_EVENTS_KAFKA_ENABLED=true` → topic `aaax.identity.events`.
+Lifecycle events: `AAAX_EVENTS_KAFKA_ENABLED=true` → topic `aaax.identity.events`.  
+Signed webhook: `AAAX_EVENTS_WEBHOOK_URL` + `AAAX_EVENTS_WEBHOOK_SECRET` → `X-AAAX-Signature: sha256=…`
 
 ---
 
@@ -131,7 +145,7 @@ Lifecycle events: `AAAX_EVENTS_KAFKA_ENABLED=true` → topic `aaax.identity.even
 export SPRING_PROFILES_ACTIVE=social
 export GOOGLE_CLIENT_ID=...
 export GOOGLE_CLIENT_SECRET=...
-# optional GitHub — see docs/booklet.md#16-otp--sms--saml--social
+# optional GitHub — see docs/booklet.md
 ```
 
 ---
@@ -142,7 +156,8 @@ export GOOGLE_CLIENT_SECRET=...
 |--|--|
 | User | `demo` / `demo1234` |
 | Admin | `admin` / `admin12345` |
-| OAuth client | `aaax-demo` / `aaax-demo-secret` |
+| Confidential client | `aaax-demo` / `aaax-demo-secret` |
+| Public SPA | `aaax-spa` (PKCE, no secret) |
 
 Prod: `SPRING_PROFILES_ACTIVE=prod` or `AAAX_DEMO_SEED_*=false`.
 
