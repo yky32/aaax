@@ -1,8 +1,12 @@
-package com.aaax.entity.po;
+package com.aaax.entity.model;
 
 import java.time.Instant;
 
-/** In-flight QR login session (desktop pending phone approval). */
+/**
+ * Non-persistent domain model (not JPA).
+ * In-flight QR login session — desktop pending phone approval.
+ * Lives under {@code entity/model}, not {@code entity/po}.
+ */
 public final class QrLoginSession {
 
     public enum Status {

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import com.aaax.entity.po.QrLoginSession;
+import com.aaax.entity.model.QrLoginSession;
 
 /** In-memory QR login sessions (single-node default). */
 @Component

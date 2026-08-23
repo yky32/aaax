@@ -272,26 +272,31 @@ SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list �
 | 2 | `/v1/api/**` | JWT · scopes |
 | 3 | default | session · public auth · admin needs `ROLE_ADMIN` |
 
-### Layering (qs/uaa + ledger layout)
+### Layering (layer-first · qs/uaa neat)
 
 ```text
-endpoint/<domain>/*Endpoint   HTTP only
+endpoint/<domain>/*Endpoint   HTTP only — no business logic
   ↓
 usecase/<domain>/*UseCase     one user intent
   ↓
-repository/*
-entity/po                     extends AuditEntity / AuditEntityWithIsActive
+repository/*  ·  spi/*        persistence / ports
+entity/po                     JPA only (@Entity + AuditEntity*)
+entity/model                  non-JPA domain (e.g. QR session)
 entity/dto/request|response   *RequestDto · Get*|…*ResponseDto
-spi/*                         ports
-core/*                        AuditEntity · BizException · Ids
-events/*
-config/*                      + JpaAuditingConfig
-exception/*
+core/                         AuditEntity · BaseResponseDto · BizException · Ids
+events/ · config/ · exception/ · service/ (UDS|crypto|seeds only)
 ```
 
-**PO rules (uaa):** bare `@Entity` / `@Column` (no `name=`) · trust naming strategy · `@Version` + `createDt`/`updateDt`/`createdBy`/`updatedBy` via `AuditEntity`.
+| Rule | |
+|------|--|
+| **Layer-first** | Not feature-first packs (`auth/` containing Endpoint+Entity+Repo) |
+| **PO** | `@Entity` only · bare `@Column` (no `name=`) · extend `AuditEntity*` |
+| **model/** | Non-persistent types only — never mix into `po/` |
+| **DTO** | One file · `*RequestDto` / `*ResponseDto` · no bags · records OK |
+| **Reusable audit on API** | `core.entity.dto.BaseResponseDto.from(entity)` |
+| **service/** | Spring Security UDS · TotpService · AuditService · seeds — **no new business @Service** |
 
-**DTO rules (uaa):** one type per file · suffix `RequestDto` / `ResponseDto` · no bag classes · records OK.
+**Clone rule:** open `endpoint/X` + matching `usecase/X` + `entity/po` — never invent a parallel tree.
 
 ---
 
@@ -309,13 +314,16 @@ exception/*
 
 ```text
 com.aaax
-├── core/              # AuditEntity · AuditEntityWithIsActive · BizException · Ids
+├── core/              # AuditEntity* · BaseResponseDto · BizException · Ids
 ├── config/            # + JpaAuditingConfig
-├── endpoint/          # auth · account · admin · device · passkey · session · otp · meta · compat
-├── usecase/
+├── endpoint/<domain>/
+├── usecase/<domain>/
 ├── repository/
-├── entity/po · dto/request · dto/response · dto/event
-├── service/           # UDS · TotpService · AuditService · seeds only
+├── entity/
+│   ├── po/            # JPA only
+│   ├── model/         # non-JPA domain
+│   └── dto/request|response|event
+├── service/           # UDS · Totp · AuditService · seeds
 ├── spi/
 ├── events/
 └── exception/

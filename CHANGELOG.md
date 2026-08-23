@@ -4,6 +4,12 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.7.0-SNAPSHOT] — unreleased
 
+### Structure — neat (OSS bar)
+- **Layer-first** locked in booklet §7
+- `entity/po` = JPA only · `entity/model` = non-JPA (QR session moved out of po)
+- `core.entity.dto.BaseResponseDto` reusable audit on API responses
+- `GetAccountResponseDto` carries full audit via BaseResponseDto
+
 ### Structure — qs/uaa align (stop-feature)
 - **AuditEntity** + **AuditEntityWithIsActive** (`@Version`, `createDt`/`updateDt`/`createdBy`/`updatedBy`) + `JpaAuditingConfig`
 - Bare `@Entity`/`@Column` (no `name=`) — trust Hibernate naming

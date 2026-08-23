@@ -1,7 +1,7 @@
 package com.aaax.spi.auth;
 
 import java.util.Optional;
-import com.aaax.entity.po.QrLoginSession;
+import com.aaax.entity.model.QrLoginSession;
 
 /** Pluggable QR login sessions. Default memory; Redis when {@code aaax.qr.store=redis}. */
 public interface QrLoginSessionStore {

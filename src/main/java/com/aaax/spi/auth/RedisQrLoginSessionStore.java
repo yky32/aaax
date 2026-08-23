@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
-import com.aaax.entity.po.QrLoginSession;
+import com.aaax.entity.model.QrLoginSession;
 
 /**
  * Redis-backed QR sessions for multi-node. Keys: {@code aaax:qr:s:{id}}, {@code aaax:qr:c:{code}}.

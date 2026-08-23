@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.aaax.usecase.account.AccountQueries;
-import com.aaax.entity.po.QrLoginSession;
+import com.aaax.entity.model.QrLoginSession;
 import com.aaax.spi.auth.QrLoginSessionStore;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
