@@ -304,7 +304,7 @@ events/ · config/ · exception/ · service/ (UDS|crypto|seeds only)
 
 | Step | Open | Why |
 |-----:|------|-----|
-| 1 | `AaaxApplication.java` | Boot |
+| 1 | ``App.java`` | Boot |
 | 2 | `config/SecurityConfig.java` | 3 filter chains |
 | 3 | `usecase/auth/PasswordLoginUseCase.java` | Login |
 | 4 | `usecase/auth/FinishAuthenticatedSession.java` | All logins end here |

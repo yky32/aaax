@@ -31,7 +31,7 @@ import com.aaax.service.TotpService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AaaxApplicationTests {
+class AppTests {
 
     @Autowired
     MockMvc mockMvc;
