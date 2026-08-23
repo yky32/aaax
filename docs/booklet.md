@@ -6,7 +6,7 @@
 |--|--|
 | **This file** | **Single source of truth** for product + eng |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | **`v0.7.0`** (Boot 4.1 / JDK 21) · tag `v0.6.0` |
+| **Version** | tag **`v0.7.0`** · main **`0.8.0-SNAPSHOT`** |
 | **Stack** | JDK **21** · Spring Boot **4.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-08-21 |

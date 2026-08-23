@@ -29,7 +29,7 @@ services:
     volumes:
       - ../../target:/app/target:ro
       - ../../data:/app/data
-    command: ["java", "-jar", "/app/target/aaax-server-0.7.0.jar"]
+    command: ["java", "-jar", "/app/target/aaax-server-0.8.0-SNAPSHOT.jar"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aaax
       SPRING_DATASOURCE_USERNAME: aaax

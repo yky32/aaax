@@ -53,7 +53,7 @@ public class MetaEndpoint {
                 "signUp", "/sign-up/",
                 "user", "/user/",
                 "admin", "/admin/"));
-        body.put("version", "0.7.0");
+        body.put("version", "0.8.0-SNAPSHOT");
         body.put("issuer", issuer);
         body.put("features", Map.of(
                 "passkeys", passkeysEnabled ? "webauthn4j" : "disabled",
