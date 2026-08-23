@@ -1,5 +1,4 @@
-# AAAX — single application.yml (qs/uaa style).
-# Deploy overrides via env / Argo Helm values — no profile YAML fragments.
+# AAAX — one file. Override with env / Helm. (qs/uaa style)
 
 spring:
   application:
@@ -11,7 +10,6 @@ spring:
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
   jpa:
     hibernate:
-      # local default update; Helm prod → validate / none
       ddl-auto: ${JPA_DDL_AUTO:update}
     open-in-view: false
     defer-datasource-initialization: true
@@ -21,30 +19,18 @@ spring:
           time_zone: UTC
   sql:
     init:
-      # local default always; Helm prod → never
       mode: ${SQL_INIT_MODE:always}
       continue-on-error: true
-  h2:
-    console:
-      enabled: false
   data:
     redis:
-      host: ${REDIS_HOST:${SPRING_DATA_REDIS_HOST:localhost}}
-      port: ${REDIS_PORT:${SPRING_DATA_REDIS_PORT:6379}}
-      password: ${REDIS_PASSWORD:${SPRING_DATA_REDIS_PASSWORD:}}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
   mail:
     host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: ${MAIL_SMTP_AUTH:true}
-          starttls:
-            enable: ${MAIL_SMTP_STARTTLS:true}
-  # Social OIDC — empty client-id = disabled (no profile file).
-  # Redirects: {issuer}/login/oauth2/code/google|github
   security:
     oauth2:
       client:
@@ -82,13 +68,10 @@ aaax:
   qr:
     ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}
     store: ${AAAX_QR_STORE:memory}
-  orgs:
-    model: single
   otp:
     store: ${AAAX_OTP_STORE:memory}
     ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
     length: ${AAAX_OTP_LENGTH:6}
-    # console | mail | kafka | sms
     channel: ${AAAX_OTP_CHANNEL:console}
     mail:
       from: ${AAAX_OTP_MAIL_FROM:noreply@aaax.local}
@@ -105,21 +88,15 @@ aaax:
     sp-entity-id: ${AAAX_SAML_SP_ENTITY_ID:}
     idp-metadata-uri: ${AAAX_SAML_IDP_METADATA_URI:}
   demo:
-    # local true; Helm prod → false
     seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
     seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
   events:
     kafka:
       enabled: ${AAAX_EVENTS_KAFKA_ENABLED:false}
-      bootstrap-servers: ${AAAX_EVENTS_KAFKA_BOOTSTRAP:${aaax.otp.kafka.bootstrap-servers:localhost:9092}}
+      bootstrap-servers: ${AAAX_EVENTS_KAFKA_BOOTSTRAP:${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
       topic: ${AAAX_EVENTS_KAFKA_TOPIC:aaax.identity.events}
     webhook-url: ${AAAX_EVENTS_WEBHOOK_URL:}
     webhook-auth: ${AAAX_EVENTS_WEBHOOK_AUTH:}
     webhook-secret: ${AAAX_EVENTS_WEBHOOK_SECRET:}
     webhook-max-attempts: ${AAAX_EVENTS_WEBHOOK_MAX_ATTEMPTS:3}
     webhook-backoff-ms: ${AAAX_EVENTS_WEBHOOK_BACKOFF_MS:200}
-
-management:
-  endpoint:
-    health:
-      show-details: never
