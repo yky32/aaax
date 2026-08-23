@@ -5,6 +5,7 @@ All notable changes to **AAAX** are documented here.
 ## [0.8.0-SNAPSHOT] — unreleased
 
 ### Config
+- Strip verbose management/logging yml (Boot default health only)
 - **Single `application.yml` only** (removed `application-prod|social|google.yml`)
 - Social + prod knobs via **env / Helm** (qs/uaa style)
 

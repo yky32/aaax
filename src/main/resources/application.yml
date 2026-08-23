@@ -120,19 +120,6 @@ aaax:
     webhook-backoff-ms: ${AAAX_EVENTS_WEBHOOK_BACKOFF_MS:200}
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
   endpoint:
     health:
-      show-details: when_authorized
-  health:
-    redis:
-      enabled: false
-    mail:
-      enabled: false
-
-logging:
-  level:
-    org.springframework.security: INFO
+      show-details: never
