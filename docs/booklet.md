@@ -44,6 +44,7 @@
 24. [Clerk / qs-uaa parity (honest)](#24-clerk--qs-uaa-parity-honest)
 25. [Dev workflow](#25-dev-workflow)
 26. [Glossary](#26-glossary)
+27. [MCP Auth index](#27-mcp-auth-index)
 
 ---
 
@@ -729,4 +730,14 @@ Not a SaaS clone — parity of **surfaces**, not billing.
 
 ---
 
-*End of booklet. Prefer editing this file over adding new top-level docs.*
+## 27. MCP Auth index
+
+**Discovery / SEO page for MCP OAuth & OIDC:**
+
+→ **[docs/mcp-auth-index.md](./mcp-auth-index.md)** · site: https://aaax-www.vercel.app/mcp-auth
+
+MCP remote servers act as **OAuth Resource Servers**. AAAX is a lean **Authorization Server** you self-host (Spring Boot). Wire PRM `authorization_servers` to AAAX issuer; validate JWTs via AAAX JWKS. Full MCP gateway / RFC 9728 host is **not** in-tree yet — index lists upstream specs and the AS pattern.
+
+---
+
+*End of booklet. Prefer editing this file over adding new top-level docs (MCP index is an intentional discovery exception).*

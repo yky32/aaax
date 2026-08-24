@@ -42,11 +42,24 @@ sequenceDiagram
 | | |
 |--|--|
 | **Site** | **https://aaax-www.vercel.app/** · [yky32/aaax-www](https://github.com/yky32/aaax-www) |
+| **MCP Auth** | **[MCP Auth Index](./docs/mcp-auth-index.md)** — OIDC AS for MCP resource servers · [web](https://aaax-www.vercel.app/mcp-auth) |
 | **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) |
 | **Layout** | **Layer-first** — `endpoint/` · `usecase/` · `entity/po|dto|model` · `repository/` · `spi/` ([§7](./docs/booklet.md#7-architecture)) |
 | **Examples** | [**Mesh**](./examples/compose-mesh/) · [**SPA PKCE**](./examples/spa-pkce/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
 | **Version** | **`v0.7.0`** (Boot 4.1 / JDK 21) |
 | **Maven** | Central + Shibboleth OpenSAML (public) — no private packages |
+
+---
+
+## MCP Auth (agents / Cursor / remote tools)
+
+MCP servers are **OAuth Resource Servers**. Clients need an **Authorization Server**.
+
+AAAX is a self-host **OIDC AS** (Spring Boot) you can point MCP PRM at:
+
+→ **[MCP Auth Index](./docs/mcp-auth-index.md)** · https://aaax-www.vercel.app/mcp-auth
+
+Honest scope: AS + JWKS + PKCE today; full MCP gateway / RFC 9728 host = later.
 
 ---
 

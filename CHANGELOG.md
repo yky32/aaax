@@ -4,11 +4,13 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.8.0-SNAPSHOT] — unreleased
 
+### Docs / discovery
+- **MCP Auth Index** — `docs/mcp-auth-index.md` + booklet §27 (OIDC AS pattern for MCP resource servers)
+
 ### Config
 - Strip verbose management/logging yml (Boot default health only)
 - **Single `application.yml` only** (removed `application-prod|social|google.yml`)
 - Social + prod knobs via **env / Helm** (qs/uaa style)
-
 
 Development follows **v0.7.0**.
 
