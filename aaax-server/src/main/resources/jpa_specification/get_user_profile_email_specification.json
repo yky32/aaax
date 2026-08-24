@@ -1,0 +1,8 @@
+[
+  {
+    "field": "context",
+    "jsonPath": "email",
+    "ratio": 0.8,
+    "column": "JSONB"
+  }
+]

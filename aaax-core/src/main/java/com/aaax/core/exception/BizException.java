@@ -1,0 +1,39 @@
+package com.aaax.core.exception;
+
+import com.aaax.core.response.Response;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.Map;
+import java.util.Objects;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class BizException extends RuntimeException {
+    private Response response;
+    private Object data;
+
+    public BizException(Response response) {
+        super(response.getMessage());
+        this.response = response;
+    }
+
+    public BizException(Response response, String message) {
+        this.response = response;
+        this.data = Map.of("detail", message);
+    }
+
+    public <T, U> BizException(Response response, Map<T, U> map) {
+        this.response = response;
+        this.data = map;
+    }
+
+    public <T> BizException(Response response, T data) {
+        this.response = response;
+        if (data instanceof String) {
+            this.data = Map.of("detail", data);
+        } else this.data = Objects.requireNonNullElseGet(data, Map::of);
+    }
+}

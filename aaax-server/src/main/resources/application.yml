@@ -1,0 +1,168 @@
+pod:
+  ip: ${POD_IP:10.0.0.1}
+
+server:
+  port: ${SERVER_PORT:8081}
+  max-http-header-size: 10MB
+  servlet:
+    context-path: ${CONTEXT_PATH:/}
+
+otp:
+  fail-counter: 3
+
+config:
+  credentials-history-size: ${CONFIG_CREDENTIALS_HISTORY_SIZE:0}
+  user-created-waiting-time-ms: ${USER_CREATED_WAITING_TIME_MS:1}
+  system-invoker: ${SYSTEM_INVOKER:TGT}
+  device-binding:
+    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+  microservice:
+    timezone: ${MICROSERVICE_TIME_ZONE:Asia/Tokyo} # UTC
+
+spring:
+  application:
+    name: ${APPLICATION_NAME:AAAX}
+  servlet:
+    multipart:
+      # UAA only needs small payloads (avatars/config). 5GB defaults caused heap pressure / OOM.
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:20MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:25MB}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/aaax}
+    username: ${DB_USERNAME:aaax}
+    password: ${DB_PASSWORD:}
+    hikari:
+      # Keep pool modest under small pod memory limits.
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update} #be-careful: create=always re-create, update=upsert, none=no action
+    show-sql: ${JPA_SHOW_SQL:false}
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.yaml
+    enabled: ${LIQUIBASE_ENABLED:true}
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8080}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${SERVER_TOKEN_EXPIRY_TIME:31556926} # seconds 31556926
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/oauth2/jwks}
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+  # kafka config
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
+    consumer:
+      # Bound poll batch size to reduce peak heap when lag builds up.
+      max-poll-records: ${KAFKA_MAX_POLL_RECORDS:50}
+      properties:
+        allow.auto.create.topics: true # important
+        # Fail fast if broker is unreachable instead of long hangs during GC/OOM thrash.
+        request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT_MS:30000}
+        session.timeout.ms: ${KAFKA_SESSION_TIMEOUT_MS:45000}
+    consumers:
+      user-with-user-route-creation-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_ROUTE_CREATION:true}
+      log-listener:
+        isEnabled: ${KAFKA_CONSUMERS_LOG:true}
+      user-alias-generated-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_ALIAS_GENERATED:true}
+      user-created-notification-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_CREATED_NOTIFICATION:true}
+      user-permission-mutation-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_PERMISSION_MUTATION:true}
+      user-state-change-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATE_CHANGE:true}
+      user-status-change-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATUS_CHANGE:true}
+  # redis配置
+  data:
+    redis:
+      host: ${REDIS_URL:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10000
+      ssl:
+        enabled: ${REDIS_SSL:false}
+#  # LOCAL Redis
+#  data:
+#    redis:
+#      host: ${REDIS_URL:localhost} #upstash_pg
+#      port: ${REDIS_PORT:6379}
+#      password: ${REDIS_PASSWORD:}
+#      timeout: 10000
+#      ssl:
+#        enabled: ${REDIS_SSL:false}
+
+notification-template:
+  usecase:
+    reset-password:
+      email: 123
+    register-user:
+      email: 123
+    otp-register:
+      email: ${EMAIL_TEMPLATE:} # ebs sendgrid template id
+  rentease:
+    usecase:
+      otp-register:
+        email: ${RENTEASE_EMAIL_TEMPLATE:}
+oauth-provider:
+  google:
+    web-app:
+      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+    ios:
+      client-id: ${IOS_GOOGLE_CLIENT_ID:}
+    android:
+      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+  apple:
+    ios:
+      client-id: ${IOS_APPLE_CLIENT_ID:gg.tgt.app2}
+    web:
+      client-id: ${WEB_APPLE_CLIENT_ID:}
+ext:
+  api:
+    client:
+      uaa-svc:
+        url: ${UAA_SVC_URL:http://localhost:8080/} #
+        client-id: ${UAA_SVC_CLIENT_ID:server}
+        client-secret: ${UAA_SVC_CLIENT_SECRET:secret}
+      elk:
+        webhookId: ${ELK_WEBHOOK_ID:}
+        webhookToken: ${ELK_WEBHOOK_TOKEN:}
+      discord:
+        webhookId: ${DISCORD_WEBHOOK_ID:1162093338242064384}
+        webhookToken: ${DISCORD_WEBHOOK_TOKEN:tUHmxbm88KZ_k0iuJ_CnWXltHMpe6j7tAvx78x6NoHQMEkVSj-8hqa85-7NWOoRgQ69i}
+      onboarding-svc:
+        url: ${ONBOARDING_SVC_URL:http://localhost:9002}
+      tenant-svc:
+        url: ${TENANT_SVC_URL:http://localhost:9001}
+      idv-svc:
+        url: ${IDV_SVC_URL:http://localhost:9005/} #
+      profile-svc:
+        url: ${PROFILE_SVC_URL:http://localhost:9002}
+      util-svc:
+        url: ${UTIL_SVC_URL:https://api.tgt.gg/util/} #
+
+
+webhook:
+  uaa:
+    domain: ${UAA_WEBHOOK:https://api-dev-ebs.altech.hk/uaa/}

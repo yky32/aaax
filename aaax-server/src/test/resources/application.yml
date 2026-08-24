@@ -1,0 +1,115 @@
+pod:
+  ip: ${POD_IP:10.0.0.1}
+
+spring:
+  application:
+    name: ${APPLICATION_NAME:UAA-SERVICE-DEFAULT}
+  datasource:
+    initialization-mode: always
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:13.2:///?TC_INITSCRIPT=ddl.sql
+    password: ${DB_PASSWORD:}
+    username: ${DB_USERNAME:aaax}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.yaml
+    enabled: false
+  sql:
+    init:
+      mode: always
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8080}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926} # seconds 31556926
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${jwkSetUri:http://localhost:8081/oauth2/jwks}
+  # kafka config
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:winning-frog-5518-us1-kafka.upstash.io:9092} #upstash_pms
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:d2lubmluZy1mcm9nLTU1MTgk-gUvAxPwfguzuemO4fyHdruodcbW_FxBYy2flGw}" password="${KAFKA_PASSWORD:YWQ5NzVkYWYtOGYwYi00MWQ0LWI3YmQtMGNhYTBkNGU3MmI0}";
+  data:
+    redis:
+      host: ${REDIS_URL:localhost} #upstash_pg
+      port: ${REDIS_PORT:33849}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10000
+
+otp:
+  fail-counter: 3
+
+config:
+  credentials-history-size: 0
+  system-invoker: ${SYSTEM_INVOKER:QS}
+  device-binding:
+    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+
+notification-template:
+  usecase:
+    reset-password:
+      email: 123
+    register-user:
+      email: 123
+    otp-register:
+      email: ${EMAIL_TEMPLATE:} # ebs sendgrid template id
+  rentease:
+    usecase:
+      otp-register:
+        email: ${RENTEASE_EMAIL_TEMPLATE:}
+oauth-provider:
+  google:
+    web-app:
+      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+    ios:
+      client-id: ${IOS_GOOGLE_CLIENT_ID:}
+    android:
+      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+  apple:
+    ios:
+      client-id: ${IOS_APPLE_CLIENT_ID:gg.tgt.app2}
+    web:
+      client-id: ${WEB_APPLE_CLIENT_ID:}
+
+ext:
+  api:
+    client:
+      uaa-svc:
+        url: ${UAA_SVC_URL:http://localhost:8080/} #
+        client-id: ${UAA_SVC_CLIENT_ID:server}
+        client-secret: ${UAA_SVC_CLIENT_SECRET:secret}
+      elk:
+        webhookId: ${ELK_WEBHOOK_ID:}
+        webhookToken: ${ELK_WEBHOOK_TOKEN:}
+      discord:
+        webhookId: ${DISCORD_WEBHOOK_ID:1162093338242064384}
+        webhookToken: ${DISCORD_WEBHOOK_TOKEN:tUHmxbm88KZ_k0iuJ_CnWXltHMpe6j7tAvx78x6NoHQMEkVSj-8hqa85-7NWOoRgQ69i}
+      onboarding-svc:
+        url: ${ONBOARDING_SVC_URL:http://localhost:9005}
+      tenant-svc:
+        url: ${TENANT_SVC_URL:http://localhost:9001}
+      profile-svc:
+        url: ${PROFILE_SVC_URL:http://localhost:9002}
+      idv-svc:
+        url: ${IDV_SVC_URL:http://localhost:9005/} #
+      util-svc:
+        url: ${UTIL_SVC_URL:http://localhost:9009}
+      mega-system:
+        url: ${MEGA_SYSTEM_HOST:https://app-external-api-sbs-mega-dev-001.azurewebsites.net}
+
+webhook:
+  uaa:
+    domain: ${UAA_WEBHOOK:https://api-dev-ebs.altech.hk/uaa/}

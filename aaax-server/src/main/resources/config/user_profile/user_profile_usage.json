@@ -1,0 +1,12 @@
+{
+  "app": {
+    "lastIp": "NA",
+    "lastLoginDt": null,
+    "loginsCount": 0
+  },
+  "web": {
+    "lastIp": "NA",
+    "lastLoginDt": null,
+    "loginsCount": 0
+  }
+}
