@@ -41,6 +41,7 @@ sequenceDiagram
 
 | | |
 |--|--|
+| **Site** | **https://aaax-www.vercel.app/** · [yky32/aaax-www](https://github.com/yky32/aaax-www) |
 | **Docs** | **[Booklet](./docs/booklet.md)** (single SoT) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) |
 | **Layout** | **Layer-first** — `endpoint/` · `usecase/` · `entity/po|dto|model` · `repository/` · `spi/` ([§7](./docs/booklet.md#7-architecture)) |
 | **Examples** | [**Mesh**](./examples/compose-mesh/) · [**SPA PKCE**](./examples/spa-pkce/) · [examples/](./examples/) · [Resource server](./examples/resource-server-boot4/) |
