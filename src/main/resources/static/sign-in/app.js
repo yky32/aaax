@@ -55,9 +55,17 @@ async function loadSocial() {
   if (!list.length) return;
   $("#social").classList.remove("hidden");
   $("#socialDiv").classList.remove("hidden");
+  const ret = encodeURIComponent("/user/");
   $("#social").innerHTML = list
-    .map((p) => `<a class="btn-social" href="${p.authorizationUrl}">Continue with ${p.label}</a>`)
+    .map(
+      (p) =>
+        `<a class="btn-social" href="${p.authorizationUrl}?aaax_return=${ret}">Continue with ${p.label}</a>`
+    )
     .join("");
+  const params = new URLSearchParams(location.search);
+  if (params.get("error")) {
+    msg(params.get("error").replace(/\+/g, " "));
+  }
 }
 
 async function startQr() {

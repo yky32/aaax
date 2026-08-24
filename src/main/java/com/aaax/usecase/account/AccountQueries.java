@@ -2,10 +2,10 @@ package com.aaax.usecase.account;
 
 import java.util.List;
 
+import com.aaax.entity.dto.response.GetAccountResponseDto;
 import com.aaax.entity.po.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.dto.response.GetAccountResponseDto;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,31 +15,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountQueries {
 
     private final AccountRepository accountRepository;
+    private final FederateAccountUseCase federateAccountUseCase;
 
-    public AccountQueries(AccountRepository accountRepository) {
+    public AccountQueries(AccountRepository accountRepository, FederateAccountUseCase federateAccountUseCase) {
         this.accountRepository = accountRepository;
+        this.federateAccountUseCase = federateAccountUseCase;
     }
 
     @Transactional(readOnly = true)
     public GetAccountResponseDto requireByUsername(String username) {
-        return GetAccountResponseDto.from(requireEntityByUsername(username));
+        return toDto(requireEntityByUsername(username));
     }
 
     @Transactional(readOnly = true)
     public Account requireEntityByUsername(String username) {
-        return accountRepository.findByUsernameIgnoreCase(username)
+        return accountRepository
+                .findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 
     @Transactional(readOnly = true)
     public List<GetAccountResponseDto> listAll() {
-        return accountRepository.findAllByOrderByCreateDtDesc().stream().map(GetAccountResponseDto::from).toList();
+        return accountRepository.findAllByOrderByCreateDtDesc().stream().map(this::toDto).toList();
     }
 
     @Transactional(readOnly = true)
     public GetAccountResponseDto getById(String id) {
-        return accountRepository.findById(id)
-                .map(GetAccountResponseDto::from)
+        return accountRepository
+                .findById(id)
+                .map(this::toDto)
                 .orElseThrow(() -> AccountException.notFound("account not found"));
     }
 
@@ -54,5 +58,9 @@ public class AccountQueries {
 
     public long countAdmins() {
         return accountRepository.countByRolesContainingIgnoreCase("ADMIN");
+    }
+
+    private GetAccountResponseDto toDto(Account account) {
+        return GetAccountResponseDto.from(account, federateAccountUseCase.linkedProvidersList(account));
     }
 }

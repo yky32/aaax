@@ -49,6 +49,8 @@ public record IdentityEvent(
         public static final String AUTH_QR_CREATED = "com.aaax.auth.qr.created";
         public static final String AUTH_QR_APPROVED = "com.aaax.auth.qr.approved";
         public static final String ACCOUNT_FEDERATED = "com.aaax.account.federated";
+        public static final String ACCOUNT_SOCIAL_LINKED = "com.aaax.account.social.linked";
+        public static final String ACCOUNT_SOCIAL_UNLINKED = "com.aaax.account.social.unlinked";
         public static final String MFA_TOTP_ENABLED = "com.aaax.mfa.totp.enabled";
         public static final String MFA_TOTP_DISABLED = "com.aaax.mfa.totp.disabled";
         public static final String PASSWORD_CHANGED = "com.aaax.account.password.changed";

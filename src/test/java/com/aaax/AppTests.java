@@ -311,7 +311,9 @@ class AppTests {
         mockMvc.perform(get("/v1/auth/social/providers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.enabled").value(false))
-                .andExpect(jsonPath("$.providers").isArray());
+                .andExpect(jsonPath("$.providers").isArray())
+                .andExpect(jsonPath("$.supportedCatalog").isArray())
+                .andExpect(jsonPath("$.supportedCatalog.length()").value(7));
     }
 
     @Test

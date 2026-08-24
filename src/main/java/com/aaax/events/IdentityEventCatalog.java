@@ -33,6 +33,8 @@ public final class IdentityEventCatalog {
                 IdentityEvent.Types.AUTH_QR_CREATED,
                 IdentityEvent.Types.AUTH_QR_APPROVED,
                 IdentityEvent.Types.ACCOUNT_FEDERATED,
+                IdentityEvent.Types.ACCOUNT_SOCIAL_LINKED,
+                IdentityEvent.Types.ACCOUNT_SOCIAL_UNLINKED,
                 IdentityEvent.Types.MFA_TOTP_ENABLED,
                 IdentityEvent.Types.MFA_TOTP_DISABLED,
                 IdentityEvent.Types.PASSWORD_CHANGED,

@@ -21,9 +21,12 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -35,6 +38,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -92,6 +96,9 @@ public class SecurityConfig {
             HttpSecurity http,
             org.springframework.core.env.Environment env,
             @Qualifier("socialLoginSuccessHandler") AuthenticationSuccessHandler socialLoginSuccessHandler,
+            @Qualifier("socialLoginFailureHandler") AuthenticationFailureHandler socialLoginFailureHandler,
+            AaaxOAuth2AuthorizationRequestResolver aaaxOAuth2AuthorizationRequestResolver,
+            OAuth2UserService<OAuth2UserRequest, OAuth2User> aaaxOAuth2UserService,
             @Autowired(required = false) @Qualifier("samlLoginSuccessHandler")
                     AuthenticationSuccessHandler samlLoginSuccessHandler)
             throws Exception {
@@ -148,8 +155,12 @@ public class SecurityConfig {
 
         if (SocialLoginConfig.anySocialEnabled(env)) {
             http.oauth2Login(oauth -> oauth
-                    .loginPage("/admin/")
-                    .successHandler(socialLoginSuccessHandler));
+                    .loginPage("/sign-in/")
+                    .authorizationEndpoint(ae -> ae.authorizationRequestResolver(
+                            aaaxOAuth2AuthorizationRequestResolver))
+                    .userInfoEndpoint(ui -> ui.userService(aaaxOAuth2UserService))
+                    .successHandler(socialLoginSuccessHandler)
+                    .failureHandler(socialLoginFailureHandler));
         }
         if ("true".equalsIgnoreCase(env.getProperty("aaax.saml.enabled", "false"))) {
             if (samlLoginSuccessHandler != null) {

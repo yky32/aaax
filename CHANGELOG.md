@@ -4,6 +4,14 @@ All notable changes to **AAAX** are documented here.
 
 ## [0.8.0-SNAPSHOT] — unreleased
 
+### Social login (deepen)
+- **Catalog (7):** Google · GitHub · **Apple** · **Discord** · **GitLab** · **LINE** · **Slack** (env client-id empty = off)
+- **`AccountSocialLink`** table + generic federate/link/unlink
+- `GET /v1/auth/social/providers` (enabled + `supportedCatalog`)
+- `GET|DELETE /v1/accounts/me/social[/{provider}]` · `aaax_link=1` · `aaax_return=`
+- GitHub private email via `/user/emails` · success/failure → `/sign-in/`
+- Events: `account.social.linked` / `unlinked` (additive catalog)
+
 ### Docs / discovery
 - **MCP Auth Index** — `docs/mcp-auth-index.md` + booklet §27 (OIDC AS pattern for MCP resource servers)
 

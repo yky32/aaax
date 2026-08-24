@@ -409,8 +409,8 @@ async function loadSettings() {
     ["OTP channel", s.otpChannel],
     ["Orgs model", s.orgsModel || "single"],
     ["Demo seeds", `client=${s.demoSeedClient} · account=${s.demoSeedAccount}`],
-    ["Google OIDC", s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID + profile social|google"],
-    ["GitHub OAuth", s.githubLoginEnabled ? "configured" : "set GITHUB_CLIENT_ID + profile social"],
+    ["Google OIDC", s.googleLoginEnabled ? "configured" : "set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET"],
+         ["GitHub OAuth", s.githubLoginEnabled ? "configured" : "set GITHUB_CLIENT_ID + GITHUB_CLIENT_SECRET"],
     ["SAML SP", s.samlEnabled ? `on · ${s.samlLoginPath || ""}` : "AAAX_SAML_ENABLED + IdP metadata"],
     ["Version", s.version],
   ];

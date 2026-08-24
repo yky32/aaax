@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.aaax.config.SocialProviders;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.entity.po.AuditEvent;
 import com.aaax.service.AuditService;
@@ -32,6 +33,7 @@ public class AdminSettingsEndpoint {
     private final AuditService auditService;
     private final BufferIdentityEventSink eventBuffer;
     private final Environment environment;
+    private final SocialProviders socialProviders;
     private final ObjectProvider<KafkaTemplate<String, String>> kafkaTemplate;
     private final String issuer;
     private final String otpChannel;
@@ -50,6 +52,7 @@ public class AdminSettingsEndpoint {
             AuditService auditService,
             BufferIdentityEventSink eventBuffer,
             Environment environment,
+            SocialProviders socialProviders,
             ObjectProvider<KafkaTemplate<String, String>> kafkaTemplate,
             @Value("${aaax.issuer:http://localhost:8081}") String issuer,
             @Value("${aaax.otp.channel:console}") String otpChannel,
@@ -66,6 +69,7 @@ public class AdminSettingsEndpoint {
         this.auditService = auditService;
         this.eventBuffer = eventBuffer;
         this.environment = environment;
+        this.socialProviders = socialProviders;
         this.kafkaTemplate = kafkaTemplate;
         this.issuer = issuer;
         this.otpChannel = otpChannel;
@@ -97,15 +101,10 @@ public class AdminSettingsEndpoint {
         m.put(
                 "githubLoginEnabled",
                 hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
+        m.put("socialProviders", socialProviders.toPublicBody());
         m.put(
                 "socialLoginPath",
-                Map.of(
-                        "google",
-                        "/oauth2/authorization/google",
-                        "github",
-                        "/oauth2/authorization/github",
-                        "providersApi",
-                        "/v1/auth/social/providers"));
+                Map.of("providersApi", "/v1/auth/social/providers"));
         m.put("samlEnabled", samlEnabled);
         m.put("samlLoginPath", samlEnabled ? "/saml2/authenticate/idp" : null);
         m.put(
@@ -205,10 +204,9 @@ public class AdminSettingsEndpoint {
         f.put(
                 "githubOAuth",
                 hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
-        f.put(
-                "socialLogin",
-                hasText(environment.getProperty("spring.security.oauth2.client.registration.google.client-id"))
-                        || hasText(environment.getProperty("spring.security.oauth2.client.registration.github.client-id")));
+        f.put("socialLogin", socialProviders.anyEnabled());
+        f.put("socialCatalog", SocialProviders.CATALOG.stream().map(SocialProviders.ProviderDef::id).toList());
+        f.put("socialEnabledCount", socialProviders.listEnabled().size());
         f.put("samlSp", samlEnabled);
         f.put("passkeys", environment.getProperty("aaax.passkeys.enabled", "false"));
         f.put(

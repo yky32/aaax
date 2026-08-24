@@ -1,6 +1,7 @@
 package com.aaax.entity.dto.response;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 import com.aaax.core.entity.dto.BaseResponseDto;
@@ -8,7 +9,6 @@ import com.aaax.entity.po.Account;
 
 /**
  * Account public shape (qs/uaa: Get*ResponseDto).
- * Audit fields via reusable {@link BaseResponseDto}.
  */
 public record GetAccountResponseDto(
         String id,
@@ -19,14 +19,24 @@ public record GetAccountResponseDto(
         boolean mfaEnabled,
         boolean googleLinked,
         boolean githubLinked,
+        List<String> linkedProviders,
         Instant createDt,
         Instant updateDt,
         String createdBy,
         String updatedBy,
-        Boolean isActive
-) {
+        Boolean isActive) {
+
     public static GetAccountResponseDto from(Account account) {
+        return from(account, List.of());
+    }
+
+    public static GetAccountResponseDto from(Account account, List<String> linkedProviders) {
         BaseResponseDto audit = BaseResponseDto.from(account);
+        List<String> linked = linkedProviders == null ? List.of() : List.copyOf(linkedProviders);
+        boolean google = linked.contains("google")
+                || (account.getGoogleSub() != null && !account.getGoogleSub().isBlank());
+        boolean github = linked.contains("github")
+                || (account.getGithubId() != null && !account.getGithubId().isBlank());
         return new GetAccountResponseDto(
                 account.getId(),
                 account.getUsername(),
@@ -34,8 +44,9 @@ public record GetAccountResponseDto(
                 account.roleSet(),
                 account.isEnabled(),
                 account.isTotpEnabled(),
-                account.getGoogleSub() != null && !account.getGoogleSub().isBlank(),
-                account.getGithubId() != null && !account.getGithubId().isBlank(),
+                google,
+                github,
+                linked,
                 audit != null ? audit.createDt() : null,
                 audit != null ? audit.updateDt() : null,
                 audit != null ? audit.createdBy() : null,

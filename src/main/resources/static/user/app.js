@@ -41,6 +41,7 @@ async function boot() {
   ]
     .map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`)
     .join("");
+  await loadSocial();
   await loadSessions();
   await loadDevices();
 
@@ -56,6 +57,52 @@ async function boot() {
     if (pkSection) pkSection.hidden = false;
     await loadPasskeys();
   }
+}
+
+async function loadSocial() {
+  const box = $("#social");
+  if (!box) return;
+  const r = await api("/v1/accounts/me/social");
+  if (!r.ok) {
+    box.innerHTML = `<div class="small">Social status unavailable</div>`;
+    return;
+  }
+  const j = await r.json();
+  const providers = j.providers || [];
+  if (!j.enabled || !providers.length) {
+    box.innerHTML = `<div class="small">No social providers configured (set GOOGLE_* / GITHUB_* env).</div>`;
+    return;
+  }
+  box.innerHTML = providers
+    .map((p) => {
+      const linkedSet = new Set(j.linkedProviders || []);
+      const linked = linkedSet.has(p.id) || (p.id === "google" && j.googleLinked) || (p.id === "github" && j.githubLinked);
+      if (linked) {
+        return `<div class="row">
+          <div><strong>${p.label}</strong><div class="small">linked</div></div>
+          <button type="button" class="btn ghost" style="width:auto;padding:.35rem .6rem" data-unlink="${p.id}">Unlink</button>
+        </div>`;
+      }
+      const linkHref = p.linkAuthorizationUrl
+        ? p.linkAuthorizationUrl + "&aaax_return=/user/"
+        : p.authorizationUrl + "?aaax_link=1&aaax_return=/user/";
+      return `<div class="row">
+          <div><strong>${p.label}</strong><div class="small">not linked</div></div>
+          <a class="btn ghost" style="width:auto;padding:.35rem .6rem;text-decoration:none" href="${linkHref}">Link</a>
+        </div>`;
+    })
+    .join("");
+  document.querySelectorAll("[data-unlink]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      msg("");
+      const ur = await api("/v1/accounts/me/social/" + b.dataset.unlink, { method: "DELETE" });
+      if (!ur.ok) {
+        const err = await ur.json().catch(() => ({}));
+        return msg(err.message || err.detail || "Could not unlink");
+      }
+      await boot();
+    })
+  );
 }
 
 async function loadDevices() {

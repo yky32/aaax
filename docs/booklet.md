@@ -224,11 +224,11 @@ SAS alone    ──►  best raw Spring Security building block
 
 ### In (supported)
 
-Accounts · password · OTP · magic link · OIDC · TOTP · sessions · Event Bus · admin · hosted UX · SAML SP · Google/GitHub · SMS kafka/webhook · Redis OTP store · resource-server example · passkeys (opt-in) · **QR login** · **trusted devices** · `com.aaax.core`
+Accounts · password · OTP · magic link · OIDC · TOTP · sessions · Event Bus · admin · hosted UX · SAML SP · **social** (Google · GitHub · Apple · Discord · GitLab · LINE · Slack) · SMS kafka/webhook · Redis OTP store · resource-server example · passkeys (opt-in) · **QR login** · **trusted devices** · `com.aaax.core`
 
 ### Out / later
 
-SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list · Apple/Microsoft social
+SAML IdP · multi-tenant orgs · React SDK · LDAP · strict device allow-list · Microsoft social
 
 ### Status table (0.7.0)
 
@@ -562,7 +562,32 @@ OpenSAML from **Shibboleth public** (`.mvn/settings.xml`). AAAX as SAML **IdP** 
 
 ### Social
 
-Profile `social` + `GOOGLE_*` / `GITHUB_*` env.
+Empty client-id = provider **off**. No Spring profile. Redirect:
+
+`{AAAX_ISSUER}/login/oauth2/code/{google|github|apple|discord|gitlab|line|slack}`
+
+| Provider | Env |
+|----------|-----|
+| Google | `GOOGLE_CLIENT_ID` · `GOOGLE_CLIENT_SECRET` |
+| GitHub | `GITHUB_CLIENT_ID` · `GITHUB_CLIENT_SECRET` |
+| Apple | `APPLE_CLIENT_ID` · `APPLE_CLIENT_SECRET` (JWT ES256 you mint) |
+| Discord | `DISCORD_CLIENT_ID` · `DISCORD_CLIENT_SECRET` |
+| GitLab | `GITLAB_CLIENT_ID` · `GITLAB_CLIENT_SECRET` |
+| LINE | `LINE_CHANNEL_ID` · `LINE_CHANNEL_SECRET` |
+| Slack | `SLACK_CLIENT_ID` · `SLACK_CLIENT_SECRET` |
+
+**APIs**
+
+| | |
+|--|--|
+| `GET /v1/auth/social/providers` | public list of enabled + full catalog |
+| `GET /v1/accounts/me/social` | linked status (session) |
+| `DELETE /v1/accounts/me/social/{provider}` | unlink |
+| Link while signed in | `/oauth2/authorization/{id}?aaax_link=1&aaax_return=/user/` |
+| Return path after login | `?aaax_return=/user/` |
+
+Storage: `AccountSocialLink` (provider + externalId). Google/GitHub also mirror legacy `googleSub` / `githubId` columns.  
+Email match auto-links on first social login. Events: `com.aaax.account.federated` · `…social.linked` · `…social.unlinked`.
 
 ---
 
@@ -670,7 +695,7 @@ curl -sS -b /tmp/aaax.cj http://localhost:8081/v1/accounts/me
 | Multi-tenant orgs | |
 | SAML IdP | |
 | Official React/Next SDK | |
-| Apple / Microsoft social | |
+| Apple shipped · Microsoft social | next if needed |
 | QR/OTP multi-node always-on story polish | |
 
 ### Non-goals near term
