@@ -1,50 +1,65 @@
 package com.aaax.core.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import java.util.Map;
+import java.util.Objects;
+
+import com.aaax.core.response.Response;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * Business / domain error with stable HTTP status (AAAX core — not Quinsic BizException dump).
- * Prefer this over ad-hoc {@link ResponseStatusException} in use cases.
+ * Copied from qs app-core {@code com.quinsic.core.exception.BizException}.
+ *
+ * <pre>
+ * throw new BizException(SystemResponse.PAM0400, "detail…");
+ * throw new BizException(AccountErrorResponse.ACC0001);
+ * </pre>
  */
-public class BizException extends ResponseStatusException {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class BizException extends RuntimeException {
 
-    private final String code;
+    private Response response;
+    private Object data;
 
-    public BizException(HttpStatus status, String code, String reason) {
-        super(status, reason);
-        this.code = code == null || code.isBlank() ? status.name() : code;
+    public BizException(Response response) {
+        super(response != null ? response.getMessage() : null);
+        this.response = response;
     }
 
-    public BizException(HttpStatus status, String reason) {
-        this(status, null, reason);
+    public BizException(Response response, String message) {
+        super(message);
+        this.response = response;
+        this.data = Map.of("detail", message);
     }
 
-    public String getCode() {
-        return code;
+    public <T, U> BizException(Response response, Map<T, U> map) {
+        super(response != null ? response.getMessage() : null);
+        this.response = response;
+        this.data = map;
     }
 
-    public static BizException badRequest(String reason) {
-        return new BizException(HttpStatus.BAD_REQUEST, "bad_request", reason);
+    public <T> BizException(Response response, T data) {
+        super(response != null ? response.getMessage() : null);
+        this.response = response;
+        if (data instanceof String s) {
+            this.data = Map.of("detail", s);
+        } else {
+            this.data = Objects.requireNonNullElseGet(data, Map::of);
+        }
     }
 
-    public static BizException badRequest(String code, String reason) {
-        return new BizException(HttpStatus.BAD_REQUEST, code, reason);
+    public Response getResponse() {
+        return response;
     }
 
-    public static BizException notFound(String reason) {
-        return new BizException(HttpStatus.NOT_FOUND, "not_found", reason);
+    public void setResponse(Response response) {
+        this.response = response;
     }
 
-    public static BizException conflict(String reason) {
-        return new BizException(HttpStatus.CONFLICT, "conflict", reason);
+    public Object getData() {
+        return data;
     }
 
-    public static BizException unauthorized(String reason) {
-        return new BizException(HttpStatus.UNAUTHORIZED, "unauthorized", reason);
-    }
-
-    public static BizException forbidden(String reason) {
-        return new BizException(HttpStatus.FORBIDDEN, "forbidden", reason);
+    public void setData(Object data) {
+        this.data = data;
     }
 }

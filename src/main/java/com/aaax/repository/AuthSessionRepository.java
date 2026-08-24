@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.aaax.entity.po.AuthSession;
+import com.aaax.entity.po.session.AuthSession;
 
 public interface AuthSessionRepository extends JpaRepository<AuthSession, String> {
     List<AuthSession> findByAccountIdAndRevokedAtIsNullOrderByLastSeenAtDesc(String accountId);

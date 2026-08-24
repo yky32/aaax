@@ -3,7 +3,7 @@ package com.aaax.usecase.auth;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.usecase.account.PasswordUseCase;
 import com.aaax.usecase.device.TrustedDeviceUseCase;
 

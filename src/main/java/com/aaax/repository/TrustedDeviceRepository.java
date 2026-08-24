@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.aaax.entity.po.TrustedDevice;
+import com.aaax.entity.po.device.TrustedDevice;
 
 public interface TrustedDeviceRepository extends JpaRepository<TrustedDevice, String> {
 

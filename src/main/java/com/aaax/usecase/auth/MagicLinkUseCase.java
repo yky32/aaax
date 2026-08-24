@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
 import com.aaax.usecase.account.AccountQueries;
@@ -22,7 +22,8 @@ import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
 
 /** Magic link request + consume (token store pluggable: memory | redis). */
 @Component
@@ -61,7 +62,7 @@ public class MagicLinkUseCase {
         String usernameOrEmail = cmd.identifier().trim();
         Account account = accountRepository.findByUsernameIgnoreCase(usernameOrEmail)
                 .or(() -> accountRepository.findByEmailIgnoreCase(usernameOrEmail))
-                .orElseThrow(() -> new AccountException(HttpStatus.NOT_FOUND, "account not found"));
+                .orElseThrow(() -> AccountException.notFound("account not found"));
         String token = newToken();
         tokenStore.put(token, account.getUsername(), Instant.now().plusSeconds(ttlSeconds));
         String link = issuer + "/sign-in/#magic=" + token;
@@ -82,7 +83,7 @@ public class MagicLinkUseCase {
     public Map<String, Object> consume(
             ConsumeCommand cmd, HttpServletRequest request, HttpServletResponse response) {
         String username = tokenStore.consume(cmd.token())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid or expired magic link"));
+                .orElseThrow(() -> new BizException(SystemResponse.PAM0400, "invalid or expired magic link"));
         return finish.execute(queries.requireEntityByUsername(username), "magic_link", request, response, true);
     }
 

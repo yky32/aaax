@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.aaax.config.SocialProviders;
 import com.aaax.usecase.account.AccountQueries;
-import com.aaax.entity.po.AuditEvent;
+import com.aaax.entity.po.log.AuditEvent;
 import com.aaax.service.AuditService;
 import com.aaax.usecase.client.ClientAdminUseCase;
 import com.aaax.events.BufferIdentityEventSink;

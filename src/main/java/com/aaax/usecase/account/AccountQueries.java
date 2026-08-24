@@ -3,7 +3,7 @@ package com.aaax.usecase.account;
 import java.util.List;
 
 import com.aaax.entity.dto.response.GetAccountResponseDto;
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
 

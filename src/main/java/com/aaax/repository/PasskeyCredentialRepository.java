@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.aaax.entity.po.PasskeyCredential;
+import com.aaax.entity.po.passkey.PasskeyCredential;
 
 public interface PasskeyCredentialRepository extends JpaRepository<PasskeyCredential, String> {
     List<PasskeyCredential> findByAccountIdOrderByCreateDtDesc(String accountId);

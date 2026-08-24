@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.aaax.entity.po.AuditEvent;
+import com.aaax.entity.po.log.AuditEvent;
 
 public interface AuditEventRepository extends JpaRepository<AuditEvent, String> {
     List<AuditEvent> findAllByOrderByCreateDtDesc(Pageable pageable);

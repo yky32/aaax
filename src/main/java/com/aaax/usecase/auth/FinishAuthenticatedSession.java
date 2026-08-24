@@ -3,12 +3,12 @@ package com.aaax.usecase.auth;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.entity.dto.response.GetAccountResponseDto;
 import com.aaax.service.AccountUserDetailsService;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
-import com.aaax.entity.po.AuthSession;
+import com.aaax.entity.po.session.AuthSession;
 import com.aaax.usecase.session.AuthSessionUseCase;
 
 import jakarta.servlet.http.HttpServletRequest;

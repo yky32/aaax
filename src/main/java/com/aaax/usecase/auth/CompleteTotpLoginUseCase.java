@@ -2,7 +2,7 @@ package com.aaax.usecase.auth;
 
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.entity.dto.request.TotpCodeRequestDto;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.TotpMfaUseCase;
@@ -16,7 +16,8 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
 
 @Component
 public class CompleteTotpLoginUseCase {
@@ -44,14 +45,14 @@ public class CompleteTotpLoginUseCase {
             TotpCodeRequestDto body, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute(PasswordLoginUseCase.MFA_PENDING_USER) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no pending mfa login");
+            throw new BizException(SystemResponse.PAM0400, "no pending mfa login");
         }
         String username = session.getAttribute(PasswordLoginUseCase.MFA_PENDING_USER).toString();
         boolean remember = Boolean.TRUE.equals(session.getAttribute(PasswordLoginUseCase.MFA_REMEMBER_DEVICE))
                 || Boolean.TRUE.equals(body.rememberDevice());
         String label = body.deviceLabel();
         if (!totpMfaUseCase.verify(username, body.code())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid totpMfaUseCase code");
+            throw new BizException(SystemResponse.PAM0400, "invalid totp code");
         }
         session.removeAttribute(PasswordLoginUseCase.MFA_PENDING_USER);
         session.removeAttribute(PasswordLoginUseCase.MFA_REMEMBER_DEVICE);

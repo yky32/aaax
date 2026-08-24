@@ -16,7 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
 
 /**
  * QR / device-pairing login: desktop creates session → phone (already signed in) approves → desktop consumes.
@@ -79,16 +80,16 @@ public class QrLoginUseCase {
 
     public Map<String, Object> approve(String sessionId, Principal principal) {
         if (principal == null || principal.getName() == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "sign in on this device first");
+            throw new BizException(SystemResponse.SAU0403, "sign in on this device first");
         }
         QrLoginSession s = require(sessionId);
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
             qrLoginSessionStore.save(s);
-            throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
+            throw new BizException(SystemResponse.PAM0400, "QR session expired");
         }
         if (s.status() == QrLoginSession.Status.CONSUMED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "already consumed");
+            throw new BizException(SystemResponse.PAM0400, "already consumed");
         }
         if (s.status() == QrLoginSession.Status.APPROVED) {
             return Map.of("sessionId", s.id(), "status", "APPROVED", "approvedUsername", s.approvedUsername());
@@ -108,7 +109,7 @@ public class QrLoginUseCase {
     /** Approve by short user code (phone typed code). */
     public Map<String, Object> approveByCode(String userCode, Principal principal) {
         QrLoginSession s = qrLoginSessionStore.getByUserCode(userCode)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown code"));
+                .orElseThrow(() -> new BizException(SystemResponse.PAM0400, "unknown code"));
         return approve(s.id(), principal);
     }
 
@@ -118,10 +119,10 @@ public class QrLoginUseCase {
         if (s.status() == QrLoginSession.Status.EXPIRED || s.isExpired()) {
             s.setStatus(QrLoginSession.Status.EXPIRED);
             qrLoginSessionStore.save(s);
-            throw new ResponseStatusException(HttpStatus.GONE, "QR session expired");
+            throw new BizException(SystemResponse.PAM0400, "QR session expired");
         }
         if (s.status() != QrLoginSession.Status.APPROVED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "not approved yet (status=" + s.status() + ")");
+            throw new BizException(SystemResponse.PAM0400, "not approved yet (status=" + s.status() + ")");
         }
         String username = s.approvedUsername();
         s.setStatus(QrLoginSession.Status.CONSUMED);
@@ -138,6 +139,6 @@ public class QrLoginUseCase {
 
     private QrLoginSession require(String sessionId) {
         return qrLoginSessionStore.get(sessionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown QR session"));
+                .orElseThrow(() -> new BizException(SystemResponse.PAM0400, "unknown QR session"));
     }
 }

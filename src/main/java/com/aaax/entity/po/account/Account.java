@@ -1,4 +1,4 @@
-package com.aaax.entity.po;
+package com.aaax.entity.po.account;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -13,6 +13,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 
+/**
+ * Core account (qs/uaa {@code User} shape — identities live in {@link AccountSocialLink}, not denormalized columns).
+ */
 @Entity
 public class Account extends AuditEntityWithIsActive {
 
@@ -42,20 +45,14 @@ public class Account extends AuditEntityWithIsActive {
     @Column(nullable = false)
     private boolean totpEnabled = false;
 
-    @Column(length = 128, unique = true)
-    private String googleSub;
-
-    @Column(length = 64, unique = true)
-    private String githubId;
-
+    /** SAML SP name-id (enterprise federation — not social OAuth). */
     @Column(length = 256, unique = true)
     private String samlNameId;
 
     @Column(length = 32)
     private String phone;
 
-    protected Account() {
-    }
+    protected Account() {}
 
     public Account(String username, String email, String passwordHash) {
         this(username, email, passwordHash, "USER");
@@ -117,14 +114,6 @@ public class Account extends AuditEntityWithIsActive {
         return totpEnabled;
     }
 
-    public String getGoogleSub() {
-        return googleSub;
-    }
-
-    public String getGithubId() {
-        return githubId;
-    }
-
     public String getSamlNameId() {
         return samlNameId;
     }
@@ -155,14 +144,6 @@ public class Account extends AuditEntityWithIsActive {
 
     public void setTotpEnabled(boolean totpEnabled) {
         this.totpEnabled = totpEnabled;
-    }
-
-    public void setGoogleSub(String googleSub) {
-        this.googleSub = googleSub;
-    }
-
-    public void setGithubId(String githubId) {
-        this.githubId = githubId;
     }
 
     public void setSamlNameId(String samlNameId) {

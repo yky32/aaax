@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.aaax.entity.po.AuthSession;
+import com.aaax.entity.po.session.AuthSession;
 import com.aaax.repository.AuthSessionRepository;
 
 @Component

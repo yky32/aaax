@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.aaax.exception.AccountException;
+import com.aaax.core.exception.BizException;
+import com.aaax.exception.response.ClientErrorResponse;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 
@@ -59,7 +60,7 @@ public class ClientAdminUseCase {
     public ClientResponse get(String clientId) {
         RegisteredClient client = registeredClientRepository.findByClientId(clientId);
         if (client == null) {
-            throw AccountException.notFound("client not found");
+            throw new BizException(ClientErrorResponse.CLT0002, "client not found");
         }
         return ClientResponse.from(client);
     }
@@ -67,7 +68,7 @@ public class ClientAdminUseCase {
     @Transactional
     public ClientCreatedResponse create(@Valid CreateClientRequest request) {
         if (registeredClientRepository.findByClientId(request.clientId()) != null) {
-            throw AccountException.conflict("client_id already exists");
+            throw new BizException(ClientErrorResponse.CLT0409, "client_id already exists");
         }
         String rawSecret = request.clientSecret() != null && !request.clientSecret().isBlank()
                 ? request.clientSecret()
@@ -111,7 +112,7 @@ public class ClientAdminUseCase {
     public void delete(String clientId) {
         RegisteredClient client = registeredClientRepository.findByClientId(clientId);
         if (client == null) {
-            throw AccountException.notFound("client not found");
+            throw new BizException(ClientErrorResponse.CLT0002, "client not found");
         }
         jdbcTemplate.update("DELETE FROM oauth2_authorization_consent WHERE registered_client_id = ?", client.getId());
         jdbcTemplate.update("DELETE FROM oauth2_authorization WHERE registered_client_id = ?", client.getId());

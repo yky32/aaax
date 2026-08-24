@@ -5,9 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.repository.AccountRepository;
-import com.aaax.entity.po.AuthSession;
+import com.aaax.entity.po.session.AuthSession;
 import com.aaax.usecase.session.AuthSessionUseCase;
 
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
+import com.aaax.exception.response.AccountErrorResponse;
 
 @RestController
 @RequestMapping("/v1/sessions")
@@ -56,7 +58,7 @@ public class SessionEndpoint {
 
     private Account require(Principal principal) {
         return accountRepository.findByUsernameIgnoreCase(principal.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new BizException(SystemResponse.SAU0403, "unauthorized"));
     }
 
     private Map<String, Object> toMap(AuthSession s) {

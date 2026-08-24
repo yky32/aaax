@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.aaax.config.SocialProviders;
 import com.aaax.entity.dto.response.GetAccountResponseDto;
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.repository.AccountRepository;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.FederateAccountUseCase;
@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
+import com.aaax.exception.response.AccountErrorResponse;
 
 /**
  * Link / unlink social providers for the signed-in account.
@@ -49,7 +51,7 @@ public class AccountSocialEndpoint {
     public Map<String, Object> status(Principal principal) {
         Account a = accountRepository
                 .findByUsernameIgnoreCase(principal.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BizException(AccountErrorResponse.ACC0001));
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("linkedProviders", federateAccountUseCase.linkedProvidersList(a));
         body.put("googleLinked", federateAccountUseCase.linkedProviders(a).contains("google"));

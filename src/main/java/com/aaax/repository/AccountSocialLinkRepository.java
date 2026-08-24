@@ -3,7 +3,7 @@ package com.aaax.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.aaax.entity.po.AccountSocialLink;
+import com.aaax.entity.po.account.AccountSocialLink;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

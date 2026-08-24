@@ -3,7 +3,7 @@ package com.aaax.service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.aaax.entity.po.AuditEvent;
+import com.aaax.entity.po.log.AuditEvent;
 import com.aaax.repository.AuditEventRepository;
 
 @Service

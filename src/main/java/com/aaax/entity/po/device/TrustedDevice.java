@@ -1,8 +1,8 @@
-package com.aaax.entity.po;
+package com.aaax.entity.po.device;
 
 import java.time.Instant;
 
-import com.aaax.core.entity.AuditEntity;
+import com.aaax.core.entity.AuditEntityWithIsActive;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +13,10 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(indexes = {
-        @Index(name = "idx_session_account", columnList = "accountId"),
-        @Index(name = "idx_session_token", columnList = "sessionToken", unique = true)
+        @Index(name = "idx_device_account", columnList = "accountId"),
+        @Index(name = "idx_device_token", columnList = "tokenHash", unique = true)
 })
-public class AuthSession extends AuditEntity {
+public class TrustedDevice extends AuditEntityWithIsActive {
 
     @Id
     @Column(length = 36)
@@ -25,8 +25,12 @@ public class AuthSession extends AuditEntity {
     @Column(nullable = false, length = 36)
     private String accountId;
 
+    /** SHA-256 hex of the opaque device cookie value. */
     @Column(nullable = false, length = 64, unique = true)
-    private String sessionToken;
+    private String tokenHash;
+
+    @Column(length = 128)
+    private String label;
 
     @Column(length = 512)
     private String userAgent;
@@ -37,18 +41,24 @@ public class AuthSession extends AuditEntity {
     @Column(nullable = false)
     private Instant lastSeenAt;
 
+    @Column(nullable = false)
+    private Instant expiresAt;
+
     @Column
     private Instant revokedAt;
 
     @PrePersist
-    void onCreate() {
+    void preDevice() {
         if (lastSeenAt == null) {
             lastSeenAt = Instant.now();
         }
     }
 
-    public boolean isSessionActive() {
-        return revokedAt == null;
+    /** Cookie still valid (not revoked / not expired). Soft {@code isActive} is separate. */
+    public boolean isValid() {
+        return Boolean.TRUE.equals(getIsActive())
+                && revokedAt == null
+                && Instant.now().isBefore(expiresAt);
     }
 
     public String getId() {
@@ -67,12 +77,20 @@ public class AuthSession extends AuditEntity {
         this.accountId = accountId;
     }
 
-    public String getSessionToken() {
-        return sessionToken;
+    public String getTokenHash() {
+        return tokenHash;
     }
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
+    public void setTokenHash(String tokenHash) {
+        this.tokenHash = tokenHash;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public String getUserAgent() {
@@ -97,6 +115,14 @@ public class AuthSession extends AuditEntity {
 
     public void setLastSeenAt(Instant lastSeenAt) {
         this.lastSeenAt = lastSeenAt;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public Instant getRevokedAt() {

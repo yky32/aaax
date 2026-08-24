@@ -8,7 +8,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.core.id.Ids;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
@@ -22,7 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.aaax.entity.po.TrustedDevice;
+import com.aaax.entity.po.device.TrustedDevice;
 import com.aaax.repository.TrustedDeviceRepository;
 
 /**

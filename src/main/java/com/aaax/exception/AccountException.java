@@ -1,25 +1,25 @@
 package com.aaax.exception;
 
 import com.aaax.core.exception.BizException;
+import com.aaax.exception.response.AccountErrorResponse;
 
-import org.springframework.http.HttpStatus;
+/**
+ * Thin helpers — prefer {@code throw new BizException(AccountErrorResponse.ACC…)} at call sites.
+ * Kept for gradual migration from old static factories.
+ */
+public final class AccountException {
 
-/** Account-domain errors (thin alias over core {@link BizException}). */
-public class AccountException extends BizException {
+    private AccountException() {}
 
-    public AccountException(HttpStatus status, String reason) {
-        super(status, reason);
+    public static BizException notFound(String detail) {
+        return new BizException(AccountErrorResponse.ACC0001, detail);
     }
 
-    public static AccountException conflict(String reason) {
-        return new AccountException(HttpStatus.CONFLICT, reason);
+    public static BizException badRequest(String detail) {
+        return new BizException(AccountErrorResponse.ACC0400, detail);
     }
 
-    public static AccountException badRequest(String reason) {
-        return new AccountException(HttpStatus.BAD_REQUEST, reason);
-    }
-
-    public static AccountException notFound(String reason) {
-        return new AccountException(HttpStatus.NOT_FOUND, reason);
+    public static BizException conflict(String detail) {
+        return new BizException(AccountErrorResponse.ACC0409, detail);
     }
 }

@@ -1,5 +1,6 @@
 package com.aaax.usecase.account;
 
+import com.aaax.exception.response.AccountErrorResponse;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -11,8 +12,9 @@ import java.util.stream.Collectors;
 
 import com.aaax.config.SocialProviders;
 import com.aaax.core.exception.BizException;
-import com.aaax.entity.po.Account;
-import com.aaax.entity.po.AccountSocialLink;
+import com.aaax.exception.response.SocialErrorResponse;
+import com.aaax.entity.po.account.Account;
+import com.aaax.entity.po.account.AccountSocialLink;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
 import com.aaax.repository.AccountRepository;
@@ -23,6 +25,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+/**
+ * Federate / link / unlink social identities — qs/uaa style (identity rows, not columns on Account).
+ */
 @Component
 public class FederateAccountUseCase {
 
@@ -52,13 +57,6 @@ public class FederateAccountUseCase {
             return requireAccountId(byExt.get().getAccountId());
         }
 
-        // Legacy columns (google / github) — bridge until fully migrated
-        Optional<Account> legacy = findLegacy(p, ext);
-        if (legacy.isPresent()) {
-            ensureLinkRow(legacy.get(), p, ext);
-            return legacy.get();
-        }
-
         if (StringUtils.hasText(email)) {
             Optional<Account> byEmail = accountRepository.findByEmailIgnoreCase(email.trim());
             if (byEmail.isPresent()) {
@@ -77,11 +75,7 @@ public class FederateAccountUseCase {
 
         Optional<AccountSocialLink> owner = accountSocialLinkRepository.findByProviderAndExternalId(p, ext);
         if (owner.isPresent() && !owner.get().getAccountId().equals(account.getId())) {
-            throw BizException.conflict("This " + p + " identity is already linked to another user");
-        }
-        Optional<Account> legacy = findLegacy(p, ext);
-        if (legacy.isPresent() && !legacy.get().getId().equals(account.getId())) {
-            throw BizException.conflict("This " + p + " identity is already linked to another user");
+            throw new BizException(SocialErrorResponse.SOC0001, "provider=" + p);
         }
         return attach(account, p, ext);
     }
@@ -91,30 +85,21 @@ public class FederateAccountUseCase {
         String p = requireProvider(provider);
         Account account = requireUser(username);
         Optional<AccountSocialLink> link = accountSocialLinkRepository.findByAccountIdAndProvider(account.getId(), p);
-        boolean hadLegacy = clearLegacy(account, p);
-        if (link.isEmpty() && !hadLegacy) {
-            throw BizException.badRequest(p + "_not_linked", p + " is not linked");
+        if (link.isEmpty()) {
+            throw new BizException(SocialErrorResponse.SOC0002, p + " is not linked");
         }
         ensureCanUnlink(account, p);
-        link.ifPresent(accountSocialLinkRepository::delete);
-        if (hadLegacy) {
-            accountRepository.save(account);
-        }
+        accountSocialLinkRepository.delete(link.get());
         identityEventBus.emit(
-                IdentityEvent.Types.ACCOUNT_SOCIAL_UNLINKED,
-                username,
-                p,
-                Map.of("provider", p));
+                IdentityEvent.Types.ACCOUNT_SOCIAL_UNLINKED, username, p, Map.of("provider", p));
         return account;
     }
 
-    /** @deprecated prefer {@link #linkOrCreate} */
     @Transactional
     public Account linkOrCreateGoogle(String sub, String email, String nameHint) {
         return linkOrCreate("google", sub, email, nameHint);
     }
 
-    /** @deprecated prefer {@link #linkOrCreate} */
     @Transactional
     public Account linkOrCreateGithub(String githubId, String email, String login) {
         return linkOrCreate("github", githubId, email, login);
@@ -168,13 +153,9 @@ public class FederateAccountUseCase {
     public Set<String> linkedProviders(Account account) {
         Set<String> set = new LinkedHashSet<>();
         for (AccountSocialLink l : accountSocialLinkRepository.findByAccountIdOrderByCreateDtAsc(account.getId())) {
-            set.add(l.getProvider());
-        }
-        if (StringUtils.hasText(account.getGoogleSub())) {
-            set.add("google");
-        }
-        if (StringUtils.hasText(account.getGithubId())) {
-            set.add("github");
+            if (Boolean.TRUE.equals(l.getIsActive()) || l.getIsActive() == null) {
+                set.add(l.getProvider());
+            }
         }
         return set;
     }
@@ -188,14 +169,11 @@ public class FederateAccountUseCase {
                 accountSocialLinkRepository.findByAccountIdAndProvider(account.getId(), provider);
         if (existing.isPresent()) {
             if (!existing.get().getExternalId().equals(externalId)) {
-                throw BizException.conflict("Account already linked to a different " + provider + " identity");
+                throw new BizException(SocialErrorResponse.SOC0006, "provider=" + provider);
             }
-            syncLegacy(account, provider, externalId);
             return account;
         }
         accountSocialLinkRepository.save(new AccountSocialLink(account.getId(), provider, externalId));
-        syncLegacy(account, provider, externalId);
-        accountRepository.save(account);
         identityEventBus.emit(
                 IdentityEvent.Types.ACCOUNT_SOCIAL_LINKED,
                 account.getUsername(),
@@ -204,57 +182,16 @@ public class FederateAccountUseCase {
         return account;
     }
 
-    private void ensureLinkRow(Account account, String provider, String externalId) {
-        if (accountSocialLinkRepository.findByAccountIdAndProvider(account.getId(), provider).isEmpty()) {
-            accountSocialLinkRepository.save(new AccountSocialLink(account.getId(), provider, externalId));
-        }
-    }
-
-    private void syncLegacy(Account account, String provider, String externalId) {
-        if ("google".equals(provider)) {
-            account.setGoogleSub(externalId);
-        } else if ("github".equals(provider)) {
-            account.setGithubId(externalId);
-        }
-    }
-
-    private boolean clearLegacy(Account account, String provider) {
-        if ("google".equals(provider) && StringUtils.hasText(account.getGoogleSub())) {
-            account.setGoogleSub(null);
-            return true;
-        }
-        if ("github".equals(provider) && StringUtils.hasText(account.getGithubId())) {
-            account.setGithubId(null);
-            return true;
-        }
-        return false;
-    }
-
-    private Optional<Account> findLegacy(String provider, String externalId) {
-        if ("google".equals(provider)) {
-            return accountRepository.findByGoogleSub(externalId);
-        }
-        if ("github".equals(provider)) {
-            return accountRepository.findByGithubId(externalId);
-        }
-        return Optional.empty();
-    }
-
     private void ensureCanUnlink(Account account, String unlinkingProvider) {
         Set<String> linked = linkedProviders(account);
         linked.remove(unlinkingProvider);
-        // After unlink, need at least email (password reset) or another social
         if (linked.isEmpty() && !StringUtils.hasText(account.getEmail())) {
-            throw BizException.badRequest(
-                    "cannot_unlink_last",
-                    "Link another method or set an email before unlinking the last social login");
+            throw new BizException(SocialErrorResponse.SOC0005, "Link another method or set an email before unlinking the last social login");
         }
     }
 
     private Account createFederated(String email, String nameHint, String provider, String externalId) {
-        Account created = newBlank(email, nameHint);
-        syncLegacy(created, provider, externalId);
-        Account saved = accountRepository.save(created);
+        Account saved = accountRepository.save(newBlank(email, nameHint));
         accountSocialLinkRepository.save(new AccountSocialLink(saved.getId(), provider, externalId));
         identityEventBus.emit(
                 IdentityEvent.Types.ACCOUNT_FEDERATED,
@@ -285,24 +222,24 @@ public class FederateAccountUseCase {
     private Account requireUser(String username) {
         return accountRepository
                 .findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> BizException.notFound("Account not found"));
+                .orElseThrow(() -> new BizException(AccountErrorResponse.ACC0001, "account not found"));
     }
 
     private Account requireAccountId(String id) {
-        return accountRepository.findById(id).orElseThrow(() -> BizException.notFound("Account not found"));
+        return accountRepository.findById(id).orElseThrow(() -> new BizException(AccountErrorResponse.ACC0001, "account not found"));
     }
 
     private static String requireProvider(String provider) {
         String p = SocialProviders.normalize(provider);
         if (!SocialProviders.KNOWN_IDS.contains(p) && !"saml".equals(p)) {
-            throw BizException.badRequest("unknown_provider", "Unknown social provider: " + provider);
+            throw new BizException(SocialErrorResponse.SOC0003, "Unknown social provider: " + provider);
         }
         return p;
     }
 
     private static String requireExternal(String externalId) {
         if (!StringUtils.hasText(externalId)) {
-            throw BizException.badRequest("external_id_required", "Provider subject / id is required");
+            throw new BizException(SocialErrorResponse.SOC0004, "Provider subject / id is required");
         }
         return externalId.trim();
     }

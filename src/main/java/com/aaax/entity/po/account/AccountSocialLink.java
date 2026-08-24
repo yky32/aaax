@@ -1,6 +1,6 @@
-package com.aaax.entity.po;
+package com.aaax.entity.po.account;
 
-import com.aaax.core.entity.AuditEntity;
+import com.aaax.core.entity.AuditEntityWithIsActive;
 import com.aaax.core.id.Ids;
 
 import jakarta.persistence.Column;
@@ -11,16 +11,17 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 /**
- * One linked social identity per (account, provider).
- * External id unique per provider (cannot attach same Google to two accounts).
+ * Linked external login identity (qs/uaa {@code Authentication} role — 1 account : n providers).
+ *
+ * <p>Not denormalized onto {@link Account} (no {@code googleSub}/{@code githubId} columns).
  */
 @Entity
 @Table(
         uniqueConstraints = {
-            @UniqueConstraint(name = "uk_social_provider_ext", columnNames = {"provider", "external_id"}),
-            @UniqueConstraint(name = "uk_social_account_provider", columnNames = {"account_id", "provider"})
+            @UniqueConstraint(name = "uk_social_provider_ext", columnNames = {"provider", "externalId"}),
+            @UniqueConstraint(name = "uk_social_account_provider", columnNames = {"accountId", "provider"})
         })
-public class AccountSocialLink extends AuditEntity {
+public class AccountSocialLink extends AuditEntityWithIsActive {
 
     @Id
     @Column(length = 36, nullable = false, updatable = false)

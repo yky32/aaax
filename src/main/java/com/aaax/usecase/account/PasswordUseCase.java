@@ -2,7 +2,7 @@ package com.aaax.usecase.account;
 
 import java.util.Locale;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.exception.AccountException;
 import com.aaax.repository.AccountRepository;
 import com.aaax.events.IdentityEvent;

@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
+import com.aaax.core.exception.BizException;
 import com.aaax.exception.AccountException;
+import com.aaax.exception.response.OtpErrorResponse;
 import com.aaax.repository.AccountRepository;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
@@ -76,12 +78,12 @@ public class OtpOpsUseCase {
     @Transactional(readOnly = true)
     public Account verifyForLogin(String username, String code) {
         if (code == null || code.isBlank()) {
-            throw AccountException.badRequest("code required");
+            throw new BizException(OtpErrorResponse.OTP0400, "code required");
         }
         Account account = requireAccount(username);
         OtpCodeStore.Entry entry = otpCodeStore.get(account.getUsername());
         if (entry == null || !entry.code().equals(code.trim())) {
-            throw AccountException.badRequest("invalid or expired otp");
+            throw new BizException(OtpErrorResponse.OTP0002, "invalid or expired otp");
         }
         otpCodeStore.remove(account.getUsername());
         if (!account.isEnabled()) {

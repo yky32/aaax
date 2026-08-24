@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.events.IdentityEvent;
 import com.aaax.usecase.account.FederateAccountUseCase;
 import com.aaax.usecase.auth.FinishAuthenticatedSession;

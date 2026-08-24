@@ -1,4 +1,4 @@
-package com.aaax.entity.po;
+package com.aaax.entity.po.passkey;
 
 import com.aaax.core.entity.AuditEntityWithIsActive;
 

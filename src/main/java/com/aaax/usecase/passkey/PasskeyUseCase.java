@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.repository.AccountRepository;
 import com.aaax.events.IdentityEvent;
 import com.aaax.events.IdentityEventBus;
@@ -35,7 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.aaax.entity.po.PasskeyCredential;
+import com.aaax.entity.po.passkey.PasskeyCredential;
 import com.aaax.repository.PasskeyCredentialRepository;
 
 /**

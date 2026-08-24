@@ -1,4 +1,4 @@
-package com.aaax.entity.po;
+package com.aaax.entity.po.log;
 
 import java.util.UUID;
 

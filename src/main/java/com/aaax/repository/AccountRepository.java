@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 
 public interface AccountRepository extends JpaRepository<Account, String> {
 
@@ -15,10 +15,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     Optional<Account> findByUsernameIgnoreCase(String username);
 
     Optional<Account> findByEmailIgnoreCase(String email);
-
-    Optional<Account> findByGoogleSub(String googleSub);
-
-    Optional<Account> findByGithubId(String githubId);
 
     Optional<Account> findBySamlNameId(String samlNameId);
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.aaax.core.entity.dto.BaseResponseDto;
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 
 /**
  * Account public shape (qs/uaa: Get*ResponseDto).
@@ -33,10 +33,6 @@ public record GetAccountResponseDto(
     public static GetAccountResponseDto from(Account account, List<String> linkedProviders) {
         BaseResponseDto audit = BaseResponseDto.from(account);
         List<String> linked = linkedProviders == null ? List.of() : List.copyOf(linkedProviders);
-        boolean google = linked.contains("google")
-                || (account.getGoogleSub() != null && !account.getGoogleSub().isBlank());
-        boolean github = linked.contains("github")
-                || (account.getGithubId() != null && !account.getGithubId().isBlank());
         return new GetAccountResponseDto(
                 account.getId(),
                 account.getUsername(),
@@ -44,8 +40,8 @@ public record GetAccountResponseDto(
                 account.roleSet(),
                 account.isEnabled(),
                 account.isTotpEnabled(),
-                google,
-                github,
+                linked.contains("google"),
+                linked.contains("github"),
                 linked,
                 audit != null ? audit.createDt() : null,
                 audit != null ? audit.updateDt() : null,

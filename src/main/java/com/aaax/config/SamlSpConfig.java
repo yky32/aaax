@@ -2,7 +2,7 @@ package com.aaax.config;
 
 import java.util.Map;
 
-import com.aaax.entity.po.Account;
+import com.aaax.entity.po.account.Account;
 import com.aaax.service.AccountUserDetailsService;
 import com.aaax.usecase.account.AccountQueries;
 import com.aaax.usecase.account.FederateAccountUseCase;
