@@ -2,37 +2,32 @@
 
 **Accounts · Authentication · Authorization · eXperiences**
 
-Open-source identity server — **1:1 port of qs/uaa** + **in-project `aaax-core`** (from qs `app-core`).
+Open-source identity server — **qs/uaa + app-core in one project**.
+
+```text
+src/main/java/com/aaax/
+├── core/          ← qs app-core (BizException, R/Result, AuditEntity, …)
+├── entity/        ← uaa POs / DTOs
+├── endpoint/
+├── usecase/
+├── repository/
+├── config/
+└── App.java
+```
 
 | | |
 |--|--|
 | **Site** | https://aaax-www.vercel.app/ |
-| **Layout** | Multi-module Maven |
-| **Modules** | `aaax-core` (`com.aaax.core`) · `aaax-server` (`com.aaax.*`) |
-| **Base** | Spring Boot **3.1.0** · Java **17+** (build with JDK 21 recommended) |
-| **Source of truth (upstream)** | qs `uaa` + `app-core` trees |
-
-```text
-aaax/
-├── pom.xml                 # parent
-├── aaax-core/              # qs app-core → com.aaax.core (no private Maven)
-└── aaax-server/            # qs uaa → com.aaax.*
-```
-
-### Build
+| **Layout** | **Single** Maven module (no aaax-core / aaax-server split) |
+| **Packages** | `com.aaax.*` · `com.aaax.core.*` |
+| **Base** | Spring Boot **3.1.0** · Java **17+** |
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 21 2>/dev/null || echo /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home)
-mvn -pl aaax-server -am package -Dmaven.test.skip=true
-java -jar aaax-server/target/aaax-server-0.9.0-SNAPSHOT.jar
+export JAVA_HOME=…/openjdk@21
+mvn -DskipTests package
+java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ```
 
-Default port: **8081** (same as uaa).
-
-### Product web
-
-Separate repo: [yky32/aaax-www](https://github.com/yky32/aaax-www) · https://aaax-www.vercel.app/
-
-### License
+Default port **8081**. Config via env (no secrets in yml defaults).
 
 Apache-2.0
