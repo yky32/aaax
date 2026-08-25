@@ -33,8 +33,6 @@ import com.aaax.server.exception.response.OtpErrorResponse;
 import com.aaax.server.exception.response.SystemConfigurationErrorResponse;
 import com.aaax.server.exception.response.UaaErrorResponse;
 import com.aaax.server.exception.response.UseRegistrationErrorResponse;
-import com.aaax.server.ext.api.client.onboarding.OnboardingApiClient;
-import com.aaax.server.ext.api.client.profile.ProfileApiClient;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;

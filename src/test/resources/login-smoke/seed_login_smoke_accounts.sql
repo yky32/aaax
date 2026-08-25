@@ -1,7 +1,7 @@
 -- Fixed smoke accounts for UAA login quality gate (Testcontainers / local / staging).
 -- Passwords (BCrypt):
---   uaa.smoke.primary@tgt.gg   -> SmokePrimary!1
---   uaa.smoke.secondary@tgt.gg -> SmokeSecondary!2
+--   uaa.smoke.primary@aaax.local   -> SmokePrimary!1
+--   uaa.smoke.secondary@aaax.local -> SmokeSecondary!2
 -- Idempotent: safe to re-run.
 
 CREATE TABLE IF NOT EXISTS users (
@@ -38,7 +38,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_auth_user_login_identifier
 
 -- Primary
 INSERT INTO users (id, username, status, is_active, created_by, created_date)
-VALUES (9100000000000000001, 'uaa.smoke.primary@tgt.gg', 'ACTIVE', true, 'login-smoke', NOW())
+VALUES (9100000000000000001, 'uaa.smoke.primary@aaax.local', 'ACTIVE', true, 'login-smoke', NOW())
 ON CONFLICT (id) DO UPDATE SET
     username = EXCLUDED.username,
     status = 'ACTIVE',
@@ -48,7 +48,7 @@ INSERT INTO authentications (id, user_id, identifier, login_type, credentials, a
 VALUES (
     9100000000000000011,
     9100000000000000001,
-    'uaa.smoke.primary@tgt.gg',
+    'uaa.smoke.primary@aaax.local',
     'EMAIL',
     '$2b$10$Vca0QR/ugbY8aO14H.XzmOOj3crrzIRGB10d2v1m9Mtg0o5YoYJ9m',
     0,
@@ -63,7 +63,7 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- Secondary
 INSERT INTO users (id, username, status, is_active, created_by, created_date)
-VALUES (9100000000000000002, 'uaa.smoke.secondary@tgt.gg', 'ACTIVE', true, 'login-smoke', NOW())
+VALUES (9100000000000000002, 'uaa.smoke.secondary@aaax.local', 'ACTIVE', true, 'login-smoke', NOW())
 ON CONFLICT (id) DO UPDATE SET
     username = EXCLUDED.username,
     status = 'ACTIVE',
@@ -73,7 +73,7 @@ INSERT INTO authentications (id, user_id, identifier, login_type, credentials, a
 VALUES (
     9100000000000000012,
     9100000000000000002,
-    'uaa.smoke.secondary@tgt.gg',
+    'uaa.smoke.secondary@aaax.local',
     'EMAIL',
     '$2b$10$0epEl1wWEPusvHbnI9SU4OSDGxj9z5W0/kv/mtKtH15xYQrj.thha',
     0,

@@ -35,7 +35,7 @@ public class UserAuthenticationUseCase {
     private static final Set<LoginType> PASSWORD_LOGIN_TYPES = EnumSet.of(
             LoginType.EMAIL, LoginType.USERNAME, LoginType.MOBILE
     );
-    /** Email remains the default TGT ACO — not unlinkable from settings. */
+    /** Email remains the default primary ACO — not unlinkable from settings. */
     private static final Set<LoginType> PROTECTED_FROM_UNLINK = EnumSet.of(
             LoginType.EMAIL, LoginType.USERNAME
     );

@@ -224,7 +224,7 @@ public class UserIdentityVerificationUseCase {
                 GetUserMetricsResponseDto userMetric = userMetricsUseCase.execute(userId, sourceSystem);
                 switch (status) {
                     case "VERIFIED" ->
-                            this.triggerNotification(userMetric, "rentease.idv.verified", new HashMap(), sourceSystem);
+                            this.triggerNotification(userMetric, "aaax.idv.verified", new HashMap(), sourceSystem);
                 }
             }
         }

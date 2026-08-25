@@ -1,9 +1,10 @@
+# Test profile — local/testcontainers only. No production secrets.
 pod:
-  ip: ${POD_IP:10.0.0.1}
+  ip: ${POD_IP:127.0.0.1}
 
 spring:
   application:
-    name: ${APPLICATION_NAME:UAA-SERVICE-DEFAULT}
+    name: ${APPLICATION_NAME:AAAX-TEST}
   datasource:
     initialization-mode: always
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -23,52 +24,51 @@ spring:
     init:
       mode: always
   security:
-    issuer: ${AS_ISSUER:http://localhost:8080}
+    issuer: ${AS_ISSUER:http://localhost:8081}
     registered-client:
       secret: ${REGISTERED_CLIENT_SECRET:secret}
     refresh-token:
       history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
     server:
-      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926} # seconds 31556926
+      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926}
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${jwkSetUri:http://localhost:8081/oauth2/jwks}
-  # kafka config
   kafka:
-    bootstrap-servers: ${KAFKA_URL:winning-frog-5518-us1-kafka.upstash.io:9092} #upstash_pms
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
     properties:
-      security.protocol: SASL_SSL
-      sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
-      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:d2lubmluZy1mcm9nLTU1MTgk-gUvAxPwfguzuemO4fyHdruodcbW_FxBYy2flGw}" password="${KAFKA_PASSWORD:YWQ5NzVkYWYtOGYwYi00MWQ0LWI3YmQtMGNhYTBkNGU3MmI0}";
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
   data:
     redis:
-      host: ${REDIS_URL:localhost} #upstash_pg
-      port: ${REDIS_PORT:33849}
+      host: ${REDIS_URL:localhost}
+      port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 10000
+      ssl:
+        enabled: false
 
 otp:
   fail-counter: 3
 
 config:
   credentials-history-size: 0
-  system-invoker: ${SYSTEM_INVOKER:QS}
+  system-invoker: ${SYSTEM_INVOKER:AAAX}
   device-binding:
     mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+  protected-usernames: admin@aaax.local,ios-tester@aaax.local
 
 notification-template:
   usecase:
     reset-password:
-      email: 123
+      email: test-reset
     register-user:
-      email: 123
+      email: test-register
     otp-register:
-      email: ${EMAIL_TEMPLATE:} # ebs sendgrid template id
-  rentease:
-    usecase:
-      otp-register:
-        email: ${RENTEASE_EMAIL_TEMPLATE:}
+      email: test-otp
+
 oauth-provider:
   google:
     web-app:
@@ -80,36 +80,34 @@ oauth-provider:
       client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
   apple:
     ios:
-      client-id: ${IOS_APPLE_CLIENT_ID:gg.tgt.app2}
+      client-id: ${IOS_APPLE_CLIENT_ID:}
     web:
       client-id: ${WEB_APPLE_CLIENT_ID:}
+
+aaax:
+  ext:
+    enabled: false
 
 ext:
   api:
     client:
       uaa-svc:
-        url: ${UAA_SVC_URL:http://localhost:8080/} #
+        url: ${UAA_SVC_URL:http://127.0.0.1:1/}
         client-id: ${UAA_SVC_CLIENT_ID:server}
-        client-secret: ${UAA_SVC_CLIENT_SECRET:secret}
+        client-secret: ${UAA_SVC_CLIENT_SECRET:}
       elk:
         webhookId: ${ELK_WEBHOOK_ID:}
         webhookToken: ${ELK_WEBHOOK_TOKEN:}
       discord:
-        webhookId: ${DISCORD_WEBHOOK_ID:1162093338242064384}
-        webhookToken: ${DISCORD_WEBHOOK_TOKEN:tUHmxbm88KZ_k0iuJ_CnWXltHMpe6j7tAvx78x6NoHQMEkVSj-8hqa85-7NWOoRgQ69i}
-      onboarding-svc:
-        url: ${ONBOARDING_SVC_URL:http://localhost:9005}
+        webhookId: ${DISCORD_WEBHOOK_ID:}
+        webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
       tenant-svc:
-        url: ${TENANT_SVC_URL:http://localhost:9001}
-      profile-svc:
-        url: ${PROFILE_SVC_URL:http://localhost:9002}
+        url: ${TENANT_SVC_URL:http://127.0.0.1:1/}
       idv-svc:
-        url: ${IDV_SVC_URL:http://localhost:9005/} #
+        url: ${IDV_SVC_URL:http://127.0.0.1:1/}
       util-svc:
-        url: ${UTIL_SVC_URL:http://localhost:9009}
-      mega-system:
-        url: ${MEGA_SYSTEM_HOST:https://app-external-api-sbs-mega-dev-001.azurewebsites.net}
+        url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
 
 webhook:
   uaa:
-    domain: ${UAA_WEBHOOK:https://api-dev-ebs.altech.hk/uaa/}
+    domain: ${UAA_WEBHOOK:}

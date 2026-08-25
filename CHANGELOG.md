@@ -4,9 +4,13 @@
 
 ### Structure
 - Single Maven module
-- Packages:
-  - `com.aaax.core` — qs app-core
-  - `com.aaax.server` — qs uaa (entity / endpoint / usecase / …)
-- Main: `com.aaax.server.App` (`scanBasePackages` = core + server)
-- Product name **AAAX** · Boot **3.1.0**
-- Credentials scrubbed from `application.yml` (env-only)
+- `com.aaax.core` — app-core
+- `com.aaax.server` — uaa (main: `com.aaax.server.App`)
+
+### OSS hygiene (A+B)
+- Scrubbed secrets from main + test `application.yml` (Discord/Kafka/DB defaults empty)
+- Neutral brand: `AAAX` invoker, `@aaax.local` accounts, issuer port **8081**
+- Removed Quinsic-only HTTP clients: **GrandPay**, **Onboarding**, **Profile**
+- Kept optional mesh clients: tenant / idv / util / uaa / discord (placeholder base when unset)
+- `JPA_DDL_AUTO` default **validate** (liquibase owns schema)
+- Partner OTP template routing simplified to one env template

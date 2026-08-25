@@ -24,7 +24,7 @@ class NotificationUtilTest {
                 "fcm-token",
                 Locale.zh_TW,
                 Map.of("userId", "u-1", "certification", "CSCS"),
-                "TGT"
+                "AAAX"
         );
 
         assertEquals("certificate.document.approved", dto.getNotificationTemplateName());
@@ -33,7 +33,7 @@ class NotificationUtilTest {
         assertEquals(NotificationFrequency.ONE_OFF, dto.getNotificationFrequency());
         assertEquals(Locale.zh_TW, dto.getUserLocal());
         assertEquals(List.of(Locale.EN, Locale.zh_TW), dto.getLocale());
-        assertEquals("TGT", dto.getSystemInvoker());
+        assertEquals("AAAX", dto.getSystemInvoker());
         assertEquals("u-1", dto.getActionBy());
         assertEquals(1, dto.getRecipients().size());
         assertEquals("fcm-token", dto.getRecipients().get(0).getTo());
@@ -48,7 +48,7 @@ class NotificationUtilTest {
                 Arrays.asList(" ", "85290001111", "85290001111", null),
                 null,
                 Map.of("k", "v"),
-                "TGT"
+                "AAAX"
         );
 
         assertEquals(Locale.EN, dto.getUserLocal());
@@ -65,7 +65,7 @@ class NotificationUtilTest {
                 List.of("t1", "t1", "t2"),
                 Locale.EN,
                 Map.of("userId", "42"),
-                "TGT"
+                "AAAX"
         );
 
         assertEquals(2, dto.getRecipients().size());

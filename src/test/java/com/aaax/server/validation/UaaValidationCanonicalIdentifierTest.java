@@ -12,7 +12,7 @@ class UaaValidationCanonicalIdentifierTest {
     @DisplayName("email is lowercased")
     void email_lower() {
         assertEquals("acekaiyin@gmail.com", UaaValidation.toCanonicalIdentifier("Acekaiyin@gmail.com"));
-        assertEquals("admin@tgt.gg", UaaValidation.toCanonicalIdentifier("ADmin@tgt.gg"));
+        assertEquals("admin@aaax.local", UaaValidation.toCanonicalIdentifier("ADmin@aaax.local"));
         assertEquals(LoginType.EMAIL, UaaValidation.detechLoginType("Acekaiyin@gmail.com"));
     }
 

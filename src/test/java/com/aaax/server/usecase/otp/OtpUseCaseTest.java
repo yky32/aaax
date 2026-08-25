@@ -46,7 +46,7 @@ class OtpUseCaseTest {
     void setUp() {
         ReflectionTestUtils.setField(otpUseCase, "systemInvoker", "uaa");
         ReflectionTestUtils.setField(otpUseCase, "otpRegisterTemplate", "otp.user-register");
-        ReflectionTestUtils.setField(otpUseCase, "renteaseOtpRegisterTemplate", "otp.rentease");
+        ReflectionTestUtils.setField(otpUseCase, "otpRegisterTemplate", "otp.register");
     }
 
     private CreateOtpRequestDto baseDto() {

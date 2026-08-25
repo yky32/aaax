@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Account security: list / link / unlink login methods for the current user (TGT email ACO + social).
+ * Account security: list / link / unlink login methods for the current user (email ACO + social).
  */
 @RestController
 @RequiredArgsConstructor

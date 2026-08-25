@@ -239,7 +239,7 @@ class UserManagementUseCaseTest {
     @Test
     @DisplayName("delete should reject protected accounts")
     void delete_shouldRejectProtected() {
-        User user = buildUser(1L, "admin@tgt.gg");
+        User user = buildUser(1L, "admin@aaax.local");
         when(uaaService.getById("u_1")).thenReturn(user);
         assertThrows(BizException.class, () -> userManagementUseCase.deleteByUserId("u_1", false));
     }

@@ -13,7 +13,7 @@ public enum LoginType {
     FACEBOOK,
     APPLE,
     LINE,
-    GRANDPAY, // GrandPay SSO
+    GRANDPAY, // reserved (legacy SSO id)
     OTP //mobile
     ;
 

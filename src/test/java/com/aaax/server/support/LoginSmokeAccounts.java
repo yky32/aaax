@@ -16,7 +16,7 @@ public final class LoginSmokeAccounts {
      * Primary smoke user — happy-path password grant.
      */
     public static final Account PRIMARY = new Account(
-            "uaa.smoke.primary@tgt.gg",
+            "uaa.smoke.primary@aaax.local",
             "SmokePrimary!1"
     );
 
@@ -24,7 +24,7 @@ public final class LoginSmokeAccounts {
      * Secondary smoke user — second identity + isolation checks.
      */
     public static final Account SECONDARY = new Account(
-            "uaa.smoke.secondary@tgt.gg",
+            "uaa.smoke.secondary@aaax.local",
             "SmokeSecondary!2"
     );
 

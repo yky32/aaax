@@ -65,15 +65,15 @@ class AuthenticationServiceCaseInsensitiveTest {
     @DisplayName("lookup by mixed-case email finds row")
     void findOptional_ignoreCase() {
         Authentication auth = Authentication.builder()
-                .identifier("admin@tgt.gg")
+                .identifier("admin@aaax.local")
                 .loginType(LoginType.EMAIL)
                 .build();
         auth.setIsActive(true);
-        when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(eq("admin@tgt.gg"), eq(LoginType.EMAIL)))
+        when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(eq("admin@aaax.local"), eq(LoginType.EMAIL)))
                 .thenReturn(Optional.of(auth));
 
-        Optional<Authentication> found = authenticationService.findOptionalByDynamicIdentifier("ADmin@tgt.gg");
+        Optional<Authentication> found = authenticationService.findOptionalByDynamicIdentifier("ADmin@aaax.local");
         assertTrue(found.isPresent());
-        assertEquals("admin@tgt.gg", found.get().getIdentifier());
+        assertEquals("admin@aaax.local", found.get().getIdentifier());
     }
 }

@@ -18,8 +18,6 @@ import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.OtpErrorResponse;
 import com.aaax.server.exception.response.UaaErrorResponse;
-import com.aaax.server.ext.api.client.onboarding.OnboardingApiClient;
-import com.aaax.server.ext.api.client.profile.ProfileApiClient;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;
@@ -71,10 +69,6 @@ class RegisterUserUseCaseTest {
     private UserProfileUseCase userProfileUseCase;
     @Mock
     private UserPreferenceUseCase userPreferenceUseCase;
-    @Mock
-    private ProfileApiClient profileApiClient;
-    @Mock
-    private OnboardingApiClient onboardingApiClient;
     @Mock
     private UaaApiClient uaaApiClient;
     @Mock

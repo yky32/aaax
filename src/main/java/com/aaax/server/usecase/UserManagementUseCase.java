@@ -135,7 +135,7 @@ public class UserManagementUseCase {
 
     @Transactional
     public int testingDeleteAll() {
-        List<User> nonAdminUsers = userRepository.findByUsernameNotInIgnoreCase(List.of("admin@tgt.gg", "ios-tester@tgt.gg"));
+        List<User> nonAdminUsers = userRepository.findByUsernameNotInIgnoreCase(List.of("admin@aaax.local", "ios-tester@aaax.local"));
         nonAdminUsers.forEach(this::_doHardDeleteExecution);
         return nonAdminUsers.size();
     }
@@ -271,7 +271,7 @@ public class UserManagementUseCase {
     }
 
     private void _assertDeletable(User user) {
-        List<String> protectedUsernames = List.of("admin@tgt.gg", "ios-tester@tgt.gg");
+        List<String> protectedUsernames = List.of("admin@aaax.local", "ios-tester@aaax.local");
         if (protectedUsernames.stream().anyMatch(name -> name.equalsIgnoreCase(user.getUsername()))) {
             throw new BizException(SystemResponse.SAU0403, "Protected account cannot be deleted.");
         }

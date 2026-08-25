@@ -44,8 +44,8 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     protected String systemInvoker;
     @Value("${notification-template.usecase.otp-register.email}")
     protected String otpRegisterTemplate;
-    @Value("${notification-template.rentease.usecase.otp-register.email}")
-    protected String renteaseOtpRegisterTemplate;
+    @Value("${notification-template.usecase.otp-register.email:}")
+    protected String otpRegisterTemplate;
 
     protected static @NotNull String getRedisKey(CreateOtpRequestDto dto) {
         String to = UaaValidation.toCanonicalIdentifierIfPresent(dto.getTo());
@@ -239,14 +239,8 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     }
 
     private String getTemplateIdBySourceSystem(String sourceSystem) {
-        switch (sourceSystem) {
-            case "RENTEASE" -> {
-                return renteaseOtpRegisterTemplate;
-            }
-            default -> {
-                return otpRegisterTemplate;
-            }
-        }
+        // Partner-specific template routing removed for OSS; single configurable template.
+        return otpRegisterTemplate;
     }
 
     public Object queryBackTheStoredValueInRedis(String redisKey) {
