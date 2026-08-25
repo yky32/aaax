@@ -7,6 +7,12 @@
 - `com.aaax.core` — app-core
 - `com.aaax.server` — uaa (main: `com.aaax.server.App`)
 
+### Local DX (C)
+- `docker-compose.yml` — Postgres 16 + Redis 7
+- `.env.example` — first-boot friendly (`JPA_DDL_AUTO=update`)
+- `scripts/quickstart-smoke.sh` — discovery/JWKS probe
+- README **Five minutes** section
+
 ### OSS hygiene (A+B)
 - Scrubbed secrets from main + test `application.yml` (Discord/Kafka/DB defaults empty)
 - Neutral brand: `AAAX` invoker, `@aaax.local` accounts, issuer port **8081**
