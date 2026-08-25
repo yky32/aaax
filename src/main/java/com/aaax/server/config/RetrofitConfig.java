@@ -7,8 +7,6 @@ import com.aaax.core.api.DiscordApiClient;
 import com.aaax.core.api.UaaApiClient;
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.utils.RedisUtil;
-import com.aaax.server.ext.api.client.idv.IdvApiClient;
-import com.aaax.server.ext.api.client.tenant.TenantApiClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -23,11 +21,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
- * HTTP clients for optional mesh services.
- * <p>
- * GrandPay / Onboarding / Profile clients were removed for OSS (Quinsic-specific).
- * Tenant / IDV / Util / UAA remain for optional integration; default base URL is a
- * black-hole placeholder when env is unset.
+ * HTTP clients. Tenant / IDV / GrandPay / Onboarding / Profile removed for OSS.
  */
 @Configuration
 public class RetrofitConfig {
@@ -63,16 +57,6 @@ public class RetrofitConfig {
     }
 
     @Bean
-    public IdvApiClient idvApiClient(@Value("${ext.api.client.idv-svc.url:}") String endpoint) {
-        Retrofit build = new Retrofit.Builder()
-                .baseUrl(baseUrl(endpoint))
-                .client(http().addInterceptor(new BaseRetrofitInClusterInterceptor()).build())
-                .addConverterFactory(getFactory())
-                .build();
-        return build.create(IdvApiClient.class);
-    }
-
-    @Bean
     public UaaApiClient uaaApiClient(@Value("${ext.api.client.uaa-svc.url:}") String endpoint) {
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(baseUrl(endpoint))
@@ -80,16 +64,6 @@ public class RetrofitConfig {
                 .addConverterFactory(getFactory())
                 .build();
         return build.create(UaaApiClient.class);
-    }
-
-    @Bean
-    public TenantApiClient tenantApiClient(@Value("${ext.api.client.tenant-svc.url:}") String endpoint) {
-        Retrofit build = new Retrofit.Builder()
-                .baseUrl(baseUrl(endpoint))
-                .client(http().addInterceptor(new BaseRetrofitInClusterInterceptor()).build())
-                .addConverterFactory(getFactory())
-                .build();
-        return build.create(TenantApiClient.class);
     }
 
     @Bean

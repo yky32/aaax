@@ -13,6 +13,10 @@
 - `scripts/quickstart-smoke.sh` — discovery/JWKS probe
 - README **Five minutes** section
 
+### OSS trim
+- Removed **Tenant** + **IDV** mesh clients, tenant endpoints, IDV registration/webhook hooks
+- User routes stay **local** (opaque `tenantRoleRouteId` optional)
+
 ### OSS hygiene (A+B)
 - Scrubbed secrets from main + test `application.yml` (Discord/Kafka/DB defaults empty)
 - Neutral brand: `AAAX` invoker, `@aaax.local` accounts, issuer port **8081**

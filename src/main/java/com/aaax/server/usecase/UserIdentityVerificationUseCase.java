@@ -7,20 +7,17 @@ import com.aaax.core.entity.dto.uaa.response.GetUserMetricsResponseDto;
 import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
 import com.aaax.core.entity.dto.uaa.response.GetUserVerificationResponseDto;
 import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
 import com.aaax.core.kafka.BaseNotificationEvent;
 import com.aaax.core.kafka.CreateMassNotificationRequestDto;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.utils.*;
-import com.aaax.server.entity.dto.request.UserIdentityVerificationResultRequestDto;
 import com.aaax.server.entity.dto.response.GetSystemConfigurationRequestDto;
 import com.aaax.server.entity.enu.UserProfileType;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.entity.po.user_verification.UserVerification;
 import com.aaax.server.exception.response.UserProfileErrorResponse;
 import com.aaax.server.exception.response.UserVerificationErrorResponse;
-import com.aaax.server.ext.api.client.idv.IdvApiClient;
-import com.aaax.server.ext.api.client.idv.dto.CreateIdvRequestDto;
-import com.aaax.server.ext.api.client.idv.dto.CreateIdvResponseDto;
 import com.aaax.server.repository.UserProfileRepository;
 import com.aaax.server.repository.UserVerificationRepository;
 import com.aaax.server.service.DtoWrapper;
@@ -46,48 +43,17 @@ import static com.aaax.core.kafka.enu.KafkaTopic.NOTIFICATION_MASS;
 @Slf4j
 public class UserIdentityVerificationUseCase {
 
-    private final IdvApiClient idvApiClient;
     private final UserProfileRepository userProfileRepository;
     private final UserVerificationRepository userVerificationRepository;
     private final SystemConfigurationUseCase systemConfigurationUseCase;
     private final UserMetricsUseCase userMetricsUseCase;
     private final KafkaUtil kafkaUtil;
-    @Value("${webhook.uaa.domain}")
-    private String uaaWebhookDomain;
     @Value("${config.microservice.timezone:UTC}")
     private String timezone;
 
     @Transactional
-    public void updateIdvResults(UserIdentityVerificationResultRequestDto dto) {
-        String userId = JwtUtil.userId();
-        this.beforeUpdateIdvResults_validations(userId);
-
-        String callbackUrl = uaaWebhookDomain.concat("webhooks/uaa/").concat(userId).concat("/activations");
-        CreateIdvRequestDto idvRequestDto = CreateIdvRequestDto.builder()
-                .accountId(dto.getAccountId())
-                .workflowExecutionId(dto.getWorkflowExecutionId())
-                .callbackUrl(callbackUrl)
-                .metadata(Map.of("userId", userId))
-                .build();
-        log.info("==== user activations => before create idv request ：{}", idvRequestDto);
-        CreateIdvResponseDto idvResponseDto = RetrofitCallHandler.execute(idvApiClient.createIdvRequest(idvRequestDto));
-        log.info("==== user activations => after create idv response ：{}", idvResponseDto);
-
-        // === create association
-        UserVerification userVerification = UserVerification.builder()
-                .userId(Long.valueOf(userId))
-                .extIdentifier(idvResponseDto.getId())
-                .detail(Map.of(
-                        "idvRequest", Map.of(
-                                "client", "idvApiClient",
-                                "request", idvRequestDto,
-                                "response", idvResponseDto),
-                        "sourceSystem", dto.getSourceSystem()
-                ))
-                .status(UserVerificationStatus.PENDING_CALLBACK)
-                .build();
-        userVerification = userVerificationRepository.save(userVerification);
-        log.info("==== userVerification => {}", userVerification);
+    public void updateIdvResults(Object dto) {
+        throw new BizException(SystemResponse.PAM0400, "External IDV integration removed for OSS open-source build");
     }
 
     private void beforeUpdateIdvResults_validations(String userId) {
@@ -219,15 +185,7 @@ public class UserIdentityVerificationUseCase {
     }
 
     public void afterVerification(String userId, String status, String sourceSystem) {
-        switch (sourceSystem) {
-            case "RENTEASE" -> {
-                GetUserMetricsResponseDto userMetric = userMetricsUseCase.execute(userId, sourceSystem);
-                switch (status) {
-                    case "VERIFIED" ->
-                            this.triggerNotification(userMetric, "aaax.idv.verified", new HashMap(), sourceSystem);
-                }
-            }
-        }
+        log.info("-- afterVerification userId={} status={} sourceSystem={} (partner-specific IDV hooks removed)", userId, status, sourceSystem);
     }
 
     public void triggerNotification(GetUserMetricsResponseDto userMetric, String notificationTemplateName, Map param, String systemSource) {

@@ -8,17 +8,14 @@ import com.aaax.core.exception.BizException;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.core.utils.InstantUtil;
-import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.core.utils.jpa.JpaSearchFieldMetadata;
 import com.aaax.core.utils.jpa.JpaUtil;
-import com.aaax.server.entity.dto.response.GetTenantRoleWithRouteResponseDto;
 import com.aaax.server.entity.enu.UaaAspect;
 import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.exception.response.UaaErrorResponse;
-import com.aaax.server.ext.api.client.tenant.TenantApiClient;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserRouteRepository;
@@ -49,7 +46,6 @@ public class UaaService {
     private final AuthenticationRepository authenticationRepository;
     private final AuthenticationService authenticationService;
     private final ResourceLoader resourceLoader;
-    private final TenantApiClient tenantApiClient;
     private final CommonService commonService;
     private final UserProfileService userProfileService;
     @Lazy
@@ -133,9 +129,8 @@ public class UaaService {
             );
         }
         if (!StringUtils.isEmpty(tenantId)) {
-            List<GetTenantRoleWithRouteResponseDto> trrList = RetrofitCallHandler.execute(tenantApiClient.getTenantRoleRouteByTenantId(tenantId));
-            List<UserRoute> userRoutes = userRouteRepository.findAllByTenantRoleRouteIdIn(trrList.stream().map(trr -> Long.valueOf(trr.getId())).toList());
-            specification = specification.and((root, query, builder) -> root.get("id").in(userRoutes.stream().map(UserRoute::getUserId).toList()));
+            // Tenant-service filter removed for OSS — ignore tenantId param (local UserRoute only).
+            log.warn("-- UaaService search: tenantId filter ignored (no tenant mesh): {}", tenantId);
         }
 
         List<String> _ids = Optional.ofNullable(ids).orElse(List.of());

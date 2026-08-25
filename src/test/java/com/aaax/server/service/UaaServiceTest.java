@@ -11,7 +11,6 @@ import com.aaax.core.exception.BizException;
 import com.aaax.server.entity.enu.UaaAspect;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
-import com.aaax.server.ext.api.client.tenant.TenantApiClient;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserRouteRepository;
@@ -52,8 +51,6 @@ class UaaServiceTest {
     private AuthenticationService authenticationService;
     @Mock
     private ResourceLoader resourceLoader;
-    @Mock
-    private TenantApiClient tenantApiClient;
     @Mock
     private CommonService commonService;
     @Mock

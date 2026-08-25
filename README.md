@@ -82,7 +82,7 @@ Expect OIDC discovery / JWKS JSON when the AS is healthy.
 | `com.aaax.server` | UAA: users, authn, OTP, OIDC AS, devices, RBAC templates |
 
 Optional mesh HTTP clients (tenant / idv / util) default to a **disabled placeholder** URL.  
-Quinsic-only clients (GrandPay, Onboarding, Profile) are **not** in this tree.
+Quinsic-only mesh clients are **not** in this tree (GrandPay, Onboarding, Profile, **Tenant**, **IDV**).
 
 Secrets: **env only** — see `.env.example`. Never commit real tokens.
 

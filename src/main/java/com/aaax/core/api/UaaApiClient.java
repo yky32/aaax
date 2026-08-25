@@ -59,16 +59,6 @@ public interface UaaApiClient {
             @Query("identifierType") String identifierType
     );
 
-    @GET("users/tenant-role-routes")
-    Call<Result<List<GetUserResponseDto>>> searchByTrrIds(
-            @Query("trrIds") List<String> trrIds
-    );
-
-    @GET("users/{id}/tenant-role-routes-ids")
-    Call<Result<List<Long>>> getTrrIds(
-            @Path(value = "id") String id
-    );
-
     @GET("keys/public-keys")
     Call<Result<GetKeysResponseDto>> publicKeys();
 

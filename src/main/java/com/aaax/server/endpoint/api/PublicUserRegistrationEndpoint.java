@@ -6,11 +6,9 @@ import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
 import com.aaax.core.response.SystemResponse;
 import com.aaax.server.entity.dto.request.RegisterUserRequestDto;
-import com.aaax.server.entity.dto.request.UserIdentityVerificationResultRequestDto;
 import com.aaax.server.entity.dto.response.PendingVerifyUserResponseDto;
 import com.aaax.server.usecase.ExtraFeature;
 import com.aaax.server.usecase.RegisterUserUseCase;
-import com.aaax.server.usecase.UserIdentityVerificationUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,6 @@ import java.util.Optional;
 public class PublicUserRegistrationEndpoint {
 
     private final RegisterUserUseCase registerUserUseCase;
-    private final UserIdentityVerificationUseCase userIdentityVerificationUseCase;
     @Value("${config.system-invoker}")
     protected String systemInvoker;
 
@@ -90,17 +87,6 @@ public class PublicUserRegistrationEndpoint {
         return R.success(registerUserUseCase.execute_external(requestDto));
     }
 
-    // ================================ Step 4.1 OPTIONAL  ===========================================
-    @PutMapping("/users/registrations/identity-verification-results")
-    public Result<String> idvResults(
-            @Valid @RequestBody UserIdentityVerificationResultRequestDto requestDto,
-            @RequestParam(required = false) String ss
-    ) {
-        ss = Optional.ofNullable(ss).isEmpty() ? systemInvoker : ss;
-        requestDto.setSourceSystem(ss);
-        userIdentityVerificationUseCase.updateIdvResults(requestDto);
-        return R.success();
-    }
     // ================================ Register User Journey ===========================================
 
 

@@ -143,10 +143,6 @@ ext:
       discord:
         webhookId: ${DISCORD_WEBHOOK_ID:}
         webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
-      tenant-svc:
-        url: ${TENANT_SVC_URL:http://127.0.0.1:1/}
-      idv-svc:
-        url: ${IDV_SVC_URL:http://127.0.0.1:1/}
       util-svc:
         url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
 

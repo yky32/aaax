@@ -47,20 +47,8 @@ class RetrofitConfigTest {
     }
 
     @Test
-    @DisplayName("idvApiClient should build retrofit client")
-    void idvApiClient_shouldBuild() {
-        assertNotNull(retrofitConfig.idvApiClient("https://idv.test/"));
-    }
-
-    @Test
     @DisplayName("uaaApiClient should build retrofit client")
     void uaaApiClient_shouldBuild() {
         assertNotNull(retrofitConfig.uaaApiClient("https://uaa.test/"));
-    }
-
-    @Test
-    @DisplayName("tenantApiClient should build retrofit client")
-    void tenantApiClient_shouldBuild() {
-        assertNotNull(retrofitConfig.tenantApiClient("https://tenant.test/"));
     }
 }
