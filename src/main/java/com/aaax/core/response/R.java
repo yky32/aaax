@@ -1,11 +1,6 @@
 package com.aaax.core.response;
 
-/**
- * Copied from qs app-core {@code com.quinsic.core.response.R}.
- */
-public final class R {
-
-    private R() {}
+public class R {
 
     public static <T> Result<T> success() {
         return new Result<>(SystemResponse.SYS0000);
@@ -18,7 +13,6 @@ public final class R {
     public static <T> Result<T> success(Response response, T data) {
         return new Result<>(response, data);
     }
-
     public static <T> Result<T> success(T data) {
         return new Result<>(SystemResponse.SYS0000, data);
     }

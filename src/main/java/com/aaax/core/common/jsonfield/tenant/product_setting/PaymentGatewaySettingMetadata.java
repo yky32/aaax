@@ -1,0 +1,1 @@
+package com.aaax.core.common.jsonfield.tenant.product_setting;

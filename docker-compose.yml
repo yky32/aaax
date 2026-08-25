@@ -1,6 +1,11 @@
+# AAAX local mesh — Postgres + Redis only
+# Usage: docker compose up -d
+# Stop:  docker compose down
+
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: aaax-postgres
     environment:
       POSTGRES_DB: aaax
       POSTGRES_USER: aaax
@@ -17,6 +22,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    container_name: aaax-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -25,28 +31,5 @@ services:
       timeout: 3s
       retries: 10
 
-  aaax:
-    build: .
-    ports:
-      - "8081:8081"
-    environment:
-      SERVER_PORT: 8081
-      AAAX_ISSUER: http://localhost:8081
-      AAAX_JWK_PATH: /data/aaax-jwk.json
-      DB_URL: jdbc:postgresql://postgres:5432/aaax
-      DB_USERNAME: aaax
-      DB_PASSWORD: aaax
-      DB_DRIVER: org.postgresql.Driver
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - aaax_jwk:/data
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
 volumes:
   aaax_pg:
-  aaax_jwk:

@@ -1,80 +1,47 @@
 package com.aaax.core.entity;
 
-import java.io.Serializable;
-import java.time.Instant;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
-
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * qs/uaa + ledger practice: optimistic lock + Spring Data JPA auditing.
- * No {@code name} on {@code @Column} — trust Hibernate physical naming.
- */
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class AuditEntity implements Serializable {
+import java.io.Serializable;
+import java.time.Instant;
 
+
+@MappedSuperclass
+@Getter
+@Setter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(value = AuditingEntityListener.class)
+public class AuditEntity implements Serializable {
     @Version
-    @Column
+    @Column(name = "version")
     protected int version;
 
-    @Column
+    @Column(name = "create_dt")
     @CreatedDate
     protected Instant createDt;
 
-    @Column
+    @Column(name = "created_by")
     @CreatedBy
     protected String createdBy;
+    // dynamically use string to store the user key, String.valueOf(user long id)
+    // example, "6821123112312578", "1000010201", "UUID"
 
-    @Column
+    @Column(name = "update_dt")
     @LastModifiedDate
     protected Instant updateDt;
 
-    @Column
+    @Column(name = "updated_by")
     @LastModifiedBy
     protected String updatedBy;
-
-    public int getVersion() {
-        return version;
-    }
-
-    public Instant getCreateDt() {
-        return createDt;
-    }
-
-    public void setCreateDt(Instant createDt) {
-        this.createDt = createDt;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Instant getUpdateDt() {
-        return updateDt;
-    }
-
-    public void setUpdateDt(Instant updateDt) {
-        this.updateDt = updateDt;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
 }

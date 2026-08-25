@@ -1,0 +1,14 @@
+[
+  {
+    "field": "id",
+    "jsonPath": null,
+    "ratio": 0.7,
+    "column": "TEXT"
+  },
+  {
+    "field": "username",
+    "jsonPath": null,
+    "ratio": 0.9,
+    "column": "TEXT"
+  }
+]

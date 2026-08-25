@@ -1,0 +1,12 @@
+{
+  "normal": {
+    "sample_feature_key": {
+      "effect": "ALLOW",
+      "authorities": [
+        "READ",
+        "WRITE",
+        "DELETE"
+      ]
+    }
+  }
+}

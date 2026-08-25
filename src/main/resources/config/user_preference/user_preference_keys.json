@@ -1,0 +1,97 @@
+{
+  "general" : {
+    "themes": {
+      "options" : ["DARK", "LIGHT", "SYSTEM"],
+      "selected": "LIGHT"
+    },
+    "localizations" : {
+      "options": ["SYSTEM", "en", "ja", "cn", "zh"],
+      "selected" : "zh"
+    },
+    "timezone": {
+      "options": [
+        [
+          { "label": "Midway", "value": "Pacific/Midway" },
+          { "label": "Honolulu / Hawaii", "value": "Pacific/Honolulu" },
+          { "label": "Anchorage / Alaska", "value": "America/Anchorage" },
+          { "label": "Pacific Time (Los Angeles / Vancouver)", "value": "America/Los_Angeles" },
+          { "label": "Mountain Time (Denver / Edmonton)", "value": "America/Edmonton" },
+          { "label": "Central Time (Chicago / Mexico City)", "value": "America/Chicago" },
+          { "label": "Eastern Time (New York / Toronto)", "value": "America/New_York" },
+          { "label": "Atlantic Time (Halifax)", "value": "America/Halifax" },
+          { "label": "Newfoundland (St. John's)", "value": "America/St_Johns" },
+          { "label": "São Paulo / Buenos Aires", "value": "America/Sao_Paulo" },
+          { "label": "Azores", "value": "Atlantic/Azores" },
+          { "label": "London / Dublin (GMT)", "value": "Europe/London" },
+          { "label": "Central European Time (Berlin / Paris / Rome)", "value": "Europe/Berlin" },
+          { "label": "Eastern European Time (Athens / Cairo / Kyiv)", "value": "Europe/Athens" },
+          { "label": "Moscow / Nairobi / Dubai", "value": "Europe/Moscow" },
+          { "label": "Tehran", "value": "Asia/Tehran" },
+          { "label": "Abu Dhabi / Mauritius", "value": "Asia/Dubai" },
+          { "label": "Kabul", "value": "Asia/Kabul" },
+          { "label": "Islamabad / Tashkent", "value": "Asia/Karachi" },
+          { "label": "India Standard Time (Mumbai / New Delhi)", "value": "Asia/Kolkata" },
+          { "label": "Kathmandu", "value": "Asia/Kathmandu" },
+          { "label": "Dhaka / Nur-Sultan", "value": "Asia/Almaty" },
+          { "label": "Bangkok / Jakarta / Hanoi", "value": "Asia/Bangkok" },
+          { "label": "Hong Kong / Taipei / Beijing / Singapore", "value": "Asia/Hong_Kong" },
+          { "label": "Tokyo / Seoul", "value": "Asia/Tokyo" },
+          { "label": "Adelaide", "value": "Australia/Adelaide" },
+          { "label": "Sydney / Melbourne / Guam", "value": "Australia/Sydney" },
+          { "label": "Solomon Islands", "value": "Pacific/Guadalcanal" },
+          { "label": "Auckland / Fiji", "value": "Pacific/Auckland" },
+          { "label": "Samoa (Apia)", "value": "Pacific/Apia" }
+        ]
+      ],
+      "selected": "UTC"
+    },
+    "notifications": {
+      "platforms": {
+        "all" : [
+          {
+            "name" : "SMS",
+            "isEnabled" : true
+          },
+          {
+            "name" : "EMAIL",
+            "isEnabled" : true
+          },
+          {
+            "name" : "APP_PUSH",
+            "isEnabled" : true
+          },
+          {
+            "name" : "IN_APP_PUSH",
+            "isEnabled" : true
+          },
+          {
+            "name" : "WEB_PUSH",
+            "isEnabled" : true
+          }
+        ],
+        "mobile" : [
+          {
+            "name" : "SMS",
+            "isEnabled" : true
+          },
+          {
+            "name" : "EMAIL",
+            "isEnabled" : true
+          },
+          {
+            "name" : "APP_PUSH",
+            "isEnabled" : true
+          },
+          {
+            "name" : "IN_APP_PUSH",
+            "isEnabled" : true
+          },
+          {
+            "name" : "WEB_PUSH",
+            "isEnabled" : true
+          }
+        ]
+      }
+    }
+  }
+}

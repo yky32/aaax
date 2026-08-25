@@ -1,43 +1,36 @@
 package com.aaax.core.response;
 
-/**
- * Minimal pagination placeholder (app-core shape). Filled when list APIs need it.
- */
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+@Getter
+@Setter
 public class Pagination {
 
-    private long page;
-    private long size;
-    private long total;
+    private Long from;
 
-    public Pagination() {}
+    private Long to;
 
-    public Pagination(long page, long size, long total) {
-        this.page = page;
-        this.size = size;
-        this.total = total;
+    private Long total;
+
+    private Long currentPage;
+
+    private Long maxPage;
+
+    private Long pageSize;
+
+    public static Pagination create(Page<?> page) {
+        Pageable pageable = page.getPageable();
+        Pagination mate = new Pagination();
+        mate.setFrom(pageable.getOffset() + 1);
+        mate.setTo(pageable.getOffset() + page.getNumberOfElements());
+        mate.setTotal(page.getTotalElements());
+        mate.setCurrentPage(pageable.getPageNumber() + 1L);
+        mate.setMaxPage((long) page.getTotalPages());
+        mate.setPageSize((long) pageable.getPageSize());
+        return mate;
     }
 
-    public long getPage() {
-        return page;
-    }
-
-    public void setPage(long page) {
-        this.page = page;
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
-    }
 }

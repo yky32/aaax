@@ -1,170 +1,151 @@
-# AAAX — one file. Override with env / Helm. (qs/uaa style)
-
-spring:
-  application:
-    name: ${SPRING_APPLICATION_NAME:aaax-server}
-  datasource:
-    url: ${DB_URL:jdbc:h2:mem:aaax;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:}
-    driver-class-name: ${DB_DRIVER:org.h2.Driver}
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    open-in-view: false
-    defer-datasource-initialization: true
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: UTC
-  sql:
-    init:
-      mode: ${SQL_INIT_MODE:always}
-      continue-on-error: true
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-  mail:
-    host: ${MAIL_HOST:}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:}
-            client-secret: ${GOOGLE_CLIENT_SECRET:}
-            scope: openid,profile,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Google
-          github:
-            client-id: ${GITHUB_CLIENT_ID:}
-            client-secret: ${GITHUB_CLIENT_SECRET:}
-            scope: read:user,user:email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: GitHub
-          apple:
-            client-id: ${APPLE_CLIENT_ID:}
-            client-secret: ${APPLE_CLIENT_SECRET:}
-            authorization-grant-type: authorization_code
-            client-authentication-method: client_secret_post
-            scope: openid,name,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Apple
-          discord:
-            client-id: ${DISCORD_CLIENT_ID:}
-            client-secret: ${DISCORD_CLIENT_SECRET:}
-            scope: identify,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Discord
-          gitlab:
-            client-id: ${GITLAB_CLIENT_ID:}
-            client-secret: ${GITLAB_CLIENT_SECRET:}
-            scope: read_user
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: GitLab
-          line:
-            client-id: ${LINE_CHANNEL_ID:}
-            client-secret: ${LINE_CHANNEL_SECRET:}
-            scope: profile,openid,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: LINE
-          slack:
-            client-id: ${SLACK_CLIENT_ID:}
-            client-secret: ${SLACK_CLIENT_SECRET:}
-            scope: openid,profile,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Slack
-        provider:
-          google:
-            issuer-uri: https://accounts.google.com
-          github:
-            authorization-uri: https://github.com/login/oauth/authorize
-            token-uri: https://github.com/login/oauth/access_token
-            user-info-uri: https://api.github.com/user
-            user-name-attribute: id
-          apple:
-            authorization-uri: https://appleid.apple.com/auth/authorize
-            token-uri: https://appleid.apple.com/auth/token
-            jwk-set-uri: https://appleid.apple.com/auth/keys
-            user-name-attribute: sub
-            user-info-authentication-method: query
-          discord:
-            authorization-uri: https://discord.com/api/oauth2/authorize
-            token-uri: https://discord.com/api/oauth2/token
-            user-info-uri: https://discord.com/api/users/@me
-            user-name-attribute: id
-          gitlab:
-            authorization-uri: https://gitlab.com/oauth/authorize
-            token-uri: https://gitlab.com/oauth/token
-            user-info-uri: https://gitlab.com/api/v4/user
-            user-name-attribute: id
-          line:
-            authorization-uri: https://access.line.me/oauth2/v2.1/authorize
-            token-uri: https://api.line.me/oauth2/v2.1/token
-            user-info-uri: https://api.line.me/v2/profile
-            user-name-attribute: userId
-            jwk-set-uri: https://api.line.me/oauth2/v2.1/certs
-          slack:
-            authorization-uri: https://slack.com/openid/connect/authorize
-            token-uri: https://slack.com/api/openid.connect.token
-            user-info-uri: https://slack.com/api/openid.connect.userInfo
-            user-name-attribute: sub
+# AAAX — defaults are local / empty. Put secrets only in env.
+pod:
+  ip: ${POD_IP:127.0.0.1}
 
 server:
   port: ${SERVER_PORT:8081}
+  max-http-header-size: 10MB
+  servlet:
+    context-path: ${CONTEXT_PATH:/}
 
+otp:
+  fail-counter: 3
+
+config:
+  credentials-history-size: ${CONFIG_CREDENTIALS_HISTORY_SIZE:0}
+  user-created-waiting-time-ms: ${USER_CREATED_WAITING_TIME_MS:1}
+  system-invoker: ${SYSTEM_INVOKER:AAAX}
+  device-binding:
+    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+  microservice:
+    timezone: ${MICROSERVICE_TIME_ZONE:UTC}
+  # Protected bootstrap accounts (comma-separated usernames) — never bulk-deleted
+  protected-usernames: ${AAAX_PROTECTED_USERNAMES:admin@aaax.local}
+
+spring:
+  application:
+    name: ${APPLICATION_NAME:AAAX}
+  servlet:
+    multipart:
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:20MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:25MB}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/aaax}
+    username: ${DB_USERNAME:aaax}
+    password: ${DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.yaml
+    enabled: ${LIQUIBASE_ENABLED:true}
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8081}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${SERVER_TOKEN_EXPIRY_TIME:31556926}
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/oauth2/jwks}
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
+    consumer:
+      max-poll-records: ${KAFKA_MAX_POLL_RECORDS:50}
+      properties:
+        allow.auto.create.topics: true
+        request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT_MS:30000}
+        session.timeout.ms: ${KAFKA_SESSION_TIMEOUT_MS:45000}
+    consumers:
+      user-with-user-route-creation-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_ROUTE_CREATION:true}
+      log-listener:
+        isEnabled: ${KAFKA_CONSUMERS_LOG:true}
+      user-alias-generated-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_ALIAS_GENERATED:true}
+      user-created-notification-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_CREATED_NOTIFICATION:true}
+      user-permission-mutation-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_PERMISSION_MUTATION:true}
+      user-state-change-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATE_CHANGE:true}
+      user-status-change-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATUS_CHANGE:true}
+  data:
+    redis:
+      host: ${REDIS_URL:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10000
+      ssl:
+        enabled: ${REDIS_SSL:false}
+
+notification-template:
+  usecase:
+    reset-password:
+      email: ${EMAIL_TEMPLATE_RESET_PASSWORD:}
+    register-user:
+      email: ${EMAIL_TEMPLATE_REGISTER:}
+    otp-register:
+      email: ${EMAIL_TEMPLATE:}
+
+oauth-provider:
+  google:
+    web-app:
+      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+    ios:
+      client-id: ${IOS_GOOGLE_CLIENT_ID:}
+    android:
+      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+  apple:
+    ios:
+      client-id: ${IOS_APPLE_CLIENT_ID:}
+    web:
+      client-id: ${WEB_APPLE_CLIENT_ID:}
+
+# Optional mesh clients (tenant / util / idv / self-uaa). Empty URL = disabled placeholder base.
+# Set aaax.ext.enabled=true only when you wire real services.
 aaax:
-  issuer: ${AAAX_ISSUER:http://localhost:8081}
-  jwk:
-    path: ${AAAX_JWK_PATH:./data/aaax-jwk.json}
-  bootstrap:
-    token: ${AAAX_BOOTSTRAP_TOKEN:}
-  passkeys:
-    enabled: ${AAAX_PASSKEYS_ENABLED:false}
-    rp-id: ${AAAX_PASSKEYS_RP_ID:localhost}
-    rp-name: ${AAAX_PASSKEYS_RP_NAME:AAAX}
-  magic:
-    ttl-seconds: ${AAAX_MAGIC_TTL_SECONDS:900}
-  devices:
-    ttl-days: ${AAAX_DEVICES_TTL_DAYS:30}
-    cookie-secure: ${AAAX_DEVICES_COOKIE_SECURE:false}
-  qr:
-    ttl-seconds: ${AAAX_QR_TTL_SECONDS:120}
-    store: ${AAAX_QR_STORE:memory}
-  otp:
-    store: ${AAAX_OTP_STORE:memory}
-    ttl-seconds: ${AAAX_OTP_TTL_SECONDS:300}
-    length: ${AAAX_OTP_LENGTH:6}
-    channel: ${AAAX_OTP_CHANNEL:console}
-    mail:
-      from: ${AAAX_OTP_MAIL_FROM:noreply@aaax.local}
-      subject: ${AAAX_OTP_MAIL_SUBJECT:Your AAAX code}
-    kafka:
-      bootstrap-servers: ${AAAX_OTP_KAFKA_BOOTSTRAP:${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
-      topic: ${AAAX_OTP_KAFKA_TOPIC:aaax.otp.dispatch}
-    sms:
-      webhook-url: ${AAAX_OTP_SMS_WEBHOOK_URL:}
-      webhook-auth: ${AAAX_OTP_SMS_WEBHOOK_AUTH:}
-  saml:
-    enabled: ${AAAX_SAML_ENABLED:false}
-    registration-id: ${AAAX_SAML_REGISTRATION_ID:idp}
-    sp-entity-id: ${AAAX_SAML_SP_ENTITY_ID:}
-    idp-metadata-uri: ${AAAX_SAML_IDP_METADATA_URI:}
-  demo:
-    seed-client: ${AAAX_DEMO_SEED_CLIENT:true}
-    seed-account: ${AAAX_DEMO_SEED_ACCOUNT:true}
-  events:
-    kafka:
-      enabled: ${AAAX_EVENTS_KAFKA_ENABLED:false}
-      bootstrap-servers: ${AAAX_EVENTS_KAFKA_BOOTSTRAP:${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
-      topic: ${AAAX_EVENTS_KAFKA_TOPIC:aaax.identity.events}
-    webhook-url: ${AAAX_EVENTS_WEBHOOK_URL:}
-    webhook-auth: ${AAAX_EVENTS_WEBHOOK_AUTH:}
-    webhook-secret: ${AAAX_EVENTS_WEBHOOK_SECRET:}
-    webhook-max-attempts: ${AAAX_EVENTS_WEBHOOK_MAX_ATTEMPTS:3}
-    webhook-backoff-ms: ${AAAX_EVENTS_WEBHOOK_BACKOFF_MS:200}
+  ext:
+    enabled: ${AAAX_EXT_ENABLED:false}
+
+ext:
+  api:
+    client:
+      uaa-svc:
+        url: ${UAA_SVC_URL:http://127.0.0.1:1/}
+        client-id: ${UAA_SVC_CLIENT_ID:server}
+        client-secret: ${UAA_SVC_CLIENT_SECRET:}
+      elk:
+        webhookId: ${ELK_WEBHOOK_ID:}
+        webhookToken: ${ELK_WEBHOOK_TOKEN:}
+      discord:
+        webhookId: ${DISCORD_WEBHOOK_ID:}
+        webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
+      util-svc:
+        url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
+
+webhook:
+  uaa:
+    domain: ${UAA_WEBHOOK:}

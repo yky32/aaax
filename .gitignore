@@ -12,3 +12,6 @@ target/
 .settings/
 /data/
 examples/resource-server-boot4/target/
+
+target/
+**/target/

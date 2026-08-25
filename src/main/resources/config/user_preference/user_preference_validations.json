@@ -1,0 +1,23 @@
+{
+  "themes": {
+    "isRecursive": false,
+    "values": ["selected"]
+  },
+  "localizations": {
+    "isRecursive": false,
+    "values": ["selected"]
+  },
+  "timezone": {
+    "isRecursive": false,
+    "values": ["selected"]
+  },
+  "notifications": {
+    "isRecursive": true,
+    "values": ["platforms"],
+    "recursiveTarget": "notifications.platforms"
+  },
+  "notifications.platforms": {
+    "isRecursive": false,
+    "values": ["all", "mobile"]
+  }
+}

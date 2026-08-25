@@ -1,12 +1,109 @@
-aaax:
-  jwk:
-    path: ${java.io.tmpdir}/aaax-test-jwk.json
-  demo:
-    seed-client: true
-    seed-account: true
+# Test profile — local/testcontainers only. No production secrets.
+pod:
+  ip: ${POD_IP:127.0.0.1}
 
 spring:
+  application:
+    name: ${APPLICATION_NAME:AAAX-TEST}
+  datasource:
+    initialization-mode: always
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:13.2:///?TC_INITSCRIPT=ddl.sql
+    password: ${DB_PASSWORD:}
+    username: ${DB_USERNAME:aaax}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.yaml
+    enabled: false
   sql:
     init:
       mode: always
-      continue-on-error: true
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8081}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926}
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${jwkSetUri:http://localhost:8081/oauth2/jwks}
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
+  data:
+    redis:
+      host: ${REDIS_URL:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10000
+      ssl:
+        enabled: false
+
+otp:
+  fail-counter: 3
+
+config:
+  credentials-history-size: 0
+  system-invoker: ${SYSTEM_INVOKER:AAAX}
+  device-binding:
+    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+  protected-usernames: admin@aaax.local,ios-tester@aaax.local
+
+notification-template:
+  usecase:
+    reset-password:
+      email: test-reset
+    register-user:
+      email: test-register
+    otp-register:
+      email: test-otp
+
+oauth-provider:
+  google:
+    web-app:
+      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+    ios:
+      client-id: ${IOS_GOOGLE_CLIENT_ID:}
+    android:
+      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+  apple:
+    ios:
+      client-id: ${IOS_APPLE_CLIENT_ID:}
+    web:
+      client-id: ${WEB_APPLE_CLIENT_ID:}
+
+aaax:
+  ext:
+    enabled: false
+
+ext:
+  api:
+    client:
+      uaa-svc:
+        url: ${UAA_SVC_URL:http://127.0.0.1:1/}
+        client-id: ${UAA_SVC_CLIENT_ID:server}
+        client-secret: ${UAA_SVC_CLIENT_SECRET:}
+      elk:
+        webhookId: ${ELK_WEBHOOK_ID:}
+        webhookToken: ${ELK_WEBHOOK_TOKEN:}
+      discord:
+        webhookId: ${DISCORD_WEBHOOK_ID:}
+        webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
+      util-svc:
+        url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
+
+webhook:
+  uaa:
+    domain: ${UAA_WEBHOOK:}

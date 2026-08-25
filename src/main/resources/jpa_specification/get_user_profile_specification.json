@@ -1,0 +1,32 @@
+[
+  {
+    "field": "context",
+    "jsonPath": "firstName",
+    "ratio": 0.4,
+    "column": "JSONB"
+  },
+  {
+    "field": "context",
+    "jsonPath": "lastName",
+    "ratio": 0.4,
+    "column": "JSONB"
+  },
+  {
+    "field": "context",
+    "jsonPath": "kanaLastName",
+    "ratio": 0.4,
+    "column": "JSONB"
+  },
+  {
+    "field": "context",
+    "jsonPath": "kanaFirstName",
+    "ratio": 0.4,
+    "column": "JSONB"
+  },
+  {
+    "field": "context",
+    "jsonPath": "phone",
+    "ratio": 0.9,
+    "column": "JSONB"
+  }
+]

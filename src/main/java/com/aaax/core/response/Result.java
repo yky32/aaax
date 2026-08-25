@@ -2,21 +2,23 @@ package com.aaax.core.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Copied shape from qs app-core {@code com.quinsic.core.response.Result}.
- */
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Result<T> {
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Result <T> {
     @JsonUnwrapped
     private Response response;
     private T data;
     private String requestId;
-    private String tenantKey;
+    private String tenantKey; // REMINDER: only for PG using....
     private Pagination pagination;
-
-    public Result() {}
 
     public Result(Response response) {
         this.response = response;
@@ -30,46 +32,6 @@ public class Result<T> {
     public Result(Response response, T data, Pagination pagination) {
         this.response = response;
         this.data = data;
-        this.pagination = pagination;
-    }
-
-    public Response getResponse() {
-        return response;
-    }
-
-    public void setResponse(Response response) {
-        this.response = response;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public String getTenantKey() {
-        return tenantKey;
-    }
-
-    public void setTenantKey(String tenantKey) {
-        this.tenantKey = tenantKey;
-    }
-
-    public Pagination getPagination() {
-        return pagination;
-    }
-
-    public void setPagination(Pagination pagination) {
         this.pagination = pagination;
     }
 }
