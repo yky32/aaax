@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -30,14 +31,14 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_LOGIN_ATTEMPTS_MUTATED;
 
 
 @Component
+@ConditionalOnProperty(
+        prefix = "spring.kafka.consumers.user-login-attempts-listener",
+        name = "isEnabled", havingValue = "true", matchIfMissing = false
+)
 @Slf4j
 @RequiredArgsConstructor
 public class FailAttemptsWorker extends BaseListener {
 
-    @Value("${ext.api.client.discord.webhookId}")
-    private String webhookId;
-    @Value("${ext.api.client.discord.webhookToken}")
-    private String webhookToken;
     @Value("${spring.application.name}")
     private String serviceName;
     @PersistenceContext

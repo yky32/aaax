@@ -1,8 +1,8 @@
 package com.aaax.server.listener;
 
 import com.aaax.core.api.DiscordApiClient;
+import com.aaax.core.api.DiscordWebhookSupport;
 import com.aaax.core.constant.enu.Locale;
-import com.aaax.core.api.dto.DiscordWebhookMessage;
 import com.aaax.core.constant.enu.NotificationAction;
 import com.aaax.core.constant.enu.NotificationChannel;
 import com.aaax.core.constant.enu.NotificationFrequency;
@@ -12,7 +12,6 @@ import com.aaax.core.kafka.CreateMassNotificationRequestDto;
 import com.aaax.core.kafka.event.UserCreatedEvent;
 import com.aaax.core.utils.JSONUtil;
 import com.aaax.core.utils.KafkaUtil;
-import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.entity.dto.response.GetSystemConfigurationRequestDto;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
@@ -50,9 +49,9 @@ public class UserCreatedNotificationListener extends BaseListener {
     private final UserRepository userRepository;
     @Value("${config.system-invoker}")
     protected String systemInvoker;
-    @Value("${ext.api.client.discord.webhookId}")
+    @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;
-    @Value("${ext.api.client.discord.webhookToken}")
+    @Value("${ext.api.client.discord.webhookToken:}")
     private String webhookToken;
 
     // ______ this is the execute method you need to better implemented
@@ -92,10 +91,7 @@ public class UserCreatedNotificationListener extends BaseListener {
     }
 
     private void discord(ConsumerRecord<String, String> payload) {
-        DiscordWebhookMessage message = DiscordWebhookMessage.builder()
-                .content("```".concat(payload.value()).concat("```"))
-                .build();
-        RetrofitCallHandler._void_execute(discordApiClient.sendWebhookMessage(message, webhookId, webhookToken));
+        DiscordWebhookSupport.sendSafe(discordApiClient, webhookId, webhookToken, "```".concat(payload.value()).concat("```"));
     }
 
     @KafkaListener(

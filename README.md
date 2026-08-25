@@ -56,7 +56,7 @@ First empty database: keep **`JPA_DDL_AUTO=update`** and **`LIQUIBASE_ENABLED=fa
 ### 3. Build & run
 
 ```bash
-mvn -DskipTests package
+mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ```
 

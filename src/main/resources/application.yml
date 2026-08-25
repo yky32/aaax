@@ -78,19 +78,23 @@ spring:
         session.timeout.ms: ${KAFKA_SESSION_TIMEOUT_MS:45000}
     consumers:
       user-with-user-route-creation-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_ROUTE_CREATION:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_ROUTE_CREATION:false}
       log-listener:
-        isEnabled: ${KAFKA_CONSUMERS_LOG:true}
+        isEnabled: ${KAFKA_CONSUMERS_LOG:false}
       user-alias-generated-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_ALIAS_GENERATED:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_ALIAS_GENERATED:false}
       user-created-notification-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_CREATED_NOTIFICATION:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_CREATED_NOTIFICATION:false}
       user-permission-mutation-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_PERMISSION_MUTATION:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_PERMISSION_MUTATION:false}
       user-state-change-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_STATE_CHANGE:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATE_CHANGE:false}
       user-status-change-listener:
-        isEnabled: ${KAFKA_CONSUMERS_USER_STATUS_CHANGE:true}
+        isEnabled: ${KAFKA_CONSUMERS_USER_STATUS_CHANGE:false}
+      user-login-attempts-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_LOGIN_ATTEMPTS:false}
+      user-deleted-notification-listener:
+        isEnabled: ${KAFKA_CONSUMERS_USER_DELETED_NOTIFICATION:false}
   data:
     redis:
       host: ${REDIS_URL:localhost}
@@ -124,11 +128,11 @@ oauth-provider:
     web:
       client-id: ${WEB_APPLE_CLIENT_ID:}
 
-# Optional mesh clients (tenant / util / idv / self-uaa). Empty URL = disabled placeholder base.
-# Set aaax.ext.enabled=true only when you wire real services.
+# Optional integrations (all off by default)
 aaax:
   ext:
     enabled: ${AAAX_EXT_ENABLED:false}
+    util-enabled: ${AAAX_UTIL_ENABLED:false}
 
 ext:
   api:
@@ -145,7 +149,3 @@ ext:
         webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
       util-svc:
         url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
-
-webhook:
-  uaa:
-    domain: ${UAA_WEBHOOK:}

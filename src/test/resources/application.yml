@@ -86,6 +86,7 @@ oauth-provider:
 
 aaax:
   ext:
+    util-enabled: false
     enabled: false
 
 ext:

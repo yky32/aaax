@@ -2,12 +2,11 @@ package com.aaax.server.listener;
 
 
 import com.aaax.core.api.DiscordApiClient;
-import com.aaax.core.api.dto.DiscordWebhookMessage;
+import com.aaax.core.api.DiscordWebhookSupport;
 import com.aaax.core.kafka.BaseListener;
 import com.aaax.core.kafka.event.UserStateMutatedEvent;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.core.utils.JSONUtil;
-import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.config.security.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +32,9 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_STATE_CHANGED;
 )
 public class UserStateChangeListener extends BaseListener {
 
-    @Value("${ext.api.client.discord.webhookId}")
+    @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;
-    @Value("${ext.api.client.discord.webhookToken}")
+    @Value("${ext.api.client.discord.webhookToken:}")
     private String webhookToken;
     private final DiscordApiClient discordApiClient;
     private final OAuth2AuthorizationService redisOauth2AuthorizationService;
@@ -50,10 +49,7 @@ public class UserStateChangeListener extends BaseListener {
     }
 
     private void discord(ConsumerRecord<String, String> payload) {
-        DiscordWebhookMessage message = DiscordWebhookMessage.builder()
-                .content("```".concat(payload.value()).concat("```"))
-                .build();
-        RetrofitCallHandler._void_execute(discordApiClient.sendWebhookMessage(message, webhookId, webhookToken));
+        DiscordWebhookSupport.sendSafe(discordApiClient, webhookId, webhookToken, "```".concat(payload.value()).concat("```"));
     }
 
     @KafkaListener(

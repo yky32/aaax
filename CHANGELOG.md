@@ -13,6 +13,13 @@
 - `scripts/quickstart-smoke.sh` — discovery/JWKS probe
 - README **Five minutes** section
 
+### Batch D (standalone OSS)
+- Discord webhooks no-op when token blank (`DiscordWebhookSupport`)
+- Util CDN/ref-data gated by `AAAX_UTIL_ENABLED=false`
+- Kafka consumers **default false**
+- OTP notify logs payload for local dev when Kafka absent
+- keyID `altech-uaa` → `aaax`; empty `ext/` package removed
+
 ### OSS trim
 - Removed **Tenant** + **IDV** mesh clients, tenant endpoints, IDV registration/webhook hooks
 - User routes stay **local** (opaque `tenantRoleRouteId` optional)

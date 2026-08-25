@@ -77,6 +77,8 @@ public class RegisterUserUseCase {
     private long userCreatedWaitingTimeMs;
     @Value("${config.system-invoker}")
     private String systemInvoker;
+    @Value("${aaax.ext.util-enabled:false}")
+    private boolean utilEnabled;
 
     private static @NotNull String isVerified(String username) {
         return OtpUtil.markAsVerified(RedisKey.OTP_USER_REGISTER.getKey().concat(username));
@@ -363,27 +365,33 @@ public class RegisterUserUseCase {
     }
 
     public void registerValidations(RegisterUserRequestDto requestDto) {
-        // ==== VALIDATIONS
-        switch (requestDto.getSourceSystem()) {
-            default -> {
-                if (Optional.ofNullable(requestDto.getMetadata()).isPresent()) {
-                    // === start extra validations
-                    // === [phone] vs [areaCode]
-                    String _phone = (String) requestDto.getMetadata().get("phone");
-                    String _areaCode = (String) requestDto.getMetadata().get("areaCode");
+        // ==== VALIDATIONS (local only — util ref-data optional)
+        if (Optional.ofNullable(requestDto.getMetadata()).isPresent()) {
+            String _phone = (String) requestDto.getMetadata().get("phone");
+            String _areaCode = (String) requestDto.getMetadata().get("areaCode");
 
-                    if (Optional.ofNullable(_phone).isPresent() || Optional.ofNullable(_areaCode).isPresent()) {
-                        if (Optional.ofNullable(_areaCode).isEmpty()) {
-                            throw new BizException(SystemResponse.PAM0400, "Plz provide [%s]".formatted("areaCode"));
-                        }
-                        GetRefDataResponseDto areaCode = RetrofitCallHandler.execute(utilApiClient.getRefDataByKey("common.area-code"));
-                        ((List<Map>) areaCode.getValue()).stream()
+            if (Optional.ofNullable(_phone).isPresent() || Optional.ofNullable(_areaCode).isPresent()) {
+                if (Optional.ofNullable(_areaCode).isEmpty()) {
+                    throw new BizException(SystemResponse.PAM0400, "Plz provide [%s]".formatted("areaCode"));
+                }
+                if (utilEnabled) {
+                    try {
+                        GetRefDataResponseDto areaCode =
+                                RetrofitCallHandler.execute(utilApiClient.getRefDataByKey("common.area-code"));
+                        ((List<Map>) areaCode.getValue())
+                                .stream()
                                 .filter(map -> map.get("code").equals(_areaCode))
-                                .findFirst().orElseThrow(() -> new BizException(UaaErrorResponse.UAA4400, "[%s] => [%s]".formatted("areaCode", _areaCode)));
-
-                        ValidationUtil.patternMatches(_phone, RegexPatternConstant.IS_DIGIT);
+                                .findFirst()
+                                .orElseThrow(() -> new BizException(
+                                        UaaErrorResponse.UAA4400,
+                                        "[%s] => [%s]".formatted("areaCode", _areaCode)));
+                    } catch (BizException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        log.warn("util area-code check skipped: {}", e.getMessage());
                     }
                 }
+                ValidationUtil.patternMatches(_phone, RegexPatternConstant.IS_DIGIT);
             }
         }
     }

@@ -42,8 +42,6 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     protected final SystemConfigurationUseCase systemConfigurationUseCase;
     @Value("${config.system-invoker}")
     protected String systemInvoker;
-    @Value("${notification-template.usecase.otp-register.email}")
-    protected String otpRegisterTemplate;
     @Value("${notification-template.usecase.otp-register.email:}")
     protected String otpRegisterTemplate;
 
@@ -224,10 +222,21 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     @Override
     public void triggerNotification(BaseNotificationEvent event) {
         log.info("-- doTriggerNotification => {}", event);
+        // Dev-friendly: always log OTP / notify payload when present
+        if (event != null) {
+            log.info(
+                    "AAAX notify [dev] to={} template={} channels={} params={}",
+                    event.getTo(),
+                    event.getNotificationTemplateName(),
+                    event.getChannels(),
+                    event.getParameterMap());
+        }
         try {
             kafkaUtil.send(KafkaTopic.NOTIFICATION_MASS, event);
         } catch (Exception exception) {
-            log.info("-- doTriggerNotification Error => {}", event);
+            log.warn(
+                    "-- doTriggerNotification kafka skipped/failed (standalone OK): {}",
+                    exception.getMessage());
         }
         log.info("-- doTriggerNotification END => {}", event);
     }

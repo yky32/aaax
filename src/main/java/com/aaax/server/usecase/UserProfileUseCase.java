@@ -7,6 +7,7 @@ import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
 import com.aaax.core.entity.dto.uaa.response.GetUserVerificationResponseDto;
 import com.aaax.core.entity.dto.util.response.GetCdnResponseDto;
 import com.aaax.core.exception.BizException;
+import com.aaax.core.response.SystemResponse;
 import com.aaax.core.utils.*;
 import com.aaax.server.entity.dto.json_context.user_management.UserProfileMetadata;
 import com.aaax.server.entity.dto.request.UpdateUserProfileRequestDto;
@@ -29,6 +30,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -44,6 +46,8 @@ public class UserProfileUseCase {
     private final UtilApiClient utilApiClient;
     private final ResourceLoader resourceLoader;
     private final UaaService uaaService;
+    @Value("${aaax.ext.util-enabled:false}")
+    private boolean utilEnabled;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -110,6 +114,11 @@ public class UserProfileUseCase {
         UserProfile userProfile = userProfileRepository.findByUserIdAndType(Long.valueOf(IdSplitter.split(userId)), UserProfileType.DEFAULT.name()).orElseGet(() -> generateUserProfile(identifier, Long.valueOf(userId)));
 
         if (ObjectUtils.isNotEmpty(requestDto.getIcon())) {
+            if (!utilEnabled) {
+                throw new BizException(
+                        SystemResponse.PAM0400,
+                        "Avatar upload disabled (set AAAX_UTIL_ENABLED=true and UTIL_SVC_URL)");
+            }
             RequestBody requestBody = RequestBody.create(MediaType.parse(Objects.requireNonNull(requestDto.getIcon().getContentType())), requestDto.getIcon().getBytes());
             List<GetCdnResponseDto> cdnFiles = RetrofitCallHandler._execute(utilApiClient.upload(
                     S3_PATH.concat(userId).concat("/"),

@@ -39,7 +39,7 @@ public class KeyConfig {
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
         return new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID("altech-uaa")
+                .keyID("aaax")
                 .keyUse(KeyUse.SIGNATURE)
                 .build();
     }

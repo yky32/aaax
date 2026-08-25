@@ -1,11 +1,10 @@
 package com.aaax.server.listener.cleaning;
 
 import com.aaax.core.api.DiscordApiClient;
-import com.aaax.core.api.dto.DiscordWebhookMessage;
+import com.aaax.core.api.DiscordWebhookSupport;
 import com.aaax.core.kafka.BaseListener;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.core.utils.JSONUtil;
-import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.repository.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +31,9 @@ public class HousekeepingUserTokenListener extends BaseListener {
 
     private final DiscordApiClient discordApiClient;
     private final UserTokenRepository userTokenRepository;
-    @Value("${ext.api.client.discord.webhookId}")
+    @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;
-    @Value("${ext.api.client.discord.webhookToken}")
+    @Value("${ext.api.client.discord.webhookToken:}")
     private String webhookToken;
 
     // ______ this is the execute method you need to better implemented
@@ -46,10 +45,7 @@ public class HousekeepingUserTokenListener extends BaseListener {
     }
 
     private void discord(ConsumerRecord<String, String> payload) {
-        DiscordWebhookMessage message = DiscordWebhookMessage.builder()
-                .content("```".concat(payload.value()).concat("```"))
-                .build();
-        RetrofitCallHandler._void_execute(discordApiClient.sendWebhookMessage(message, webhookId, webhookToken));
+        DiscordWebhookSupport.sendSafe(discordApiClient, webhookId, webhookToken, "```".concat(payload.value()).concat("```"));
     }
 
     @KafkaListener(

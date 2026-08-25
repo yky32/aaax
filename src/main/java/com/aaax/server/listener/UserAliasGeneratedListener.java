@@ -1,11 +1,10 @@
 package com.aaax.server.listener;
 
 import com.aaax.core.api.DiscordApiClient;
-import com.aaax.core.api.dto.DiscordWebhookMessage;
+import com.aaax.core.api.DiscordWebhookSupport;
 import com.aaax.core.kafka.BaseListener;
 import com.aaax.core.kafka.event.UserAliasGeneratedEvent;
 import com.aaax.core.utils.JSONUtil;
-import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.usecase.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +30,9 @@ public class UserAliasGeneratedListener extends BaseListener {
 
     private final DiscordApiClient discordApiClient;
     private final RegisterUserUseCase registerUserUseCase;
-    @Value("${ext.api.client.discord.webhookId}")
+    @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;
-    @Value("${ext.api.client.discord.webhookToken}")
+    @Value("${ext.api.client.discord.webhookToken:}")
     private String webhookToken;
 
     // ______ this is the execute method you need to better implemented
@@ -47,11 +46,8 @@ public class UserAliasGeneratedListener extends BaseListener {
     @Override
     public void elk(String _message) {
         try {
-            DiscordWebhookMessage message = DiscordWebhookMessage.builder()
-                    .username("#UAA: user-alias generated # ")
-                    .content("```".concat(_message).concat("```"))
-                    .build();
-            RetrofitCallHandler._void_execute(discordApiClient.sendWebhookMessage(message, webhookId, webhookToken));
+            DiscordWebhookSupport.sendSafe(
+                    discordApiClient, webhookId, webhookToken, "```" + _message + "```");
         } catch (Exception exception) {
             log.info("---- // ===== alert => {}", exception.getMessage());
         }
