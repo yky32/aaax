@@ -3,9 +3,10 @@
 ## [0.9.0-SNAPSHOT]
 
 ### Structure
-- **Single project**: qs/uaa + app-core merged under `src/`
-  - `com.aaax.core` — app-core
-  - `com.aaax.*` — uaa
-- No multi-module (`aaax-core` / `aaax-server` removed)
-- Spring Boot **3.1.0** · product name **AAAX**
+- Single Maven module
+- Packages:
+  - `com.aaax.core` — qs app-core
+  - `com.aaax.server` — qs uaa (entity / endpoint / usecase / …)
+- Main: `com.aaax.server.App` (`scanBasePackages` = core + server)
+- Product name **AAAX** · Boot **3.1.0**
 - Credentials scrubbed from `application.yml` (env-only)
