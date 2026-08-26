@@ -9,7 +9,7 @@ Self-host OpenID Connect for Spring teams.
 |--|--|
 | **Site** | https://aaax-www.vercel.app/ |
 | **Main** | `com.aaax.server.App` |
-| **Stack** | Spring Boot **3.1** · Java **17+** (JDK **21** recommended) |
+| **Stack** | Spring Boot **3.1.0** · Java **17+** (JDK **21** recommended) |
 | **Needs** | Postgres · Redis |
 | **License** | Apache-2.0 |
 
@@ -18,6 +18,8 @@ src/main/java/com/aaax/
 ├── core/      ← foundation (BizException, R/Result, AuditEntity, …)
 └── server/    ← IdP (entity, endpoint, usecase, OIDC, …)
 ```
+
+Boot **3.1 OSS support has ended**. This pin matches upstream qs/uaa. Do not treat 3.1 as a current production baseline; upgrade is a later lane.
 
 ---
 
@@ -63,6 +65,8 @@ java -jar target/aaax-0.9.0-SNAPSHOT.jar
 App listens on **http://localhost:8081**  
 Issuer default: **`http://localhost:8081`** (`AS_ISSUER`).
 
+`-DskipTests` still **compiles** tests (needs testcontainers). Use **`-Dmaven.test.skip=true`**.
+
 ### 4. Smoke
 
 ```bash
@@ -81,17 +85,19 @@ Expect OIDC discovery / JWKS JSON when the AS is healthy.
 | `com.aaax.core` | Response envelope, `BizException`, audit base, shared utils |
 | `com.aaax.server` | UAA: users, authn, OTP, OIDC AS, devices, RBAC templates |
 
-Optional mesh HTTP clients (tenant / idv / util) default to a **disabled placeholder** URL.  
-Quinsic-only mesh clients are **not** in this tree (GrandPay, Onboarding, Profile, **Tenant**, **IDV**).
+Quinsic-only mesh clients are **not** in this tree (GrandPay, Onboarding, Profile, Tenant, IDV).  
+Optional leftover clients: **Util** (off unless `AAAX_UTIL_ENABLED=true`) and **Uaa** self-loopback (placeholder URL). Discord webhooks no-op when blank.
 
 Secrets: **env only** — see `.env.example`. Never commit real tokens.
+
+Classpath `jwk/bael-jwt.jks` and `keys/encryption-key.jks` are **local demo** keystores. Override with `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` for anything else.
 
 ---
 
 ## Docs
 
 - Product site: https://aaax-www.vercel.app/  
-- Deeper notes: `docs/` (some historical — code wins)  
+- Eng SoT: `docs/booklet.md` (code wins if it drifts)  
 - Security: `SECURITY.md`
 
 ---
@@ -99,7 +105,3 @@ Secrets: **env only** — see `.env.example`. Never commit real tokens.
 ## Build note
 
 Avoid JDK **26** with older Lombok; use **21**.
-
-```bash
-mvn -DskipTests package
-```

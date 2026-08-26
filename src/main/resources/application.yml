@@ -133,6 +133,14 @@ aaax:
   ext:
     enabled: ${AAAX_EXT_ENABLED:false}
     util-enabled: ${AAAX_UTIL_ENABLED:false}
+  jwk:
+    keystore: ${AAAX_JWK_KEYSTORE:}
+    keystore-password: ${AAAX_JWK_KEYSTORE_PASSWORD:}
+    keystore-alias: ${AAAX_JWK_KEYSTORE_ALIAS:}
+  encryption:
+    keystore: ${AAAX_ENCRYPTION_KEYSTORE:}
+    keystore-password: ${AAAX_ENCRYPTION_KEYSTORE_PASSWORD:}
+    keystore-alias: ${AAAX_ENCRYPTION_KEYSTORE_ALIAS:}
 
 ext:
   api:

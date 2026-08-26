@@ -31,7 +31,7 @@ public final class LoginSmokeAccounts {
     /**
      * Same mailbox as {@link #PRIMARY} with different casing — asserts case-insensitive login (#45).
      */
-    public static final String PRIMARY_EMAIL_MIXED_CASE = "Uaa.Smoke.Primary@Tgt.Gg";
+    public static final String PRIMARY_EMAIL_MIXED_CASE = "Uaa.Smoke.Primary@Aaax.Local";
 
     public static final String OAUTH_CLIENT_ID = "client";
     public static final String OAUTH_CLIENT_SECRET = "secret";

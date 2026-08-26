@@ -2,6 +2,12 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Honest OSS
+
+- Booklet / README / SECURITY aligned to the **live** uaa-port tree (Boot 3.1, qs paths, no v0.7 buffet)
+- JWK + encryption keystores: classpath demo by default; **path / password / alias via env**
+- Smoke mixed-case email domain `@aaax.local` (was `@Tgt.Gg`)
+
 ### Structure
 - Single Maven module
 - `com.aaax.core` — app-core
@@ -27,7 +33,7 @@
 ### OSS hygiene (A+B)
 - Scrubbed secrets from main + test `application.yml` (Discord/Kafka/DB defaults empty)
 - Neutral brand: `AAAX` invoker, `@aaax.local` accounts, issuer port **8081**
-- Removed Quinsic-only HTTP clients: **GrandPay**, **Onboarding**, **Profile**
-- Kept optional mesh clients: tenant / idv / util / uaa / discord (placeholder base when unset)
+- Removed Quinsic-only HTTP clients: **GrandPay**, **Onboarding**, **Profile**, **Tenant**, **IDV**
+- Optional leftover: Util (gated) + Uaa loopback placeholder
 - `JPA_DDL_AUTO` default **validate** (liquibase owns schema)
 - Partner OTP template routing simplified to one env template
