@@ -11,10 +11,10 @@ Do not open public issues for active exploits.
 
 Spring Boot **3.1.0** is **OSS EOL**. Treat this pin as qs/uaa parity, not as a currently patched Boot line.
 
-## Demo keystores
+## Demo / local keys
 
-Classpath `jwk/bael-jwt.jks` and `keys/encryption-key.jks` are **public demo** material for local clone.  
-Do not use them outside local. Override with `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` (and matching password/alias env).
+The jar does **not** ship a JKS. Unset env generates ephemeral RSA for local clone.  
+Production: `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` (and matching password/alias env).
 
 ## Details
 

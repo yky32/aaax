@@ -1,7 +1,6 @@
 package com.aaax.server.usecase;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.aaax.core.api.UaaApiClient;
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.RegexPatternConstant;

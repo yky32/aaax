@@ -90,7 +90,7 @@ Optional leftover clients: **Util** (off unless `AAAX_UTIL_ENABLED=true`) and **
 
 Secrets: **env only** — see `.env.example`. Never commit real tokens.
 
-Classpath `jwk/bael-jwt.jks` and `keys/encryption-key.jks` are **local demo** keystores. Override with `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` for anything else.
+Classpath demo JKS is **not** shipped. Unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (tokens invalid after restart). For anything else set `AAAX_JWK_KEYSTORE` + password + alias.
 
 ---
 

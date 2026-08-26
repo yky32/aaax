@@ -7,6 +7,7 @@ import com.aaax.core.entity.dto.util.response.GetCdnResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.Result;
 import com.aaax.core.utils.RetrofitCallHandler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import retrofit2.Call;
 
 import java.util.List;
@@ -31,6 +33,11 @@ class HandleFileUseCaseTest {
 
     @InjectMocks
     private HandleFileUseCase handleFileUseCase;
+
+    @BeforeEach
+    void enableUtil() {
+        ReflectionTestUtils.setField(handleFileUseCase, "utilEnabled", true);
+    }
 
     @Test
     @DisplayName("execute should upload file and return metadata")
