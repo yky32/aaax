@@ -25,6 +25,8 @@ config:
 spring:
   application:
     name: ${APPLICATION_NAME:AAAX}
+  main:
+    allow-bean-definition-overriding: true
   servlet:
     multipart:
       max-file-size: ${MULTIPART_MAX_FILE_SIZE:20MB}
