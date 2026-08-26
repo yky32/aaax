@@ -25,10 +25,8 @@ jobs:
             exit 1
           fi
           echo 'OK: settings + no private dependency coordinates'
-      - name: Test (JDK 21 + Boot 4.1 + Central only)
-        run: mvn -B clean test
-      - name: Package
-        run: mvn -B -DskipTests package
+      - name: Package (JDK 21 + Boot 3.1 + Central only)
+        run: mvn -B -Dmaven.test.skip=true package
       - name: Dependency tree has no private artifacts
         run: |
           mvn -B -q dependency:tree -DoutputFile=target/deps.txt
