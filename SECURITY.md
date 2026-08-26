@@ -7,11 +7,18 @@ Do not open public issues for active exploits.
 
 | Version | Supported |
 |---------|-----------|
-| `main` (`0.2.x-SNAPSHOT`) | Yes — best effort |
+| `main` (`0.9.0-SNAPSHOT`) | Yes — best effort |
+
+Spring Boot **3.1.0** is **OSS EOL**. Treat this pin as qs/uaa parity, not as a currently patched Boot line.
+
+## Demo keystores
+
+Classpath `jwk/bael-jwt.jks` and `keys/encryption-key.jks` are **public demo** material for local clone.  
+Do not use them outside local. Override with `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` (and matching password/alias env).
 
 ## Details
 
-Full posture (demo secrets, JWK file, OTP logging, rotation) →  
-**[docs/booklet.md](./docs/booklet.md)** (§15 Security posture)
+Posture (demo secrets, JWK file, OTP logging, rotation) →  
+**[docs/booklet.md](./docs/booklet.md)** (§8 Security posture)
 
 Edit the booklet for security narrative; keep this file as the GitHub security policy entry point.

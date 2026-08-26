@@ -39,6 +39,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -93,6 +95,12 @@ public class AuthenticationServerConfig {
     public static final String KEY_ALIAS = "bael-oauth-jwt";
     public static final String KEY_STORE_FILE = "jwk/bael-jwt.jks";
     public static final String KEY_STORE_PASSWORD = "bael-pass";
+    @Value("${aaax.jwk.keystore:}")
+    private String jwkKeystorePath;
+    @Value("${aaax.jwk.keystore-password:}")
+    private String jwkKeystorePassword;
+    @Value("${aaax.jwk.keystore-alias:}")
+    private String jwkKeystoreAlias;
     private final static String[] byPassUris = {
             "/actuator/**",
             "/v3/**",
@@ -440,9 +448,22 @@ public class AuthenticationServerConfig {
 
     public KeyPair keyPair() {
         // TODO: can be migrated to AWS.kms , Azure.keyVault
-        ClassPathResource ksFile = new ClassPathResource(KEY_STORE_FILE);
-        KeyStoreKeyFactory ksFactory = new KeyStoreKeyFactory(ksFile, KEY_STORE_PASSWORD.toCharArray());
-        return ksFactory.getKeyPair(KEY_ALIAS);
+        // Empty env = classpath demo JKS. Non-local: AAAX_JWK_KEYSTORE (+ password/alias).
+        KeyStoreKeyFactory ksFactory = new KeyStoreKeyFactory(
+                jwkKeystoreResource(),
+                resolve(jwkKeystorePassword, KEY_STORE_PASSWORD).toCharArray());
+        return ksFactory.getKeyPair(resolve(jwkKeystoreAlias, KEY_ALIAS));
+    }
+
+    private Resource jwkKeystoreResource() {
+        if (jwkKeystorePath != null && !jwkKeystorePath.isBlank()) {
+            return new FileSystemResource(jwkKeystorePath);
+        }
+        return new ClassPathResource(KEY_STORE_FILE);
+    }
+
+    private static String resolve(String override, String demoDefault) {
+        return (override == null || override.isBlank()) ? demoDefault : override;
     }
 
     private RSAKey generateRsa(KeyPair keyPair) {
