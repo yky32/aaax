@@ -35,6 +35,3 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
-      - name: Enforcer (JDK + banned private deps)
-        # Rules live on execution id enforce-java-and-oss (also runs in default lifecycle)
-        run: mvn -B enforcer:enforce@enforce-java-and-oss
