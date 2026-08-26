@@ -45,10 +45,11 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private Q
 | Register / OTP / forgot-password (qs paths) | ✅ |
 | OSS mesh strip: GrandPay / Onboarding / Profile / Tenant / IDV HTTP | ✅ |
 | Discord blank = no-op · Util gated · Kafka consumers default **off** | ✅ |
+| Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset; file via `AAAX_JWK_KEYSTORE` |
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML IdP · orgs | ❌ |
 | Boot **4.1** | ❌ later lane — parent is **3.1.0** (OSS EOL) |
-| Full `mvn test` without testcontainers | ❌ use `-Dmaven.test.skip=true` to package |
+| `mvn test` | ✅ unit + Testcontainers IT (Docker CLI IT excluded from default surefire) |
 
 **Spring Boot 3.1 OSS support ended 2024-06.** This pin matches upstream qs/uaa. Do not claim production IdP hardening on 3.1. Upgrade is an explicit later lane — not silent.
 
@@ -126,17 +127,17 @@ One `application.yml`. Secrets **env only**.
 | `AS_ISSUER` | `http://localhost:8081` |
 | `AAAX_UTIL_ENABLED` | `false` |
 | Kafka consumers | all `false` |
-| `AAAX_JWK_KEYSTORE` | empty → classpath `jwk/bael-jwt.jks` (**demo**) |
-| `AAAX_ENCRYPTION_KEYSTORE` | empty → classpath `keys/encryption-key.jks` (**demo**) |
+| `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (tokens die on restart) |
+| `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA |
 
-Do not use the classpath demo JKS outside local. Point env at files you control.
+File keystores: set path **and** password **and** alias. Nothing ships in the jar.
 
 ---
 
 ## 8. Security posture
 
-- Demo keystores live in the jar for clone DX. Treat as **public demo keys**. Rotate / replace before any real deploy.
-- Keystore **path, password, alias** override via env (see `.env.example`).
+- No demo JKS in the classpath. Unset env = ephemeral keys for local clone only.
+- Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.
 - CSRF is **disabled** on the resource chain (uaa copy).
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
@@ -147,7 +148,7 @@ Do not use the classpath demo JKS outside local. Point env at files you control.
 
 **Removed HTTP mesh (do not re-add without an explicit ask):** GrandPay · Onboarding · Profile · Tenant · IDV.
 
-**Kept local:** `User` / `Authentication` · `UserRoute` (opaque `tenantRoleRouteId`, no tenant-service call) · `UserVerification` list/get/patch (external IDV start throws) · Util client gated · Uaa self-client placeholder.
+**Kept local:** `User` / `Authentication` · `UserRoute` (opaque `tenantRoleRouteId`, no tenant-service call) · `UserVerification` list/get/patch (external IDV start throws) · Util client gated · Uaa Retrofit client (placeholder URL, unused on register).
 
 ---
 

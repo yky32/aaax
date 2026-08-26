@@ -1,6 +1,5 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.api.UaaApiClient;
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.enu.LoginType;
@@ -69,8 +68,6 @@ class RegisterUserUseCaseTest {
     private UserProfileUseCase userProfileUseCase;
     @Mock
     private UserPreferenceUseCase userPreferenceUseCase;
-    @Mock
-    private UaaApiClient uaaApiClient;
     @Mock
     private UtilApiClient utilApiClient;
 

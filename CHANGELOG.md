@@ -5,8 +5,11 @@
 ### Honest OSS
 
 - Booklet / README / SECURITY aligned to the **live** uaa-port tree (Boot 3.1, qs paths, no v0.7 buffet)
-- JWK + encryption keystores: classpath demo by default; **path / password / alias via env**
-- Smoke mixed-case email domain `@aaax.local` (was `@Tgt.Gg`)
+- JWK + encryption: **no JKS in the jar**; ephemeral RSA when env unset; file path+password+alias otherwise
+- Smoke mixed-case email domain `@aaax.local`
+- Drop unused core leftovers (`CardBrand`, empty tenant PaymentGateway metadata)
+- Register no longer imports unused `UaaApiClient`
+- Testcontainers on `mvn test` (IT); Docker CLI IT excluded from default surefire
 
 ### Structure
 - Single Maven module

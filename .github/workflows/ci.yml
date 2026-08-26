@@ -8,6 +8,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aaax
+          POSTGRES_USER: aaax
+          POSTGRES_PASSWORD: aaax
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aaax -d aaax"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -19,14 +42,13 @@ jobs:
         run: |
           test -f .mvn/settings.xml
           test -f .mvn/maven.config
-          # Ban list in enforcer may mention private names; only fail on real Maven coordinates
           if grep -nE '<groupId>com\.quinsic(\.|<)|<artifactId>app-core</artifactId>' pom.xml; then
             echo 'Private dependency coordinate found in pom.xml' >&2
             exit 1
           fi
           echo 'OK: settings + no private dependency coordinates'
-      - name: Package (JDK 21 + Boot 3.1 + Central only)
-        run: mvn -B -Dmaven.test.skip=true package
+      - name: Test + package (JDK 21 + Boot 3.1 + Central only)
+        run: mvn -B package
       - name: Dependency tree has no private artifacts
         run: |
           mvn -B -q dependency:tree -DoutputFile=target/deps.txt
@@ -35,3 +57,34 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
+      - name: Runtime smoke (discovery + JWKS)
+        env:
+          SERVER_PORT: "8081"
+          AS_ISSUER: http://localhost:8081
+          DB_URL: jdbc:postgresql://localhost:5432/aaax
+          DB_USERNAME: aaax
+          DB_PASSWORD: aaax
+          JPA_DDL_AUTO: update
+          LIQUIBASE_ENABLED: "false"
+          REDIS_URL: localhost
+          REDIS_PORT: "6379"
+          REDIS_SSL: "false"
+          AAAX_UTIL_ENABLED: "false"
+        run: |
+          set -euo pipefail
+          java -jar target/aaax-0.9.0-SNAPSHOT.jar > /tmp/aaax.log 2>&1 &
+          echo $! > /tmp/aaax.pid
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"'; then
+              echo 'OK: JWKS'
+              curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
+                && echo 'OK: discovery' || echo 'WARN: no OIDC discovery document'
+              kill "$(cat /tmp/aaax.pid)" || true
+              exit 0
+            fi
+            sleep 3
+          done
+          echo 'FAIL: app did not serve discovery in time'
+          tail -n 80 /tmp/aaax.log
+          kill "$(cat /tmp/aaax.pid)" || true
+          exit 1

@@ -51,16 +51,27 @@ class LoginSmokeAccountsTestcontainersTest {
         );
         try (Connection c = open()) {
             for (String stmt : sql.split(";")) {
-                String s = stmt.trim();
-                if (s.isEmpty() || s.startsWith("--")) {
+                String s = stripSqlComments(stmt);
+                if (s.isEmpty()) {
                     continue;
                 }
-                // keep multi-line; strip line comments lightly
                 try (var st = c.createStatement()) {
                     st.execute(s);
                 }
             }
         }
+    }
+
+    private static String stripSqlComments(String stmt) {
+        StringBuilder cleaned = new StringBuilder();
+        for (String line : stmt.split("\n")) {
+            String t = line.trim();
+            if (t.isEmpty() || t.startsWith("--")) {
+                continue;
+            }
+            cleaned.append(line).append('\n');
+        }
+        return cleaned.toString().trim();
     }
 
     private static Connection open() throws Exception {
