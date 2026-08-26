@@ -103,7 +103,9 @@ public class AuthenticationServerConfig {
             "/v3/**",
             "/swagger-ui/**",
             "/keys/public-keys",
-            "/ws/**"
+            "/ws/**",
+            "/.well-known/**",
+            "/oauth2/jwks"
     };
     private final HttpServletRequest request;
     private final GlobalExceptionHandler globalExceptionHandler;

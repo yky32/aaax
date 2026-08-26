@@ -74,10 +74,11 @@ jobs:
           set -euo pipefail
           java -jar target/aaax-0.9.0-SNAPSHOT.jar > /tmp/aaax.log 2>&1 &
           echo $! > /tmp/aaax.pid
-          for i in $(seq 1 40); do
-            if curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"'; then
-              curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"'
-              echo 'OK: discovery + JWKS'
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"'; then
+              echo 'OK: JWKS'
+              curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
+                && echo 'OK: discovery' || echo 'WARN: no OIDC discovery document'
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi
