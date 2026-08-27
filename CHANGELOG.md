@@ -21,6 +21,7 @@
 - `.env.example` — first-boot friendly (`JPA_DDL_AUTO=update`)
 - `scripts/quickstart-smoke.sh` — discovery/JWKS probe
 - `scripts/token-smoke.sh` — `custom-password-grant` when `AAAX_CLIENT_*` + user env are set (no boot seed)
+- `examples/curl/` — qs-path recipes (register / OTP / login / me). No events catalog on this tree.
 - README **Five minutes** section
 
 ### Batch D (standalone OSS)
