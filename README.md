@@ -76,6 +76,32 @@ chmod +x scripts/quickstart-smoke.sh
 
 Expect OIDC discovery / JWKS JSON when the AS is healthy.
 
+### 5. Token (optional)
+
+Empty DB does **not** seed an OAuth client or user. After you have both (JDBC `oauth2_registered_client` + `users`/`authentications`), export and run:
+
+```bash
+export AAAX_CLIENT_ID=client
+export AAAX_CLIENT_SECRET=secret
+export AAAX_USERNAME=uaa.smoke.primary@aaax.local
+export AAAX_CREDENTIALS='SmokePrimary!1'
+chmod +x scripts/token-smoke.sh
+./scripts/token-smoke.sh
+```
+
+Same call by hand:
+
+```bash
+curl -sS -u "$AAAX_CLIENT_ID:$AAAX_CLIENT_SECRET" \
+  -X POST http://localhost:8081/oauth2/token \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -d 'grant_type=custom-password-grant' \
+  -d "username=$AAAX_USERNAME" \
+  -d "credentials=$AAAX_CREDENTIALS"
+```
+
+Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`). Values above match test fixture `LoginSmokeAccounts` — they are **not** inserted on first boot.
+
 ---
 
 ## Layout

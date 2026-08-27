@@ -23,3 +23,4 @@ fi
 
 echo
 echo "OK — if discovery/jwks return JSON, AS is up."
+echo "Token (needs client + user already in DB): ./scripts/token-smoke.sh"

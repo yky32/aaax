@@ -111,9 +111,11 @@ cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ./scripts/quickstart-smoke.sh
+# token (env required — no client/user seed on empty DB):
+# AAAX_CLIENT_ID=… AAAX_CLIENT_SECRET=… AAAX_USERNAME=… AAAX_CREDENTIALS=… ./scripts/token-smoke.sh
 ```
 
-Smoke identities (tests): `uaa.smoke.primary@aaax.local` / `SmokePrimary!1` · client `client`/`secret`.
+Smoke identities (tests, not auto-inserted): `uaa.smoke.primary@aaax.local` / `SmokePrimary!1` · client `client`/`secret`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
 
 ---
 
