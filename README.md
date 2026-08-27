@@ -102,6 +102,8 @@ curl -sS -u "$AAAX_CLIENT_ID:$AAAX_CLIENT_SECRET" \
 
 Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`). Values above match test fixture `LoginSmokeAccounts` — they are **not** inserted on first boot.
 
+More qs-path recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
+
 ---
 
 ## Layout

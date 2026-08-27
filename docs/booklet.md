@@ -78,6 +78,8 @@ OAuth/OIDC: `/oauth2/*` · discovery · JWKS. Issuer default `http://localhost:8
 
 There is **no** `/v1/accounts` API on this tree.
 
+Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events catalog endpoint.
+
 ---
 
 ## 5. Grants
