@@ -2,6 +2,13 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 4
+- Spring Boot **4.1.1** (Framework 7 / Security 7 / Hibernate 7); **Java 21** required
+- Starters: `webmvc`, `security-oauth2-authorization-server`, `security-oauth2-resource-server`; Kafka via `spring-boot-starter-kafka`
+- Hibernate 7: `@SnowflakeId` (`@IdGeneratorType`) replaces `@GenericGenerator`; JSON columns use `@JdbcTypeCode(SqlTypes.JSON)`
+- Authorization server filter chain uses `HttpSecurity.oauth2AuthorizationServer` (Security 7); `DaoAuthenticationProvider` takes `UserDetailsService` in the constructor
+- Still on Jackson 2 via `spring-boot-jackson2` (Jackson 3 not in this wave)
+
 ### Wave 3
 - Snowflake IDs use a 12-bit sequence cap (`1 << 12`), not XOR (`2 ^ 12` → 14)
 - Password policy: default min 8 chars (`aaax.security.password-patterns`); system config still overrides
@@ -35,7 +42,7 @@
 
 ### Honest OSS
 
-- Booklet / README / SECURITY aligned to the live tree (Boot 3.1, no v0.7 buffet)
+- Booklet / README / SECURITY aligned to the live tree (no v0.7 buffet)
 - JWK + encryption: **no JKS in the jar**; ephemeral RSA when env unset; file path+password+alias otherwise
 - Smoke mixed-case email domain `@aaax.local`
 - Drop unused core leftovers (`CardBrand`, empty tenant PaymentGateway metadata)

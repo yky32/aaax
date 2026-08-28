@@ -1,11 +1,11 @@
 package com.aaax.server.entity.po.configuration;
 
 import com.aaax.core.entity.AuditEntityWithIsActive;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 @EqualsAndHashCode(callSuper = true)
@@ -21,8 +21,7 @@ public class SystemConfiguration extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "api_key_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "api_key_id_generator")
+    @SnowflakeId
     private Long id;
     @Column
     private String name; // user-register.otp
@@ -30,7 +29,7 @@ public class SystemConfiguration extends AuditEntityWithIsActive {
     private String target; // otp
     @Column
     private String scope; // otp.global
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object value; // user-register.otp
 }

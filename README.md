@@ -9,7 +9,7 @@ One Maven project: packages `com.aaax.core` · `com.aaax.server`.
 |--|--|
 | **Site** | https://aaax-www.vercel.app/ |
 | **Main** | `com.aaax.server.App` |
-| **Stack** | Spring Boot **3.1.0** · Java **17+** (JDK **21** recommended) |
+| **Stack** | Spring Boot **4.1.1** · Java **21** |
 | **Needs** | Postgres · Redis |
 | **License** | Apache-2.0 |
 
@@ -19,7 +19,7 @@ src/main/java/com/aaax/
 └── server/    ← authentication server (entity, endpoint, usecase, OIDC, …)
 ```
 
-Boot **3.1 OSS support has ended**. Do not treat 3.1 as a current production baseline; upgrade is a later lane.
+Jackson **2** is still on the classpath (`spring-boot-jackson2`) for Retrofit/`JSONUtil`. Jackson 3 is a later lane.
 
 ---
 

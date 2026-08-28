@@ -1,11 +1,11 @@
 package com.aaax.server.entity.po.user_management;
 
 import com.aaax.core.entity.AuditEntityWithIsActive;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 
@@ -29,8 +29,7 @@ public class UserPermission extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_permission_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_permission_id_generator")
+    @SnowflakeId
     private Long id;
 
     @Column
@@ -41,7 +40,7 @@ public class UserPermission extends AuditEntityWithIsActive {
     // ________________
     // will copy from [RbacTemplate.class] at new CREATE,
     // then operate it later on this field
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> actualPermissions; // the keys = roles name
 

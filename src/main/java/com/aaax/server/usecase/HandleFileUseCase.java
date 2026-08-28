@@ -66,7 +66,7 @@ public class HandleFileUseCase {
 
         try {
             var mediaType = MediaType.parse(Objects.requireNonNull(file.getContentType()));
-            var requestBody = RequestBody.create(file.getBytes(), mediaType);
+            var requestBody = RequestBody.create(mediaType, file.getBytes());
             var cdnFiles = RetrofitCallHandler._execute(utilApiClient.upload(
                             path, MultipartBody.Part.createFormData("files", storedFilename, requestBody)))
                     .getData();

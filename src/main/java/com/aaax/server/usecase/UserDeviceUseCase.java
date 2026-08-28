@@ -184,7 +184,7 @@ public class UserDeviceUseCase {
                 pageable.getSort().iterator().next().getDirection(),
                 pageable.getSort().iterator().next().getProperty()
         );
-        Specification<UserDevice> specification = Specification.where(null);
+        Specification<UserDevice> specification = Specification.unrestricted();
         specification = specification.and(((root, query, builder) -> builder.between(root.get("createDt"), _startDt, _endDt.plusSeconds(1)))); // in-case last second. of 23:59:59
         Page<UserDevice> userDevices = userDeviceRepository.findAll(specification, pageRequest);
         log.info("-- ================ Fetch ALL userDevices =======================");

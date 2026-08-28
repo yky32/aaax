@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -26,8 +26,7 @@ public class UserToken extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_token_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_token_id_generator")
+    @SnowflakeId
     private Long id;
     @Column
     private String traceId; // the exact traceId of the event
@@ -46,7 +45,7 @@ public class UserToken extends AuditEntityWithIsActive {
     @JsonDeserialize(using = InstantDeserializer.class)
     @JsonSerialize(using = InstantSerializer.class)
     private Instant expireAt;
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object value;
 }

@@ -24,7 +24,7 @@ public class UserProfileService {
 
     public List<UserProfile> search(String searchText) {
         if (!StringUtils.isEmpty(searchText)) {
-            Specification<UserProfile> specification = Specification.where(null);
+            Specification<UserProfile> specification = Specification.unrestricted();
             List<JpaSearchFieldMetadata> filters = JpaUtil.getJpaSearchFieldMetadata("jpa_specification/get_user_profile_specification.json", resourceLoader);
             log.info("-- List<JpaSearchFieldMetadata> for [Specification<UserProfile>] => {}", filters);
             specification = specification.and((Specification<UserProfile>) JpaUtil.fuzzySearchSpecification(searchText, filters));
@@ -35,7 +35,7 @@ public class UserProfileService {
 
     public List<UserProfile> searchNames(String searchText) {
         if (!StringUtils.isEmpty(searchText)) {
-            Specification<UserProfile> specification = Specification.where(null);
+            Specification<UserProfile> specification = Specification.unrestricted();
             List<JpaSearchFieldMetadata> filters = JpaUtil.getJpaSearchFieldMetadata("jpa_specification/get_user_profile_names_specification.json", resourceLoader);
             log.info("-- List<JpaSearchFieldMetadata> for [Specification<UserProfile>] Names=> {}", filters);
             specification = specification.and((Specification<UserProfile>) JpaUtil.fuzzySearchSpecification(searchText, filters));
@@ -46,7 +46,7 @@ public class UserProfileService {
 
     public List<UserProfile> searchEmail(String searchText) {
         if (!StringUtils.isEmpty(searchText)) {
-            Specification<UserProfile> specification = Specification.where(null);
+            Specification<UserProfile> specification = Specification.unrestricted();
             List<JpaSearchFieldMetadata> filters = JpaUtil.getJpaSearchFieldMetadata("jpa_specification/get_user_profile_email_specification.json", resourceLoader);
             log.info("-- List<JpaSearchFieldMetadata> for [Specification<UserProfile>] Email=> {}", filters);
             specification = specification.and((Specification<UserProfile>) JpaUtil.fuzzySearchSpecification(searchText, filters));

@@ -8,13 +8,11 @@ spring:
   application:
     name: ${APPLICATION_NAME:AAAX-TEST}
   datasource:
-    initialization-mode: always
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:postgresql:13.2:///?TC_INITSCRIPT=ddl.sql
     password: ${DB_PASSWORD:}
     username: ${DB_USERNAME:aaax}
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     defer-datasource-initialization: false
     hibernate:
       ddl-auto: update
