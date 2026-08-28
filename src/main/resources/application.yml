@@ -132,6 +132,7 @@ oauth-provider:
 
 # Optional integrations (all off by default)
 aaax:
+  local-seed: ${AAAX_LOCAL_SEED:false}
   ext:
     enabled: ${AAAX_EXT_ENABLED:false}
     util-enabled: ${AAAX_UTIL_ENABLED:false}

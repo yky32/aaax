@@ -1,0 +1,15 @@
+# First-clone profile: Hibernate creates domain tables; optional seed inserts client + smoke user.
+# java -jar aaax-*.jar --spring.profiles.active=local
+# Do not use in production.
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/aaax}
+    username: ${DB_USERNAME:aaax}
+    password: ${DB_PASSWORD:aaax}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+aaax:
+  local-seed: ${AAAX_LOCAL_SEED:true}

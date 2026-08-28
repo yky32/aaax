@@ -85,6 +85,7 @@ oauth-provider:
       client-id: ${WEB_APPLE_CLIENT_ID:}
 
 aaax:
+  local-seed: false
   ext:
     util-enabled: false
     enabled: false

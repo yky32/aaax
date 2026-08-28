@@ -3,7 +3,6 @@
 **Accounts · Authentication · Authorization · eXperiences**
 
 Self-host OpenID Connect for Spring teams.  
-Self-host OpenID Connect for Spring teams.  
 One Maven project: packages `com.aaax.core` · `com.aaax.server`.
 
 | | |
@@ -17,7 +16,7 @@ One Maven project: packages `com.aaax.core` · `com.aaax.server`.
 ```text
 src/main/java/com/aaax/
 ├── core/      ← foundation (BizException, R/Result, AuditEntity, …)
-└── server/    ← IdP (entity, endpoint, usecase, OIDC, …)
+└── server/    ← authentication server (entity, endpoint, usecase, OIDC, …)
 ```
 
 Boot **3.1 OSS support has ended**. Do not treat 3.1 as a current production baseline; upgrade is a later lane.
@@ -53,8 +52,9 @@ cp .env.example .env
 set -a && source .env && set +a
 ```
 
-First empty database: keep **`JPA_DDL_AUTO=update`** and **`LIQUIBASE_ENABLED=false`**  
-(Liquibase files here are incremental; full schema comes from JPA on first boot.)
+`.env.example` sets **`SPRING_PROFILES_ACTIVE=local`**: Hibernate `ddl-auto=update` for domain tables, Liquibase creates `oauth2_registered_client`, and **`AAAX_LOCAL_SEED=true`** inserts OAuth client `client`/`secret` plus user `smoke.primary@aaax.local` / `SmokePrimary!1`.
+
+Do **not** use `local` seed in production (`AAAX_LOCAL_SEED=false`, no `local` profile).
 
 ### 3. Build & run
 
@@ -62,6 +62,8 @@ First empty database: keep **`JPA_DDL_AUTO=update`** and **`LIQUIBASE_ENABLED=fa
 mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ```
+
+(or `java -jar target/aaax-0.9.0-SNAPSHOT.jar --spring.profiles.active=local` if you skipped `.env`)
 
 App listens on **http://localhost:8081**  
 Issuer default: **`http://localhost:8081`** (`AS_ISSUER`).
@@ -77,31 +79,29 @@ chmod +x scripts/quickstart-smoke.sh
 
 Expect OIDC discovery / JWKS JSON when the AS is healthy.
 
-### 5. Token (optional)
+### 5. Token
 
-Empty DB does **not** seed an OAuth client or user. After you have both (JDBC `oauth2_registered_client` + `users`/`authentications`), export and run:
+With profile `local` + seed, run:
 
 ```bash
-export AAAX_CLIENT_ID=client
-export AAAX_CLIENT_SECRET=secret
-export AAAX_USERNAME=smoke.primary@aaax.local
-export AAAX_CREDENTIALS='SmokePrimary!1'
 chmod +x scripts/token-smoke.sh
 ./scripts/token-smoke.sh
 ```
 
+Defaults: client `client`/`secret`, user `smoke.primary@aaax.local` / `SmokePrimary!1`. Override with `AAAX_CLIENT_*` / `AAAX_USERNAME` / `AAAX_CREDENTIALS`.
+
 Same call by hand:
 
 ```bash
-curl -sS -u "$AAAX_CLIENT_ID:$AAAX_CLIENT_SECRET" \
+curl -sS -u client:secret \
   -X POST http://localhost:8081/oauth2/token \
   -H 'content-type: application/x-www-form-urlencoded' \
   -d 'grant_type=custom-password-grant' \
-  -d "username=$AAAX_USERNAME" \
-  -d "credentials=$AAAX_CREDENTIALS"
+  -d 'username=smoke.primary@aaax.local' \
+  -d 'credentials=SmokePrimary!1'
 ```
 
-Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`). Values above match test fixture `LoginSmokeAccounts` — they are **not** inserted on first boot.
+Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`).
 
 More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
 

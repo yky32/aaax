@@ -1,10 +1,10 @@
 package com.aaax.server.support;
 
 /**
- * Fixed AAAX login smoke accounts for quality gates (unit / Testcontainers / env smoke).
+ * Fixed AAAX login smoke accounts for quality gates and {@code aaax.local-seed}.
  * <p>
- * Never use real customer accounts. Password grant path:
- * {@code POST /oauth2/token} + {@code grant_type=custom-password-grant}
+ * Local clone only — never use these credentials in production.
+ * Password grant: {@code POST /oauth2/token} + {@code grant_type=custom-password-grant}
  * + Basic {@code client:secret}.
  */
 public final class LoginSmokeAccounts {

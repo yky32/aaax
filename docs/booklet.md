@@ -39,6 +39,7 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 |--|--|
 | Single jar, Central Maven, no private `app-core` | ✅ |
 | Postgres + Redis local (compose) | ✅ |
+| First clone: profile `local` + seed client/user | ✅ |
 | OIDC discovery / JWKS / `/oauth2/token` | ✅ |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (third-party grant) | ✅ |
@@ -102,7 +103,7 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 
 ## 6. Run locally
 
-See README **Five minutes**. First empty DB: `JPA_DDL_AUTO=update` and `LIQUIBASE_ENABLED=false`.
+See README **Five minutes**. First empty DB: profile **`local`** (`ddl-auto=update` + `AAAX_LOCAL_SEED=true`).
 
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
@@ -111,11 +112,12 @@ cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ./scripts/quickstart-smoke.sh
-# token (env required — no client/user seed on empty DB):
-# AAAX_CLIENT_ID=… AAAX_CLIENT_SECRET=… AAAX_USERNAME=… AAAX_CREDENTIALS=… ./scripts/token-smoke.sh
+./scripts/token-smoke.sh
 ```
 
-Smoke identities (tests, not auto-inserted): `smoke.primary@aaax.local` / `SmokePrimary!1` · client `client`/`secret`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
+Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
+
+Liquibase creates `oauth2_registered_client`. Domain tables come from Hibernate on profile `local`. Default profile stays `ddl-auto=validate` (bring your own schema).
 
 ---
 
@@ -131,6 +133,7 @@ One `application.yml`. Secrets **env only**.
 | Kafka consumers | all `false` |
 | `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (local clone only; tokens die on restart) |
 | `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA (local clone only) |
+| `AAAX_LOCAL_SEED` | `false` (default) · `true` on profile `local` |
 
 File keystores: set path **and** password **and** alias. Nothing ships in the jar. Production **must** set `AAAX_JWK_KEYSTORE`.
 
