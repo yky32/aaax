@@ -52,9 +52,13 @@ cp .env.example .env
 set -a && source .env && set +a
 ```
 
-`.env.example` sets **`SPRING_PROFILES_ACTIVE=local`**: Hibernate `ddl-auto=update` for domain tables, Liquibase creates `oauth2_registered_client`, and **`AAAX_LOCAL_SEED=true`** inserts OAuth client `client`/`secret` plus user `smoke.primary@aaax.local` / `SmokePrimary!1`.
+`.env.example` sets:
 
-Do **not** use `local` seed in production (`AAAX_LOCAL_SEED=false`, no `local` profile).
+- **`JPA_DDL_AUTO=update`** — Hibernate creates domain tables on empty Postgres  
+- **`LIQUIBASE_ENABLED=true`** — creates `oauth2_registered_client`  
+- **`AAAX_LOCAL_SEED=true`** — inserts OAuth client `client`/`secret` and user `smoke.primary@aaax.local` / `SmokePrimary!1`
+
+Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in production.
 
 ### 3. Build & run
 
@@ -62,8 +66,6 @@ Do **not** use `local` seed in production (`AAAX_LOCAL_SEED=false`, no `local` p
 mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ```
-
-(or `java -jar target/aaax-0.9.0-SNAPSHOT.jar --spring.profiles.active=local` if you skipped `.env`)
 
 App listens on **http://localhost:8081**  
 Issuer default: **`http://localhost:8081`** (`AS_ISSUER`).
@@ -81,7 +83,7 @@ Expect OIDC discovery / JWKS JSON when the AS is healthy.
 
 ### 5. Token
 
-With profile `local` + seed, run:
+With `.env` loaded (`AAAX_LOCAL_SEED=true`), run:
 
 ```bash
 chmod +x scripts/token-smoke.sh

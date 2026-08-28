@@ -3,7 +3,7 @@
 ## [0.9.0-SNAPSHOT]
 
 ### Wave 1
-- Profile `local`: Hibernate creates domain tables; Liquibase creates `oauth2_registered_client`
+- Empty-DB clone: `JPA_DDL_AUTO=update` + Liquibase `oauth2_registered_client` (env, no Spring profile)
 - Optional seed (`AAAX_LOCAL_SEED`): OAuth client `client`/`secret` + `smoke.primary@aaax.local`
 - `scripts/token-smoke.sh` / `examples/curl/login-me.sh` default to that seed
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # custom-password-grant → GET /users/me
-# Defaults match profile `local` seed.
+# Defaults match AAAX_LOCAL_SEED (client/secret + smoke.primary@aaax.local).
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT_ID="${AAAX_CLIENT_ID:-client}"

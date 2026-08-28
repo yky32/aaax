@@ -14,7 +14,7 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 | Me | `GET /users/me` Bearer | **200** |
 | Events catalog | — | **not shipped** |
 
-Scripts (running AS on 8081; login/me need profile `local` + seed, or your own client/user):
+Scripts (running AS on 8081; login/me need `AAAX_LOCAL_SEED=true`, or your own client/user):
 
 ```bash
 ./examples/curl/register.sh user@example.com 'Password1!'
@@ -52,7 +52,7 @@ curl -sS -w "\nHTTP %{http_code}\n" -X POST "${AAAX_BASE:-http://localhost:8081}
 ### Login + me
 
 ```bash
-# profile `local` seed — grant_type=custom-password-grant, field credentials=
+# local seed (`AAAX_LOCAL_SEED=true`) — grant_type=custom-password-grant, field credentials=
 ./examples/curl/login-me.sh
 # or scripts/token-smoke.sh then:
 curl -sS -w "\nHTTP %{http_code}\n" \

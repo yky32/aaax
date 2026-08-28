@@ -39,7 +39,7 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 |--|--|
 | Single jar, Central Maven, no private `app-core` | ✅ |
 | Postgres + Redis local (compose) | ✅ |
-| First clone: profile `local` + seed client/user | ✅ |
+| First clone: `.env` + `AAAX_LOCAL_SEED` client/user | ✅ |
 | OIDC discovery / JWKS / `/oauth2/token` | ✅ |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (third-party grant) | ✅ |
@@ -103,7 +103,7 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 
 ## 6. Run locally
 
-See README **Five minutes**. First empty DB: profile **`local`** (`ddl-auto=update` + `AAAX_LOCAL_SEED=true`).
+See README **Five minutes**. First empty DB: copy `.env.example` (`JPA_DDL_AUTO=update` + `AAAX_LOCAL_SEED=true`).
 
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
@@ -117,7 +117,7 @@ java -jar target/aaax-0.9.0-SNAPSHOT.jar
 
 Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
 
-Liquibase creates `oauth2_registered_client`. Domain tables come from Hibernate on profile `local`. Default profile stays `ddl-auto=validate` (bring your own schema).
+Liquibase creates `oauth2_registered_client`. Domain tables come from Hibernate when `JPA_DDL_AUTO=update`. Jar default is `ddl-auto=validate` (bring your own schema; `AAAX_LOCAL_SEED` defaults **false**).
 
 ---
 
@@ -133,7 +133,7 @@ One `application.yml`. Secrets **env only**.
 | Kafka consumers | all `false` |
 | `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (local clone only; tokens die on restart) |
 | `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA (local clone only) |
-| `AAAX_LOCAL_SEED` | `false` (default) · `true` on profile `local` |
+| `AAAX_LOCAL_SEED` | `false` (jar default) · `true` in `.env.example` |
 
 File keystores: set path **and** password **and** alias. Nothing ships in the jar. Production **must** set `AAAX_JWK_KEYSTORE`.
 

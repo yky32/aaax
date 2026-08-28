@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Optional first-clone seed (profile {@code local} / {@code AAAX_LOCAL_SEED=true}).
+ * Optional first-clone seed ({@code AAAX_LOCAL_SEED=true}).
  * Not for production.
  */
 @Component

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # POST /oauth2/token (custom-password-grant). Exit 0 only when the body has a token.
-# Defaults match profile `local` seed (client/secret + smoke.primary@aaax.local).
+# Defaults match AAAX_LOCAL_SEED (client/secret + smoke.primary@aaax.local).
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT_ID="${AAAX_CLIENT_ID:-client}"
@@ -29,5 +29,5 @@ if grep -Eq '"accessToken"|"access_token"' "$body"; then
   echo "OK — token present"
   exit 0
 fi
-echo "FAIL — no accessToken / access_token in body (need profile local + AAAX_LOCAL_SEED)"
+echo "FAIL — no accessToken / access_token in body (need AAAX_LOCAL_SEED=true and JPA_DDL_AUTO=update)"
 exit 1
