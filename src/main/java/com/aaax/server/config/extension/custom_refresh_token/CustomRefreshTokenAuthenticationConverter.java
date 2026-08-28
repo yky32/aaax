@@ -42,10 +42,10 @@ public class CustomRefreshTokenAuthenticationConverter implements Authentication
         MultiValueMap<String, String> parameters = getParameters(request);
 
         // check [refresh token] (REQUIRED)
-        String refreshToken = parameters.getFirst("refresh_token");
+        String refreshToken = parameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN);
 
         if (!StringUtils.hasText(refreshToken) ||
-                parameters.get("refresh_token").size() != 1
+                parameters.get(OAuth2ParameterNames.REFRESH_TOKEN).size() != 1
         ) {
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST.concat(":").concat(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()));
         }
