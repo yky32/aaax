@@ -100,6 +100,8 @@ public class AuthenticationServerConfig {
     private String corsOriginPatterns;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private JwtUserDetailsService jwtUserDetailsService;
 
     /**
      * This Filter is to focus on `/oauth2/token`
@@ -166,15 +168,10 @@ public class AuthenticationServerConfig {
         ;
 
         http.exceptionHandling(c ->
-                // __ Redirect to the login page when not authenticated from the
-                // __ authorization endpoint
                 c.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                 )
-
-        ).oauth2ResourceServer(c ->
-                c.jwt(x -> x.jwkSetUri(jwkSetUri))
         );
         return http.build();
     }
@@ -197,12 +194,24 @@ public class AuthenticationServerConfig {
         return new CorsFilter(source);
     }
 
+    /**
+     * Hosted browser login for {@code /oauth2/authorize}. APIs stay on {@link #filterChain}.
+     */
+    @Bean
+    @Order(0)
+    public SecurityFilterChain hostedLoginFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/login", "/logout", "/authorized")
+                .authorizeHttpRequests(az -> az.anyRequest().permitAll())
+                .formLogin(Customizer.withDefaults())
+                .logout(Customizer.withDefaults());
+        return http.build();
+    }
+
     @Bean
     @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
-        http.formLogin(Customizer.withDefaults());
-        http.csrf(AbstractHttpConfigurer::disable); // API-only: CSRF off. Hosted browser authorize is a later lane.
+        http.csrf(AbstractHttpConfigurer::disable); // API-only. Login CSRF is on hostedLoginFilterChain.
 
         http.authorizeHttpRequests(az -> az
                         .requestMatchers(byPassUris).permitAll()
@@ -348,7 +357,7 @@ public class AuthenticationServerConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(jwtUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
@@ -359,9 +368,8 @@ public class AuthenticationServerConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
     public UserDetailsService userDetailsService() {
-        return new JwtUserDetailsService();
+        return jwtUserDetailsService;
     }
 
     @Bean

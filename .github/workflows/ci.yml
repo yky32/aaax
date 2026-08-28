@@ -57,7 +57,7 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
-      - name: Runtime smoke (RFC 8414 + JWKS + PKCE)
+      - name: Runtime smoke (RFC 8414 + JWKS + PKCE + hosted login)
         env:
           SERVER_PORT: "8081"
           AS_ISSUER: http://localhost:8081
@@ -81,8 +81,9 @@ jobs:
               curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"' && echo 'OK: JWKS'
               curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
                 && echo 'OK: OIDC discovery' || { echo 'FAIL: OIDC discovery'; tail -n 80 /tmp/aaax.log; exit 1; }
-              chmod +x scripts/pkce-smoke.sh
+              chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh
               scripts/pkce-smoke.sh
+              scripts/hosted-authorize-smoke.sh
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi

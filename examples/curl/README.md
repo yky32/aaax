@@ -13,7 +13,9 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 | RFC 8414 metadata | `GET /.well-known/oauth-authorization-server` | **200** JSON with `issuer` |
 | OIDC discovery | `GET /.well-known/openid-configuration` | **200** JSON with `issuer` |
 | Login | `POST /oauth2/token` `custom-password-grant` | **200**, `access_token` |
+| Hosted login | `GET /login` | HTML form |
 | PKCE (seed `aaax-pkce`) | `GET /oauth2/authorize` without `code_challenge` | error mentioning `code_challenge` |
+| Hosted PKCE | `./scripts/hosted-authorize-smoke.sh` | `/authorized` with `code` |
 | Me | `GET /users/me` Bearer | **200** |
 | Events catalog | — | **not shipped** |
 

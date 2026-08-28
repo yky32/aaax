@@ -41,7 +41,8 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Postgres + Redis local (compose) | ✅ |
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
-| PKCE (`aaax-pkce` seed client) | ✅ required on authorize; no hosted login yet |
+| PKCE (`aaax-pkce` seed client) | ✅ required on authorize |
+| Hosted `/login` for `/oauth2/authorize` | ✅ form login + loopback `/authorized`; not RFC 8252 |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (verify / link, not a token grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
@@ -50,7 +51,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset (**local only**); file via `AAAX_JWK_KEYSTORE` |
 | Password policy (min 8 unless system config) + login lockout (5) | ✅ |
 | Device binding on login | ❌ OFF — register path only |
-| Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
+| Hosted `/admin` · `/sign-in` product UI · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML · orgs | ❌ |
 | Boot **4.1.1** | ✅ parent BOM; Java **21** |
 | Jackson **3** | ✅ `tools.jackson` (`JSONUtil`, Redis, Retrofit factory). Annotations stay `com.fasterxml.jackson.annotation` |
@@ -77,7 +78,7 @@ Public (resource chain): register `/users/registrations` · `/users` · `/ext/us
 
 Auth’d JWT: `/users/me` · profiles · devices · preferences · metadata · permissions · RBAC templates · clients · system-configurations · mgt · verification **query**.
 
-OAuth/OIDC: `/oauth2/*` · `/.well-known/oauth-authorization-server` (RFC 8414) · `/.well-known/openid-configuration` · JWKS. Issuer default `http://localhost:8081`.
+OAuth/OIDC: `/oauth2/*` · hosted `/login` (authorize) · loopback `/authorized` · `/.well-known/oauth-authorization-server` (RFC 8414) · `/.well-known/openid-configuration` · JWKS. Issuer default `http://localhost:8081`.
 
 There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-keys` or `/keys/decryption`.
 
@@ -147,7 +148,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 - No demo JKS in the classpath. Unset env = ephemeral keys for **local clone only**.
 - Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.
-- CSRF is **disabled** on the resource chain (API-only). Hosted browser authorize is a later lane.
+- CSRF is **disabled** on the API resource chain. Hosted `/login` uses CSRF. Loopback `/authorized` is local PKCE only.
 - CORS: `AAAX_CORS_ORIGINS` (default `http://localhost:*` and `http://127.0.0.1:*`). Wildcard `*` turns credentials off.
 - Passwords: default pattern `.{8,}` (`aaax.security.password-patterns`). Failed logins lock after `aaax.security.max-login-attempts` (5).
 - Private encryption key is **not** exposed over HTTP.
