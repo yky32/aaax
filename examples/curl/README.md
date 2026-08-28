@@ -10,7 +10,10 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 | Register verify | `POST /users/verifications` | **200** |
 | Create user | `POST /users` | **200** |
 | General OTP | `POST /authentications/one-time-passwords/general` | **200** |
+| RFC 8414 metadata | `GET /.well-known/oauth-authorization-server` | **200** JSON with `issuer` |
+| OIDC discovery | `GET /.well-known/openid-configuration` | **200** JSON with `issuer` |
 | Login | `POST /oauth2/token` `custom-password-grant` | **200**, `access_token` |
+| PKCE (seed `aaax-pkce`) | `GET /oauth2/authorize` without `code_challenge` | error mentioning `code_challenge` |
 | Me | `GET /users/me` Bearer | **200** |
 | Events catalog | — | **not shipped** |
 

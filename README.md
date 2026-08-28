@@ -56,7 +56,7 @@ set -a && source .env && set +a
 
 - **`JPA_DDL_AUTO=update`** — Hibernate creates domain tables on empty Postgres  
 - **`LIQUIBASE_ENABLED=true`** — creates `oauth2_registered_client`  
-- **`AAAX_LOCAL_SEED=true`** — inserts OAuth client `client`/`secret` and user `smoke.primary@aaax.local` / `SmokePrimary!1`
+- **`AAAX_LOCAL_SEED=true`** — inserts confidential `client`/`secret`, public PKCE client `aaax-pkce`, and user `smoke.primary@aaax.local` / `SmokePrimary!1`
 - **`AAAX_KAFKA_ENABLED=false`** — Kafka is optional; first clone only needs Postgres + Redis
 
 Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in production.
@@ -80,7 +80,7 @@ chmod +x scripts/quickstart-smoke.sh
 ./scripts/quickstart-smoke.sh
 ```
 
-Expect OIDC discovery / JWKS JSON when the AS is healthy.
+Expect RFC 8414 (`/.well-known/oauth-authorization-server`), OIDC discovery, and JWKS when the AS is healthy. With seed on: `./scripts/pkce-smoke.sh` (PKCE required on `aaax-pkce`; does not complete a login).
 
 ### 5. Token
 

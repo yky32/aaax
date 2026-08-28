@@ -35,6 +35,9 @@ public final class LoginSmokeAccounts {
 
     public static final String OAUTH_CLIENT_ID = "client";
     public static final String OAUTH_CLIENT_SECRET = "secret";
+    /** Public local client: authorization_code + PKCE only (no client_secret). */
+    public static final String OAUTH_PKCE_CLIENT_ID = "aaax-pkce";
+    public static final String OAUTH_PKCE_REDIRECT_URI = "http://127.0.0.1:8081/authorized";
     public static final String GRANT_TYPE_CUSTOM_PASSWORD = "custom-password-grant";
 
     public record Account(String email, String password) {

@@ -47,12 +47,22 @@ class LocalDevSeedTest {
 
         verify(jdbcTemplate).execute(LocalDevSeed.OAUTH2_REGISTERED_CLIENT_DDL);
         ArgumentCaptor<RegisteredClient> clientCaptor = ArgumentCaptor.forClass(RegisteredClient.class);
-        verify(registeredClientRepository).save(clientCaptor.capture());
-        assertEquals(LoginSmokeAccounts.OAUTH_CLIENT_ID, clientCaptor.getValue().getClientId());
-        assertTrue(clientCaptor.getValue().getAuthorizationGrantTypes().stream()
+        verify(registeredClientRepository, times(2)).save(clientCaptor.capture());
+        RegisteredClient confidential = clientCaptor.getAllValues().stream()
+                .filter(c -> LoginSmokeAccounts.OAUTH_CLIENT_ID.equals(c.getClientId()))
+                .findFirst()
+                .orElseThrow();
+        RegisteredClient pkce = clientCaptor.getAllValues().stream()
+                .filter(c -> LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID.equals(c.getClientId()))
+                .findFirst()
+                .orElseThrow();
+        assertTrue(confidential.getAuthorizationGrantTypes().stream()
                 .anyMatch(g -> LoginSmokeAccounts.GRANT_TYPE_CUSTOM_PASSWORD.equals(g.getValue())));
-        assertTrue(clientCaptor.getValue().getAuthorizationGrantTypes().stream()
+        assertTrue(confidential.getAuthorizationGrantTypes().stream()
                 .anyMatch(g -> "refresh_token".equals(g.getValue())));
+        assertTrue(pkce.getClientSettings().isRequireProofKey());
+        assertTrue(pkce.getClientAuthenticationMethods().contains(
+                org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE));
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).saveAndFlush(userCaptor.capture());
@@ -70,6 +80,11 @@ class LocalDevSeedTest {
         when(registeredClientRepository.findByClientId(LoginSmokeAccounts.OAUTH_CLIENT_ID))
                 .thenReturn(RegisteredClient.withId("x")
                         .clientId(LoginSmokeAccounts.OAUTH_CLIENT_ID)
+                        .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS)
+                        .build());
+        when(registeredClientRepository.findByClientId(LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID))
+                .thenReturn(RegisteredClient.withId("p")
+                        .clientId(LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID)
                         .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS)
                         .build());
         when(userRepository.findByUsernameIgnoreCase(LoginSmokeAccounts.PRIMARY.canonicalEmail()))
