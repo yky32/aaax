@@ -6,14 +6,10 @@ import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenA
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationToken;
 import com.aaax.server.config.extension.customcode.CustomCodeGrantAuthenticationProvider;
 import com.aaax.server.config.extension.customcode.CustomCodeGrantAuthenticationToken;
-import com.aaax.server.config.extension.ext_password.ExtPasswordAuthenticationProvider;
-import com.aaax.server.config.extension.ext_password.ExtPasswordAuthenticationToken;
 import com.aaax.server.config.extension.qrcode.QrCodeGrantAuthenticationProvider;
 import com.aaax.server.config.extension.qrcode.QrCodeGrantAuthenticationToken;
 import com.aaax.server.config.extension.sms.SmsGrantAuthenticationProvider;
 import com.aaax.server.config.extension.sms.SmsGrantAuthenticationToken;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationProvider;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationToken;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,22 +52,6 @@ class AuthenticationProvidersSupportsTest {
         CustomRefreshTokenAuthenticationProvider provider =
                 new CustomRefreshTokenAuthenticationProvider(authorizationService, tokenGenerator, authenticationManager);
         assertTrue(provider.supports(CustomRefreshTokenAuthenticationToken.class));
-    }
-
-    @Test
-    @DisplayName("ext password provider should support its token type")
-    void extPassword_shouldSupportToken() {
-        ExtPasswordAuthenticationProvider provider =
-                new ExtPasswordAuthenticationProvider(authorizationService, tokenGenerator, authenticationManager);
-        assertTrue(provider.supports(ExtPasswordAuthenticationToken.class));
-    }
-
-    @Test
-    @DisplayName("third party provider should support its token type")
-    void thirdParty_shouldSupportToken() {
-        ThirdPartyAuthenticationProvider provider =
-                new ThirdPartyAuthenticationProvider(authorizationService, tokenGenerator, authenticationManager);
-        assertTrue(provider.supports(ThirdPartyAuthenticationToken.class));
     }
 
     @Test

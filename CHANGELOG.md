@@ -6,7 +6,7 @@
 - `/oauth2/token` returns RFC 6749 JSON (`access_token`, `token_type`, `expires_in`, `refresh_token`). `/users` and admin APIs keep the AAAX Result envelope
 - Refresh grant is `refresh_token`
 - Dropped unused `spring-security-oauth2` 2.5, `jjwt`, and `spring-security-jwt`
-- CORS origins from `AAAX_CORS_ORIGINS` (localhost by default; `*` disables credentials). CSRF remains off for this API-only tree
+- Removed `ext-password-grant` and `third-party-grant` from `/oauth2/token` (classes deleted). Google/Apple idToken verify/link remains on `SocialAuthenticationUseCase`.
 
 ### Wave 1
 - Empty-DB clone: `JPA_DDL_AUTO=update` + Liquibase `oauth2_registered_client` (env, no Spring profile)

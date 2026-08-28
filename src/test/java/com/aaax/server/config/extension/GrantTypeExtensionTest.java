@@ -14,9 +14,7 @@ class GrantTypeExtensionTest {
     @CsvSource({
             "custom-password-grant, CUSTOM_PASSWORD_GRANT",
             "custom-password-grant:e, CUSTOM_PASSWORD_GRANT_ENCRYPTED",
-            "refresh_token, CUSTOM_REFRESH_TOKEN",
-            "ext-password-grant, EXT_PASSWORD_GRANT",
-            "third-party-grant, THIRD_PARTY_OAUTH_GRANT"
+            "refresh_token, CUSTOM_REFRESH_TOKEN"
     })
     @DisplayName("get should resolve grant type keys")
     void get_shouldResolve(String key, GrantTypeExtension expected) {

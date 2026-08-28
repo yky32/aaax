@@ -12,8 +12,6 @@ import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncrypte
 import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncryptedAuthenticationProvider;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationConverter;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationProvider;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationConverter;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationProvider;
 import com.aaax.server.exception.GlobalExceptionHandler;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -137,13 +135,6 @@ public class AuthenticationServerConfig {
                 authorizationService(), tokenGenerator(), authenticationManager
         );
 
-        // ===== SOCIAL AUTH
-        ThirdPartyAuthenticationConverter thirdPartyAuthenticationConverter = new ThirdPartyAuthenticationConverter();
-        ThirdPartyAuthenticationProvider thirdPartyAuthenticationProvider = new ThirdPartyAuthenticationProvider(
-                authorizationService(), tokenGenerator(), authenticationManager
-        );
-
-
         AuthenticationSuccessHandler myAuthenticationSuccessHandler = (request, response, authentication) ->
                 RfcOAuth2TokenHttp.writeSuccess(response, (OAuth2AccessTokenAuthenticationToken) authentication);
 
@@ -158,7 +149,6 @@ public class AuthenticationServerConfig {
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT_ENCRYPTED.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())
-                                        .grantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey())
                         ))
                 // add custom grant_type here
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
@@ -168,8 +158,6 @@ public class AuthenticationServerConfig {
                         .authenticationProvider(customPasswordEncryptedAuthenticationProvider)
                         .accessTokenRequestConverter(customRefreshTokenAuthenticationConverter)
                         .authenticationProvider(customRefreshTokenAuthenticationProvider)
-                        .accessTokenRequestConverter(thirdPartyAuthenticationConverter)
-                        .authenticationProvider(thirdPartyAuthenticationProvider)
                         .accessTokenResponseHandler(myAuthenticationSuccessHandler) // final return to client side
                         .errorResponseHandler(authenticationFailureHandler) // final custom to client side
                 )
@@ -260,8 +248,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .redirectUri("http://insomina")
 //                .scope(OidcScopes.OPENID)
@@ -283,8 +269,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .redirectUri("http://insomina") // change later
 //                .scope(OidcScopes.OPENID)
@@ -306,7 +290,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .scope(OidcScopes.OPENID)
 //                .redirectUri("http://insomina") // change later

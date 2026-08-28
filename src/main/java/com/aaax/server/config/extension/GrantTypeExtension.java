@@ -11,9 +11,7 @@ public enum GrantTypeExtension {
     CUSTOM_CODE_GRANT("urn:ietf:params:oauth:grant-type:custom_code"),
     QR_CODE_GRANT("urn:ietf:params:oauth:grant-type:qr_code"),
     SMS_GRANT("urn:ietf:params:oauth:grant-type:custom_code"),
-    CUSTOM_REFRESH_TOKEN("refresh_token"),
-    EXT_PASSWORD_GRANT("ext-password-grant"),
-    THIRD_PARTY_OAUTH_GRANT("third-party-grant")
+    CUSTOM_REFRESH_TOKEN("refresh_token")
     ;
 
     private final String key;

@@ -42,7 +42,7 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user | ✅ |
 | OIDC discovery / JWKS / `/oauth2/token` | ✅ RFC `access_token` JSON |
 | Custom grants wired (see §5) | ✅ |
-| Google + Apple idToken (third-party grant) | ✅ |
+| Google + Apple idToken (verify / link, not a token grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
 | OSS mesh strip: GrandPay / Onboarding / Profile / Tenant / IDV HTTP | ✅ |
 | Discord blank = no-op · Util gated · Kafka **off** (`AAAX_KAFKA_ENABLED`) | ✅ |
@@ -92,10 +92,9 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 | `custom-password-grant` | Primary password |
 | `custom-password-grant:e` | Encrypted password |
 | `refresh_token` | RFC refresh |
-| `third-party-grant` | Google / Apple idToken |
 | authorization_code / client_credentials | SAS defaults |
 
-**Not wired** (classes on disk only; do not present as supported): `custom_code`, `ext-password-grant`, QR and SMS grant converters. Device QR still has `POST /devices/qr-code-login` + WS.
+**Not on `/oauth2/token`:** QR/SMS / `custom_code` grant classes still on disk. Device QR still has `POST /devices/qr-code-login` + WS. Google/Apple idToken **verify/link** stays in `SocialAuthenticationUseCase`; it is not a token grant.
 
 **LoginType enum:** `USERNAME · MOBILE · EMAIL · GOOGLE · FACEBOOK · APPLE · LINE · OTP` · `GRANDPAY` reserved. Social **verify** path = Google + Apple only. Social signup does **not** create a password login.
 
@@ -162,7 +161,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 ## 10. Out of scope until asked
 
 - Boot 4.x upgrade
-- Wiring QR/SMS / custom_code / ext-password grants into `tokenEndpoint`
+- Wiring QR/SMS / custom_code grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh
 - Inventing a greenfield exception stack or `/v1` overlay
