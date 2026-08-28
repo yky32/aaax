@@ -14,7 +14,7 @@ class GrantTypeExtensionTest {
     @CsvSource({
             "custom-password-grant, CUSTOM_PASSWORD_GRANT",
             "custom-password-grant:e, CUSTOM_PASSWORD_GRANT_ENCRYPTED",
-            "refresh-token, CUSTOM_REFRESH_TOKEN",
+            "refresh_token, CUSTOM_REFRESH_TOKEN",
             "ext-password-grant, EXT_PASSWORD_GRANT",
             "third-party-grant, THIRD_PARTY_OAUTH_GRANT"
     })
@@ -35,5 +35,12 @@ class GrantTypeExtensionTest {
     void toAuthorizationGrantType_shouldWrap() {
         AuthorizationGrantType type = GrantTypeExtension.toAuthorizationGrantType("custom-password-grant");
         assertEquals("custom-password-grant", type.getValue());
+    }
+
+    @Test
+    @DisplayName("get should accept legacy refresh-token grant name")
+    void get_shouldAcceptLegacyRefreshGrant() {
+        assertEquals(GrantTypeExtension.CUSTOM_REFRESH_TOKEN, GrantTypeExtension.get("refresh-token"));
+        assertEquals("refresh_token", GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey());
     }
 }

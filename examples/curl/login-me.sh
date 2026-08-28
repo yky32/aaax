@@ -22,12 +22,12 @@ echo
 
 TOKEN=""
 if command -v jq >/dev/null 2>&1; then
-  TOKEN="$(jq -r '.data.accessToken // .accessToken // .access_token // empty' /tmp/aaax-tok.json)"
+  TOKEN="$(jq -r '.access_token // .data.accessToken // .accessToken // empty' /tmp/aaax-tok.json)"
 else
-  TOKEN="$(sed -n 's/.*"accessToken":"\([^"]*\)".*/\1/p' /tmp/aaax-tok.json | head -1)"
+  TOKEN="$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' /tmp/aaax-tok.json | head -1)"
 fi
 if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
-  echo "FAIL — no data.accessToken"
+  echo "FAIL — no access_token"
   exit 1
 fi
 

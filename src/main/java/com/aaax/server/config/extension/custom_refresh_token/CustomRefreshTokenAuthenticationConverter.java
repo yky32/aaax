@@ -33,7 +33,7 @@ public class CustomRefreshTokenAuthenticationConverter implements Authentication
     public Authentication convert(HttpServletRequest request) {
         // grant_type (REQUIRED)
         String grantType = request.getParameter(OAuth2ParameterNames.GRANT_TYPE);
-        if (!GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey().equals(grantType)) {
+        if (!GrantTypeExtension.isRefreshGrant(grantType)) {
             return null;
         }
 

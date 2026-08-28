@@ -3,8 +3,7 @@ package com.aaax.core.utils;
 import com.aaax.core.api.UaaApiClient;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.SystemResponse;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import com.nimbusds.jwt.JWTParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,10 +48,13 @@ public class JwtUtil {
     }
 
     public static boolean isJwt(String token) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
         try {
-            Jwts.parser().parseClaimsJwt(token);
+            JWTParser.parse(token);
             return true;
-        } catch (JwtException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -110,7 +112,7 @@ public class JwtUtil {
     }
 
     public static com.aaax.core.api.Jwt login(UaaApiClient uaaApiClient, String authorization, String grantType, String username, String credentials) {
-        com.aaax.core.api.Jwt jwt = RetrofitCallHandler.execute(uaaApiClient.oauth2Login(authorization, grantType, username, credentials));
+        com.aaax.core.api.Jwt jwt = RetrofitCallHandler._execute(uaaApiClient.oauth2Login(authorization, grantType, username, credentials));
         jwt.setBearerToken(jwt.getTokenType().concat(" ").concat(jwt.getAccessToken()));
         return jwt;
     }

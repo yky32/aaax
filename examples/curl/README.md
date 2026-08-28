@@ -1,6 +1,6 @@
 # curl recipes
 
-Assume `AAAX_BASE=http://localhost:8081`. Bodies are the `R` envelope (`code` + `data`). HTTP is **200** on success unless noted.
+Assume `AAAX_BASE=http://localhost:8081`. User/admin APIs use the `R` envelope (`code` + `data`). **`POST /oauth2/token` is RFC 6749 JSON** (`access_token`). HTTP is **200** on success unless noted.
 
 There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on this tree.
 
@@ -10,7 +10,7 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 | Register verify | `POST /users/verifications` | **200** |
 | Create user | `POST /users` | **200** |
 | General OTP | `POST /authentications/one-time-passwords/general` | **200** |
-| Login | `POST /oauth2/token` `custom-password-grant` | **200**, `data.accessToken` |
+| Login | `POST /oauth2/token` `custom-password-grant` | **200**, `access_token` |
 | Me | `GET /users/me` Bearer | **200** |
 | Events catalog | — | **not shipped** |
 

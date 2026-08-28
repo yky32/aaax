@@ -40,7 +40,7 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 | Single jar, Central Maven, no private `app-core` | ✅ |
 | Postgres + Redis local (compose) | ✅ |
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user | ✅ |
-| OIDC discovery / JWKS / `/oauth2/token` | ✅ |
+| OIDC discovery / JWKS / `/oauth2/token` | ✅ RFC `access_token` JSON |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (third-party grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
@@ -91,7 +91,7 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 |--------------|--------|
 | `custom-password-grant` | Primary password |
 | `custom-password-grant:e` | Encrypted password |
-| `refresh-token` | Custom refresh |
+| `refresh_token` | RFC refresh (legacy `refresh-token` still accepted) |
 | `third-party-grant` | Google / Apple idToken |
 | authorization_code / client_credentials | SAS defaults |
 
@@ -115,7 +115,7 @@ java -jar target/aaax-0.9.0-SNAPSHOT.jar
 ./scripts/token-smoke.sh
 ```
 
-Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
+Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Token JSON: `access_token` (RFC 6749).
 
 Liquibase creates `oauth2_registered_client`. Domain tables come from Hibernate when `JPA_DDL_AUTO=update`. Jar default is `ddl-auto=validate` (bring your own schema; `AAAX_LOCAL_SEED` defaults **false**).
 
@@ -144,7 +144,8 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 - No demo JKS in the classpath. Unset env = ephemeral keys for **local clone only**.
 - Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.
-- CSRF is **disabled** on the resource chain (API-oriented; browser authorize is a later lane).
+- CSRF is **disabled** on the resource chain (API-only). Hosted browser authorize is a later lane.
+- CORS: `AAAX_CORS_ORIGINS` (default `http://localhost:*` and `http://127.0.0.1:*`). Wildcard `*` turns credentials off.
 - Private encryption key is **not** exposed over HTTP.
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
 

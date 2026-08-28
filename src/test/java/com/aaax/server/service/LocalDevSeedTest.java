@@ -51,6 +51,8 @@ class LocalDevSeedTest {
         assertEquals(LoginSmokeAccounts.OAUTH_CLIENT_ID, clientCaptor.getValue().getClientId());
         assertTrue(clientCaptor.getValue().getAuthorizationGrantTypes().stream()
                 .anyMatch(g -> LoginSmokeAccounts.GRANT_TYPE_CUSTOM_PASSWORD.equals(g.getValue())));
+        assertTrue(clientCaptor.getValue().getAuthorizationGrantTypes().stream()
+                .anyMatch(g -> "refresh_token".equals(g.getValue())));
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).saveAndFlush(userCaptor.capture());

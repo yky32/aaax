@@ -19,7 +19,7 @@ public interface UaaApiClient {
 
     @FormUrlEncoded
     @POST("oauth2/token")
-    Call<Result<Jwt>> oauth2Login(
+    Call<Jwt> oauth2Login(
             @Header("Authorization") String authorization,
             @Field("grant_type") String grantType,
             @Field("username") String username,
