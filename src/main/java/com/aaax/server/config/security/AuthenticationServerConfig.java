@@ -100,8 +100,6 @@ public class AuthenticationServerConfig {
     private String corsOriginPatterns;
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private JwtUserDetailsService jwtUserDetailsService;
 
     /**
      * This Filter is to focus on `/oauth2/token`
@@ -113,8 +111,9 @@ public class AuthenticationServerConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
-        http.oauth2AuthorizationServer(authorizationServer -> authorizationServer
-                        .oidc(Customizer.withDefaults()))
+        OAuth2AuthorizationServerConfigurer authorizationServer = new OAuth2AuthorizationServerConfigurer();
+        http.securityMatcher(authorizationServer.getEndpointsMatcher())
+                .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
                         .anyRequest().authenticated());
@@ -349,14 +348,14 @@ public class AuthenticationServerConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http, DaoAuthenticationProvider authenticationProvider) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(authenticationProvider());
+        authenticationManagerBuilder.authenticationProvider(authenticationProvider);
         return authenticationManagerBuilder.build();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider(JwtUserDetailsService jwtUserDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(jwtUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -369,7 +368,7 @@ public class AuthenticationServerConfig {
     }
 
     public UserDetailsService userDetailsService() {
-        return jwtUserDetailsService;
+        return new JwtUserDetailsService();
     }
 
     @Bean

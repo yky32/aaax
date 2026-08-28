@@ -76,6 +76,12 @@ jobs:
           java -jar target/aaax-0.9.0-SNAPSHOT.jar > /tmp/aaax.log 2>&1 &
           echo $! > /tmp/aaax.pid
           for i in $(seq 1 60); do
+            if grep -q 'APPLICATION FAILED TO START' /tmp/aaax.log 2>/dev/null; then
+              echo 'FAIL: jar failed to start'
+              tail -n 120 /tmp/aaax.log
+              kill "$(cat /tmp/aaax.pid)" || true
+              exit 1
+            fi
             if curl -sf http://localhost:8081/.well-known/oauth-authorization-server | grep -q '"issuer"'; then
               echo 'OK: RFC 8414'
               curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"' && echo 'OK: JWKS'

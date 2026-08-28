@@ -56,6 +56,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Boot **4.1.1** | ✅ parent BOM; Java **21** |
 | Jackson **3** | ✅ `tools.jackson` (`JSONUtil`, Redis, Retrofit factory). Annotations stay `com.fasterxml.jackson.annotation` |
 | `mvn test` | ✅ unit + Testcontainers IT (Docker CLI IT excluded from default surefire) |
+| `java -jar` / CI runtime smoke | ✅ Security 7 filter-chain matchers; no JwtUDS↔PasswordEncoder cycle |
 
 ---
 
