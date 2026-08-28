@@ -2,6 +2,9 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Removed
+- Stub API-key stack (`ApiKey` PO, `/api-keys` endpoint, use case, repository, create DTO)
+
 ### Honest OSS
 
 - Booklet / README / SECURITY aligned to the **live** uaa-port tree (Boot 3.1, qs paths, no v0.7 buffet)

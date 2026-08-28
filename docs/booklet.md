@@ -72,7 +72,7 @@ Layering: Endpoint → UseCase → Repository → Entity. Copy qs/uaa; do not in
 
 Public (resource chain): register `/users/registrations` · `/users` · `/ext/users` · OTP `/authentications/one-time-passwords/**` · forgot `/users/credentials/**` · `/keys/public-keys` · `/ws/**` · actuator/swagger.
 
-Auth’d JWT: `/users/me` · profiles · devices · preferences · metadata · permissions · RBAC templates · clients · system-configurations · api-keys · mgt · verification **query**.
+Auth’d JWT: `/users/me` · profiles · devices · preferences · metadata · permissions · RBAC templates · clients · system-configurations · mgt · verification **query**.
 
 OAuth/OIDC: `/oauth2/*` · discovery · JWKS. Issuer default `http://localhost:8081`.
 
