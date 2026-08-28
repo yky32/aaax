@@ -9,7 +9,7 @@
 | **Version** | `0.9.0-SNAPSHOT` on `main` |
 | **Stack** | JDK **21** (build) · Java **17+** · Spring Boot **3.1.0** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
-| **Updated** | 2026-08-26 |
+| **Updated** | 2026-08-28 |
 
 > Root `README.md` = shop window (five-minute local).  
 > Other files under `docs/` are stubs that point here.
@@ -18,18 +18,18 @@
 
 ## 1. What this is
 
-**AAAX** is **qs/uaa + app-core in one public Maven jar**.
+**AAAX** is a self-host OpenID Connect authentication server in one public Maven jar.
 
-- Packages: `com.aaax.core` (foundation) · `com.aaax.server` (IdP)
+- Packages: `com.aaax.core` (foundation) · `com.aaax.server` (authentication server)
 - Main: `com.aaax.server.App`
 - Identity: `User` 1:n `Authentication` (`loginType` + `identifier`)
 - Errors: `BizException(Response)` → `BaseGlobalExceptionHandler` → `R` / `Result`
 
-It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private Quinsic dump with `app-core` Maven.
+It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private dump with extra Maven packages.
 
-**ICP:** Spring/JVM teams that already know uaa-shaped services and want that craft without private packages.
+**ICP:** Spring/JVM teams that want a native Java authentication server without private packages.
 
-**Bet:** self-host OIDC-grade AAA with the same layering as qs/uaa.
+**Bet:** self-host OIDC-grade AAA with Endpoint → UseCase → Repository layering.
 
 ---
 
@@ -42,16 +42,16 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private Q
 | OIDC discovery / JWKS / `/oauth2/token` | ✅ |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (third-party grant) | ✅ |
-| Register / OTP / forgot-password (qs paths) | ✅ |
+| Register / OTP / forgot-password | ✅ |
 | OSS mesh strip: GrandPay / Onboarding / Profile / Tenant / IDV HTTP | ✅ |
 | Discord blank = no-op · Util gated · Kafka consumers default **off** | ✅ |
-| Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset; file via `AAAX_JWK_KEYSTORE` |
+| Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset (**local only**); file via `AAAX_JWK_KEYSTORE` |
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
-| Passkeys · SAML IdP · orgs | ❌ |
+| Passkeys · SAML · orgs | ❌ |
 | Boot **4.1** | ❌ later lane — parent is **3.1.0** (OSS EOL) |
 | `mvn test` | ✅ unit + Testcontainers IT (Docker CLI IT excluded from default surefire) |
 
-**Spring Boot 3.1 OSS support ended 2024-06.** This pin matches upstream qs/uaa. Do not claim production IdP hardening on 3.1. Upgrade is an explicit later lane — not silent.
+**Spring Boot 3.1 OSS support ended 2024-06.** Do not claim production hardening on 3.1. Upgrade is an explicit later lane — not silent.
 
 ---
 
@@ -59,16 +59,16 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private Q
 
 ```text
 src/main/java/com/aaax/
-├── core/      ← app-core (BizException, R/Result, AuditEntity, …)
-└── server/    ← uaa (endpoint, usecase, entity/po/<domain>, OIDC)
+├── core/      ← foundation (BizException, R/Result, AuditEntity, …)
+└── server/    ← authentication server (endpoint, usecase, entity/po/<domain>, OIDC)
     └── App.java
 ```
 
-Layering: Endpoint → UseCase → Repository → Entity. Copy qs/uaa; do not invent a parallel tree.
+Layering: Endpoint → UseCase → Repository → Entity. Do not invent a parallel tree.
 
 ---
 
-## 4. HTTP (qs paths)
+## 4. HTTP
 
 Public (resource chain): register `/users/registrations` · `/users` · `/ext/users` · OTP `/authentications/one-time-passwords/**` · forgot `/users/credentials/**` · `/keys/public-keys` · `/ws/**` · actuator/swagger.
 
@@ -76,7 +76,7 @@ Auth’d JWT: `/users/me` · profiles · devices · preferences · metadata · p
 
 OAuth/OIDC: `/oauth2/*` · discovery · JWKS. Issuer default `http://localhost:8081`.
 
-There is **no** `/v1/accounts` API on this tree.
+There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-keys` or `/keys/decryption`.
 
 Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events catalog endpoint.
 
@@ -90,15 +90,13 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 |--------------|--------|
 | `custom-password-grant` | Primary password |
 | `custom-password-grant:e` | Encrypted password |
-| `urn:ietf:params:oauth:grant-type:custom_code` | Custom code |
 | `refresh-token` | Custom refresh |
-| `ext-password-grant` | Ext password |
 | `third-party-grant` | Google / Apple idToken |
 | authorization_code / client_credentials | SAS defaults |
 
-**On disk, not wired:** `qrcode/` and `sms/` grant converters. QR has `POST /devices/qr-code-login` + WS.
+**Not wired** (classes on disk only; do not present as supported): `custom_code`, `ext-password-grant`, QR and SMS grant converters. Device QR still has `POST /devices/qr-code-login` + WS.
 
-**LoginType enum:** `USERNAME · MOBILE · EMAIL · GOOGLE · FACEBOOK · APPLE · LINE · OTP` · `GRANDPAY` reserved. Social **verify** path = Google + Apple only.
+**LoginType enum:** `USERNAME · MOBILE · EMAIL · GOOGLE · FACEBOOK · APPLE · LINE · OTP` · `GRANDPAY` reserved. Social **verify** path = Google + Apple only. Social signup does **not** create a password login.
 
 ---
 
@@ -117,7 +115,7 @@ java -jar target/aaax-0.9.0-SNAPSHOT.jar
 # AAAX_CLIENT_ID=… AAAX_CLIENT_SECRET=… AAAX_USERNAME=… AAAX_CREDENTIALS=… ./scripts/token-smoke.sh
 ```
 
-Smoke identities (tests, not auto-inserted): `uaa.smoke.primary@aaax.local` / `SmokePrimary!1` · client `client`/`secret`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
+Smoke identities (tests, not auto-inserted): `smoke.primary@aaax.local` / `SmokePrimary!1` · client `client`/`secret`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Response field: `data.accessToken`.
 
 ---
 
@@ -131,19 +129,20 @@ One `application.yml`. Secrets **env only**.
 | `AS_ISSUER` | `http://localhost:8081` |
 | `AAAX_UTIL_ENABLED` | `false` |
 | Kafka consumers | all `false` |
-| `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (tokens die on restart) |
-| `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA |
+| `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (local clone only; tokens die on restart) |
+| `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA (local clone only) |
 
-File keystores: set path **and** password **and** alias. Nothing ships in the jar.
+File keystores: set path **and** password **and** alias. Nothing ships in the jar. Production **must** set `AAAX_JWK_KEYSTORE`.
 
 ---
 
 ## 8. Security posture
 
-- No demo JKS in the classpath. Unset env = ephemeral keys for local clone only.
+- No demo JKS in the classpath. Unset env = ephemeral keys for **local clone only**.
 - Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.
-- CSRF is **disabled** on the resource chain (uaa copy).
+- CSRF is **disabled** on the resource chain (API-oriented; browser authorize is a later lane).
+- Private encryption key is **not** exposed over HTTP.
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
 
 ---
@@ -152,14 +151,14 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 **Removed HTTP mesh (do not re-add without an explicit ask):** GrandPay · Onboarding · Profile · Tenant · IDV.
 
-**Kept local:** `User` / `Authentication` · `UserRoute` (opaque `tenantRoleRouteId`, no tenant-service call) · `UserVerification` list/get/patch (external IDV start throws) · Util client gated · Uaa Retrofit client (placeholder URL, unused on register).
+**Kept local:** `User` / `Authentication` · `UserRoute` (opaque `tenantRoleRouteId`, no remote tenant call) · `UserVerification` list/get/patch (external IDV start throws) · Util client gated · loopback Retrofit client (placeholder URL, unused on register).
 
 ---
 
 ## 10. Out of scope until asked
 
 - Boot 4.x upgrade
-- Wiring QR/SMS grants into `tokenEndpoint`
+- Wiring QR/SMS / custom_code / ext-password grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh
 - Inventing a greenfield exception stack or `/v1` overlay

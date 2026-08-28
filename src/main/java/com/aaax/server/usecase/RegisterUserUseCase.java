@@ -337,30 +337,16 @@ public class RegisterUserUseCase {
                 .sourceSystemTags(List.of(systemInvoker))
                 .build();
         Authentication thirdPartyAuthentication = Authentication.builder()
-                .credentials("-") // no password for 3rd party provider login
+                .credentials("-")
                 .identifier(authIdentifier)
                 .user(user)
                 .loginType(loginType)
                 .build();
 
-
-        // Add one more [defaultLogin] record for this user
         List<Authentication> authentications = new ArrayList<>();
         authentications.add(thirdPartyAuthentication);
-        authentications.add(this._createDefaultLogin(user));
-
         user.setAuthentications(authentications);
         return userRepository.saveAndFlush(user);
-    }
-
-    private Authentication _createDefaultLogin(User user) {
-        return Authentication.builder()
-                .identifier(user.getUsername())
-                .user(user)
-                .credentials(UaaValidation.check_passwordRequirement(passwordEncoder, "1234", List.of()))
-                .loginType(LoginType.EMAIL)
-                .lastLoginDt(Instant.now())
-                .build();
     }
 
     public void registerValidations(RegisterUserRequestDto requestDto) {

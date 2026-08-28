@@ -1,4 +1,4 @@
-# PARITY QS UAA
+# Parity notes
 
 > **Moved.** All product + eng docs are centralized in **[booklet.md](./booklet.md)**.
 >

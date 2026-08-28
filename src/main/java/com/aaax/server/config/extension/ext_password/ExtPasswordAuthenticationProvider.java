@@ -37,6 +37,9 @@ import java.util.Objects;
 import java.util.Set;
 
 
+/**
+ * Not registered on {@code /oauth2/token}. External check is a stub — do not wire until it is real.
+ */
 @Slf4j
 public class ExtPasswordAuthenticationProvider implements AuthenticationProvider {
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";

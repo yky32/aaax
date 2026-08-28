@@ -3,7 +3,8 @@
 **Accounts · Authentication · Authorization · eXperiences**
 
 Self-host OpenID Connect for Spring teams.  
-**qs/uaa + app-core** in one Maven project (packages `com.aaax.core` · `com.aaax.server`).
+Self-host OpenID Connect for Spring teams.  
+One Maven project: packages `com.aaax.core` · `com.aaax.server`.
 
 | | |
 |--|--|
@@ -19,7 +20,7 @@ src/main/java/com/aaax/
 └── server/    ← IdP (entity, endpoint, usecase, OIDC, …)
 ```
 
-Boot **3.1 OSS support has ended**. This pin matches upstream qs/uaa. Do not treat 3.1 as a current production baseline; upgrade is a later lane.
+Boot **3.1 OSS support has ended**. Do not treat 3.1 as a current production baseline; upgrade is a later lane.
 
 ---
 
@@ -83,7 +84,7 @@ Empty DB does **not** seed an OAuth client or user. After you have both (JDBC `o
 ```bash
 export AAAX_CLIENT_ID=client
 export AAAX_CLIENT_SECRET=secret
-export AAAX_USERNAME=uaa.smoke.primary@aaax.local
+export AAAX_USERNAME=smoke.primary@aaax.local
 export AAAX_CREDENTIALS='SmokePrimary!1'
 chmod +x scripts/token-smoke.sh
 ./scripts/token-smoke.sh
@@ -102,7 +103,7 @@ curl -sS -u "$AAAX_CLIENT_ID:$AAAX_CLIENT_SECRET" \
 
 Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`). Values above match test fixture `LoginSmokeAccounts` — they are **not** inserted on first boot.
 
-More qs-path recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
+More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
 
 ---
 
@@ -111,14 +112,13 @@ More qs-path recipes (register / OTP / `/users/me`): [`examples/curl/`](examples
 | Package | Role |
 |---------|------|
 | `com.aaax.core` | Response envelope, `BizException`, audit base, shared utils |
-| `com.aaax.server` | UAA: users, authn, OTP, OIDC AS, devices, RBAC templates |
+| `com.aaax.server` | Authentication server: users, OTP, OIDC, devices, RBAC templates |
 
-Quinsic-only mesh clients are **not** in this tree (GrandPay, Onboarding, Profile, Tenant, IDV).  
-Optional leftover clients: **Util** (off unless `AAAX_UTIL_ENABLED=true`) and **Uaa** self-loopback (placeholder URL). Discord webhooks no-op when blank.
+Optional leftover clients: **Util** (off unless `AAAX_UTIL_ENABLED=true`) and a loopback Retrofit client (placeholder URL). Discord webhooks no-op when blank.
 
 Secrets: **env only** — see `.env.example`. Never commit real tokens.
 
-Classpath demo JKS is **not** shipped. Unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (tokens invalid after restart). For anything else set `AAAX_JWK_KEYSTORE` + password + alias.
+Classpath demo JKS is **not** shipped. Unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (**local clone only**; tokens invalid after restart). Production **must** set `AAAX_JWK_KEYSTORE` + password + alias. Same for `AAAX_ENCRYPTION_KEYSTORE`.
 
 ---
 

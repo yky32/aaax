@@ -10,8 +10,8 @@ class LoginSmokeAccountsTest {
     @Test
     @DisplayName("smoke accounts are fixed dual identities with canonical emails")
     void accounts_areStableAndCanonical() {
-        assertEquals("uaa.smoke.primary@aaax.local", LoginSmokeAccounts.PRIMARY.canonicalEmail());
-        assertEquals("uaa.smoke.secondary@aaax.local", LoginSmokeAccounts.SECONDARY.canonicalEmail());
+        assertEquals("smoke.primary@aaax.local", LoginSmokeAccounts.PRIMARY.canonicalEmail());
+        assertEquals("smoke.secondary@aaax.local", LoginSmokeAccounts.SECONDARY.canonicalEmail());
         assertNotEquals(LoginSmokeAccounts.PRIMARY.email(), LoginSmokeAccounts.SECONDARY.email());
         assertNotEquals(LoginSmokeAccounts.PRIMARY.password(), LoginSmokeAccounts.SECONDARY.password());
         assertEquals(

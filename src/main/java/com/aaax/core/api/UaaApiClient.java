@@ -62,9 +62,6 @@ public interface UaaApiClient {
     @GET("keys/public-keys")
     Call<Result<GetKeysResponseDto>> publicKeys();
 
-    @GET("keys/private-keys")
-    Call<Result<GetKeysResponseDto>> privateKeys();
-
     @GET("users")
     Call<Result<List<GetUserResponseDto>>> getUser();
 

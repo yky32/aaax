@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ * Not registered on {@code /oauth2/token}. Stub grant — do not wire until a real code is validated.
+ */
 @Slf4j
 public class CustomCodeGrantAuthenticationProvider implements AuthenticationProvider {
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
