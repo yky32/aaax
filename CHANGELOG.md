@@ -2,6 +2,13 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 1
+- Empty-DB clone: `JPA_DDL_AUTO=update` + Liquibase `oauth2_registered_client` (env, no Spring profile)
+- Optional seed (`AAAX_LOCAL_SEED`): OAuth client `client`/`secret` + `smoke.primary@aaax.local`
+- Kafka **off** by default (`AAAX_KAFKA_ENABLED=false`) — first clone only needs Postgres + Redis
+- `application.yml` grouped into `spring` / `aaax` / `ext`
+- `scripts/token-smoke.sh` / `examples/curl/login-me.sh` default to that seed
+
 ### Wave 0
 - Public docs: AAAX branding only
 - Removed `GET /keys/private-keys` and `POST /keys/decryption`
@@ -30,7 +37,7 @@
 - `docker-compose.yml` — Postgres 16 + Redis 7
 - `.env.example` — first-boot friendly (`JPA_DDL_AUTO=update`)
 - `scripts/quickstart-smoke.sh` — discovery/JWKS probe
-- `scripts/token-smoke.sh` — `custom-password-grant` when `AAAX_CLIENT_*` + user env are set (no boot seed)
+- `scripts/token-smoke.sh` — `custom-password-grant`; defaults match local seed
 - `examples/curl/` — HTTP recipes (register / OTP / login / me). No events catalog on this tree.
 - README **Five minutes** section
 

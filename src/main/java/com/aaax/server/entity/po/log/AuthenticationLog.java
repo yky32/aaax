@@ -27,7 +27,7 @@ import org.hibernate.annotations.GenericGenerator;
         @Index(name = "log_trace_index", columnList = "traceId"),
         @Index(name = "log_event_index", columnList = "event"),
         @Index(name = "log_domain_index", columnList = "domain"),
-        @Index(name = "idx_auth_log_event_create_dt", columnList = "event, create_dt")
+        @Index(name = "idx_auth_log_event_create_dt", columnList = "event, createDt")
 })
 @NoArgsConstructor
 @AllArgsConstructor

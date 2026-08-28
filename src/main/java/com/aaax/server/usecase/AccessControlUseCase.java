@@ -42,7 +42,7 @@ import java.util.*;
 @Slf4j
 public class AccessControlUseCase {
 
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
 
     private final RbacTemplateRepository rbacTemplateRepository;

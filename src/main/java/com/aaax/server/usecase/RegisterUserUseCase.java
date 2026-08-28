@@ -72,11 +72,11 @@ public class RegisterUserUseCase {
     private final UserProfileUseCase userProfileUseCase;
     private final UserPreferenceUseCase userPreferenceUseCase;
     private final UtilApiClient utilApiClient;
-    @Value("${config.user-created-waiting-time-ms:1}")
+    @Value("${aaax.config.user-created-waiting-time-ms:1}")
     private long userCreatedWaitingTimeMs;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     private String systemInvoker;
-    @Value("${aaax.ext.util-enabled:false}")
+    @Value("${ext.util-enabled:false}")
     private boolean utilEnabled;
 
     private static @NotNull String isVerified(String username) {

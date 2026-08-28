@@ -26,9 +26,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class UaaSettingUseCase {
-    @Value("${spring.security.server.expiry-time}")
+    @Value("${aaax.security.server.expiry-time}")
     private Integer serverTokenExpiryTime;
-    @Value("${spring.security.registered-client.secret}")
+    @Value("${aaax.security.registered-client.secret}")
     private String registeredClientSecret;
     private final PasswordEncoder passwordEncoder;
     private final RegisteredClientRepository registeredClientRepository;

@@ -38,7 +38,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_CREATED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-created-notification-listener",
+        prefix = "aaax.kafka.consumers.user-created-notification-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserCreatedNotificationListener extends BaseListener {
@@ -47,7 +47,7 @@ public class UserCreatedNotificationListener extends BaseListener {
     private final DiscordApiClient discordApiClient;
     private final SystemConfigurationUseCase systemConfigurationUseCase;
     private final UserRepository userRepository;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
     @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;

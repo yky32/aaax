@@ -1,26 +1,14 @@
-# AAAX — defaults are local / empty. Put secrets only in env.
-pod:
-  ip: ${POD_IP:127.0.0.1}
+# AAAX — secrets belong in env, not here.
+# Three roots: spring (Boot native) · aaax (this app) · ext (outbound)
 
+# =============================================================================
+# spring — Spring Boot native
+# =============================================================================
 server:
   port: ${SERVER_PORT:8081}
   max-http-header-size: 10MB
   servlet:
     context-path: ${CONTEXT_PATH:/}
-
-otp:
-  fail-counter: 3
-
-config:
-  credentials-history-size: ${CONFIG_CREDENTIALS_HISTORY_SIZE:0}
-  user-created-waiting-time-ms: ${USER_CREATED_WAITING_TIME_MS:1}
-  system-invoker: ${SYSTEM_INVOKER:AAAX}
-  device-binding:
-    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
-  microservice:
-    timezone: ${MICROSERVICE_TIME_ZONE:UTC}
-  # Protected bootstrap accounts (comma-separated usernames) — never bulk-deleted
-  protected-usernames: ${AAAX_PROTECTED_USERNAMES:admin@aaax.local}
 
 spring:
   application:
@@ -49,23 +37,14 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/changelog-master.yaml
     enabled: ${LIQUIBASE_ENABLED:true}
-  security:
-    issuer: ${AS_ISSUER:http://localhost:8081}
-    registered-client:
-      secret: ${REGISTERED_CLIENT_SECRET:secret}
-    refresh-token:
-      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
-    server:
-      expiry-time: ${SERVER_TOKEN_EXPIRY_TIME:31556926}
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/oauth2/jwks}
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
-            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+  data:
+    redis:
+      host: ${REDIS_URL:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10000
+      ssl:
+        enabled: ${REDIS_SSL:false}
   kafka:
     bootstrap-servers: ${KAFKA_URL:localhost:9092}
     properties:
@@ -78,6 +57,24 @@ spring:
         allow.auto.create.topics: true
         request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT_MS:30000}
         session.timeout.ms: ${KAFKA_SESSION_TIMEOUT_MS:45000}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/oauth2/jwks}
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+
+# =============================================================================
+# aaax — this application
+# =============================================================================
+aaax:
+  local-seed: ${AAAX_LOCAL_SEED:false}
+  kafka:
+    enabled: ${AAAX_KAFKA_ENABLED:false}
     consumers:
       user-with-user-route-creation-listener:
         isEnabled: ${KAFKA_CONSUMERS_USER_ROUTE_CREATION:false}
@@ -97,44 +94,28 @@ spring:
         isEnabled: ${KAFKA_CONSUMERS_USER_LOGIN_ATTEMPTS:false}
       user-deleted-notification-listener:
         isEnabled: ${KAFKA_CONSUMERS_USER_DELETED_NOTIFICATION:false}
-  data:
-    redis:
-      host: ${REDIS_URL:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      timeout: 10000
-      ssl:
-        enabled: ${REDIS_SSL:false}
-
-notification-template:
-  usecase:
-    reset-password:
-      email: ${EMAIL_TEMPLATE_RESET_PASSWORD:}
-    register-user:
-      email: ${EMAIL_TEMPLATE_REGISTER:}
-    otp-register:
-      email: ${EMAIL_TEMPLATE:}
-
-oauth-provider:
-  google:
-    web-app:
-      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
-      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
-    ios:
-      client-id: ${IOS_GOOGLE_CLIENT_ID:}
-    android:
-      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
-  apple:
-    ios:
-      client-id: ${IOS_APPLE_CLIENT_ID:}
-    web:
-      client-id: ${WEB_APPLE_CLIENT_ID:}
-
-# Optional integrations (all off by default)
-aaax:
-  ext:
-    enabled: ${AAAX_EXT_ENABLED:false}
-    util-enabled: ${AAAX_UTIL_ENABLED:false}
+  pod:
+    ip: ${POD_IP:127.0.0.1}
+  otp:
+    fail-counter: 3
+  config:
+    credentials-history-size: ${CONFIG_CREDENTIALS_HISTORY_SIZE:0}
+    user-created-waiting-time-ms: ${USER_CREATED_WAITING_TIME_MS:1}
+    system-invoker: ${SYSTEM_INVOKER:AAAX}
+    device-binding:
+      mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+    microservice:
+      timezone: ${MICROSERVICE_TIME_ZONE:UTC}
+    # Protected bootstrap accounts (comma-separated usernames) — never bulk-deleted
+    protected-usernames: ${AAAX_PROTECTED_USERNAMES:admin@aaax.local}
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8081}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${SERVER_TOKEN_EXPIRY_TIME:31556926}
   jwk:
     keystore: ${AAAX_JWK_KEYSTORE:}
     keystore-password: ${AAAX_JWK_KEYSTORE_PASSWORD:}
@@ -143,8 +124,35 @@ aaax:
     keystore: ${AAAX_ENCRYPTION_KEYSTORE:}
     keystore-password: ${AAAX_ENCRYPTION_KEYSTORE_PASSWORD:}
     keystore-alias: ${AAAX_ENCRYPTION_KEYSTORE_ALIAS:}
+  notification-template:
+    usecase:
+      reset-password:
+        email: ${EMAIL_TEMPLATE_RESET_PASSWORD:}
+      register-user:
+        email: ${EMAIL_TEMPLATE_REGISTER:}
+      otp-register:
+        email: ${EMAIL_TEMPLATE:}
+  oauth-provider:
+    google:
+      web-app:
+        client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+        client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+      ios:
+        client-id: ${IOS_GOOGLE_CLIENT_ID:}
+      android:
+        client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+    apple:
+      ios:
+        client-id: ${IOS_APPLE_CLIENT_ID:}
+      web:
+        client-id: ${WEB_APPLE_CLIENT_ID:}
 
+# =============================================================================
+# ext — calling outside
+# =============================================================================
 ext:
+  enabled: ${AAAX_EXT_ENABLED:false}
+  util-enabled: ${AAAX_UTIL_ENABLED:false}
   api:
     client:
       uaa-svc:

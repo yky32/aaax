@@ -22,7 +22,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_LOG;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.log-listener",
+        prefix = "aaax.kafka.consumers.log-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class LogsListener extends BaseListener {

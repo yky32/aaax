@@ -24,7 +24,7 @@ import java.util.Optional;
 public class PublicUserRegistrationEndpoint {
 
     private final RegisterUserUseCase registerUserUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
 

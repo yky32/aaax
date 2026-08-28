@@ -29,7 +29,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_USER_ROUTES_CREATED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-with-user-route-creation-listener",
+        prefix = "aaax.kafka.consumers.user-with-user-route-creation-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserWithUserRoutesCreationListener extends BaseListener {

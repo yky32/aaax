@@ -34,9 +34,9 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Autowired
     private RedisUtil redisUtil;
-    @Value("${spring.security.refresh-token.history-count}")
+    @Value("${aaax.security.refresh-token.history-count}")
     private Integer refreshTokenHistoryCount;
-    @Value("${spring.security.server.expiry-time}")
+    @Value("${aaax.security.server.expiry-time}")
     private Integer serverTokenExpiryTime;
     @Autowired
     private RegisteredClientRepository registeredClientRepository;

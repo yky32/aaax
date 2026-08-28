@@ -42,9 +42,9 @@ public class AppFilter extends BaseFilter {
 
     private String serviceName;
     private RedisUtil redisUtil;
-    @Value("${config.server.rate-limit-counter:30}")
+    @Value("${aaax.config.server.rate-limit-counter:30}")
     private Integer rateLimitCounter;
-    @Value("${config.server.rate-limit-interval:60}")
+    @Value("${aaax.config.server.rate-limit-interval:60}")
     private Integer rateLimitInterval; // # seconds
     private Map<String, Integer> rateLimitCounterConfig;
     private List<String> byPassPaths;

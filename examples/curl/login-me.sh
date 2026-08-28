@@ -1,18 +1,12 @@
 #!/usr/bin/env bash
 # custom-password-grant → GET /users/me
-# Requires AAAX_CLIENT_ID AAAX_CLIENT_SECRET AAAX_USERNAME AAAX_CREDENTIALS (see scripts/token-smoke.sh)
+# Defaults match AAAX_LOCAL_SEED (client/secret + smoke.primary@aaax.local).
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
-CLIENT_ID="${AAAX_CLIENT_ID:-}"
-CLIENT_SECRET="${AAAX_CLIENT_SECRET:-}"
-USERNAME="${AAAX_USERNAME:-}"
-CREDENTIALS="${AAAX_CREDENTIALS:-}"
-
-if [[ -z "$CLIENT_ID" || -z "$CLIENT_SECRET" || -z "$USERNAME" || -z "$CREDENTIALS" ]]; then
-  echo "Set AAAX_CLIENT_ID AAAX_CLIENT_SECRET AAAX_USERNAME AAAX_CREDENTIALS (empty DB has no seed)."
-  echo "See README Five minutes §5 / scripts/token-smoke.sh"
-  exit 1
-fi
+CLIENT_ID="${AAAX_CLIENT_ID:-client}"
+CLIENT_SECRET="${AAAX_CLIENT_SECRET:-secret}"
+USERNAME="${AAAX_USERNAME:-smoke.primary@aaax.local}"
+CREDENTIALS="${AAAX_CREDENTIALS:-SmokePrimary!1}"
 
 echo "== POST /oauth2/token =="
 code=$(curl -sS -o /tmp/aaax-tok.json -w "%{http_code}" \

@@ -32,7 +32,7 @@ public class UserEndpoint {
 
     private final UaaService uaaService;
     private final RegisterUserUseCase registerUserUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
     /**

@@ -54,13 +54,13 @@ public class SocialAuthenticationUseCase {
     private final RegisterUserUseCase registerUserUseCase;
     private final UserProfileUseCase userProfileUseCase;
     private final AppleIdTokenVerifier appleIdTokenVerifier;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
-    @Value("${oauth-provider.google.web-app.client-id}")
+    @Value("${aaax.oauth-provider.google.web-app.client-id}")
     private String webAppGoogleClientId;
-    @Value("${oauth-provider.google.ios.client-id}")
+    @Value("${aaax.oauth-provider.google.ios.client-id}")
     private String iosGoogleClientId;
-    @Value("${oauth-provider.google.android.client-id}")
+    @Value("${aaax.oauth-provider.google.android.client-id}")
     private String androidGoogleClientId;
 
     /**

@@ -29,7 +29,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_USER_STATUS_MUTATED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-status-change-listener",
+        prefix = "aaax.kafka.consumers.user-status-change-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserStatusChangeListener extends BaseListener {

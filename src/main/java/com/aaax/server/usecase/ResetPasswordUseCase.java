@@ -70,7 +70,7 @@ public class ResetPasswordUseCase {
     private final ForgotPasswordOtpUseCase forgotPasswordOtpUseCase;
     private final PasswordEncoder passwordEncoder;
     private final SystemConfigurationUseCase systemConfigurationUseCase;
-    @Value("${config.credentials-history-size:0}")
+    @Value("${aaax.config.credentials-history-size:0}")
     private Integer credentialsHistorySize;
 
     // === UTIL
