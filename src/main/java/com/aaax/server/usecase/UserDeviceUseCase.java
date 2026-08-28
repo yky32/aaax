@@ -41,9 +41,9 @@ public class UserDeviceUseCase {
     private final UserDeviceRepository userDeviceRepository;
     private final ResourceLoader resourceLoader;
     private final HttpServletRequest request;
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
-    @Value("${config.device-binding.mode}")
+    @Value("${aaax.config.device-binding.mode}")
     private String deviceBindingMode;
 
     public GetUserDeviceResponseDto doDeviceBinding(String userId, @Valid RegisterUserDeviceRequestDto dto) {

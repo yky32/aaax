@@ -20,7 +20,7 @@ import java.util.Optional;
 public class ForgotPasswordEndpoint {
 
     private final ResetPasswordUseCase resetPasswordUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
 

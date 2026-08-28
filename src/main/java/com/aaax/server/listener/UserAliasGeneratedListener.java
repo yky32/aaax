@@ -23,7 +23,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_ALIAS_GENERATED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-alias-generated-listener",
+        prefix = "aaax.kafka.consumers.user-alias-generated-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserAliasGeneratedListener extends BaseListener {

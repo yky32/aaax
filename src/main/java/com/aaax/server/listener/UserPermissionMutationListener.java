@@ -25,7 +25,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_USER_PERMISSION_MUTATED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-permission-mutation-listener",
+        prefix = "aaax.kafka.consumers.user-permission-mutation-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserPermissionMutationListener extends BaseListener {

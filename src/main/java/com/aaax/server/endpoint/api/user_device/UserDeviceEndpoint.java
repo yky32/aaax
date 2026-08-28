@@ -25,7 +25,7 @@ import java.util.Optional;
 public class UserDeviceEndpoint {
 
     private final UserDeviceUseCase userDeviceUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
     @GetMapping("/mgt/user-devices/{id}")

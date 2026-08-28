@@ -25,7 +25,7 @@ public class QueryDailyLoginsMetricsUseCase {
 
     private final AuthenticationLogRepository authenticationLogRepository;
 
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
 
     public GetDailyLoginsMetricsResponseDto execute() {

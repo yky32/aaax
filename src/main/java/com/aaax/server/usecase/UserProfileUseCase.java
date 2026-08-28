@@ -46,7 +46,7 @@ public class UserProfileUseCase {
     private final UtilApiClient utilApiClient;
     private final ResourceLoader resourceLoader;
     private final UaaService uaaService;
-    @Value("${aaax.ext.util-enabled:false}")
+    @Value("${ext.util-enabled:false}")
     private boolean utilEnabled;
     @Autowired
     private UserRepository userRepository;

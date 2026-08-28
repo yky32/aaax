@@ -105,11 +105,11 @@ public class AuthenticationServerConfig {
     };
     private final HttpServletRequest request;
     private final GlobalExceptionHandler globalExceptionHandler;
-    @Value("${spring.security.issuer}")
+    @Value("${aaax.security.issuer}")
     private String issuerUrl;
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
-    @Value("${spring.security.server.expiry-time}")
+    @Value("${aaax.security.server.expiry-time}")
     private Integer serverTokenExpiryTime;
     @Autowired
     private RedisUtil redisUtil;

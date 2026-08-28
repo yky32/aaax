@@ -30,7 +30,7 @@ public class UserDeletedNotificationListener extends BaseListener {
     private final KafkaUtil kafkaUtil;
     private final DiscordApiClient discordApiClient;
     private final UserManagementUseCase userManagementUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
     @Value("${ext.api.client.discord.webhookId:}")
     private String webhookId;

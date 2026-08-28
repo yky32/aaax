@@ -11,7 +11,7 @@ public class JpaConfig {
 
     @Bean
     public SnowflakeIdGeneratorConfiguration snowflakeIdGeneratorConfiguration(
-            @Value("${pod.ip}") String podIp
+            @Value("${aaax.pod.ip}") String podIp
     ) {
         long machineId = StringUtil.ipToLong(podIp) % 1024;
         return new SnowflakeIdGeneratorConfiguration(Math.toIntExact(machineId), podIp);

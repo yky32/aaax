@@ -32,7 +32,7 @@ public class UserStatisticUseCase {
     private final UserStatisticRepository userStatisticRepository;
     private final CommonService commonService;
     private final UserRepository userRepository;
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
 
     public PaginationDto.PaginationDtoBuilder getUsers(Pageable pageable) {

@@ -24,7 +24,7 @@ import java.util.Optional;
 public class UserVerificationEndpoint {
 
     private final UserIdentityVerificationUseCase userIdentityVerificationUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
     @PatchMapping("/mgt/user-verifications/{id}/statuses")

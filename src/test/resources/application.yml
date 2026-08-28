@@ -1,7 +1,9 @@
-# Test profile — local/testcontainers only. No production secrets.
-pod:
-  ip: ${POD_IP:127.0.0.1}
+# Test profile — local/testcontainers only. Same three roots as main.
+# spring (Boot native) · aaax (this app) · ext (outbound)
 
+# =============================================================================
+# spring — Spring Boot native
+# =============================================================================
 spring:
   application:
     name: ${APPLICATION_NAME:AAAX-TEST}
@@ -23,24 +25,6 @@ spring:
   sql:
     init:
       mode: always
-  security:
-    issuer: ${AS_ISSUER:http://localhost:8081}
-    registered-client:
-      secret: ${REGISTERED_CLIENT_SECRET:secret}
-    refresh-token:
-      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
-    server:
-      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926}
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${jwkSetUri:http://localhost:8081/oauth2/jwks}
-  kafka:
-    bootstrap-servers: ${KAFKA_URL:localhost:9092}
-    properties:
-      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
-      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
-      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
   data:
     redis:
       host: ${REDIS_URL:localhost}
@@ -49,50 +33,72 @@ spring:
       timeout: 10000
       ssl:
         enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME:}" password="${KAFKA_PASSWORD:}";
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${jwkSetUri:http://localhost:8081/oauth2/jwks}
 
-otp:
-  fail-counter: 3
-
-config:
-  credentials-history-size: 0
-  system-invoker: ${SYSTEM_INVOKER:AAAX}
-  device-binding:
-    mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
-  protected-usernames: admin@aaax.local,ios-tester@aaax.local
-
-notification-template:
-  usecase:
-    reset-password:
-      email: test-reset
-    register-user:
-      email: test-register
-    otp-register:
-      email: test-otp
-
-oauth-provider:
-  google:
-    web-app:
-      client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
-      client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
-    ios:
-      client-id: ${IOS_GOOGLE_CLIENT_ID:}
-    android:
-      client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
-  apple:
-    ios:
-      client-id: ${IOS_APPLE_CLIENT_ID:}
-    web:
-      client-id: ${WEB_APPLE_CLIENT_ID:}
-
+# =============================================================================
+# aaax — this application
+# =============================================================================
 aaax:
   local-seed: false
   kafka:
     enabled: false
-  ext:
-    util-enabled: false
-    enabled: false
+  pod:
+    ip: ${POD_IP:127.0.0.1}
+  otp:
+    fail-counter: 3
+  config:
+    credentials-history-size: 0
+    system-invoker: ${SYSTEM_INVOKER:AAAX}
+    device-binding:
+      mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+    protected-usernames: admin@aaax.local,ios-tester@aaax.local
+  security:
+    issuer: ${AS_ISSUER:http://localhost:8081}
+    registered-client:
+      secret: ${REGISTERED_CLIENT_SECRET:secret}
+    refresh-token:
+      history-count: ${REFRESH_TOKEN_HISTORY_COUNT:10}
+    server:
+      expiry-time: ${REFRESH_TOKEN_EXPIRY_TIME:31556926}
+  notification-template:
+    usecase:
+      reset-password:
+        email: test-reset
+      register-user:
+        email: test-register
+      otp-register:
+        email: test-otp
+  oauth-provider:
+    google:
+      web-app:
+        client-id: ${WEB_APP_GOOGLE_CLIENT_ID:}
+        client-secret: ${WEB_APP_GOOGLE_CLIENT_SECRET:}
+      ios:
+        client-id: ${IOS_GOOGLE_CLIENT_ID:}
+      android:
+        client-id: ${ANDROID_GOOGLE_CLIENT_ID:}
+    apple:
+      ios:
+        client-id: ${IOS_APPLE_CLIENT_ID:}
+      web:
+        client-id: ${WEB_APPLE_CLIENT_ID:}
 
+# =============================================================================
+# ext — calling outside
+# =============================================================================
 ext:
+  enabled: false
+  util-enabled: false
   api:
     client:
       uaa-svc:
@@ -107,7 +113,6 @@ ext:
         webhookToken: ${DISCORD_WEBHOOK_TOKEN:}
       util-svc:
         url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
-
-webhook:
-  uaa:
-    domain: ${UAA_WEBHOOK:}
+  webhook:
+    uaa:
+      domain: ${UAA_WEBHOOK:}

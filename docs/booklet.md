@@ -123,7 +123,7 @@ Liquibase creates `oauth2_registered_client`. Domain tables come from Hibernate 
 
 ## 7. Configuration
 
-One `application.yml`. Secrets **env only**.
+One `application.yml`. Three roots: `spring` (Boot native) · `aaax` (this app) · `ext` (outbound). Secrets **env only**.
 
 | Knob | Default |
 |------|---------|

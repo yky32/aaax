@@ -23,7 +23,7 @@ import java.util.Optional;
 public class UserProfileEndpoint {
 
     private final UserProfileUseCase userProfileUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
 
     /**

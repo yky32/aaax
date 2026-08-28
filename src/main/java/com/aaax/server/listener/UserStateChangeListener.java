@@ -27,7 +27,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_STATE_CHANGED;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-state-change-listener",
+        prefix = "aaax.kafka.consumers.user-state-change-listener",
         name = "isEnabled", havingValue = "true"
 )
 public class UserStateChangeListener extends BaseListener {

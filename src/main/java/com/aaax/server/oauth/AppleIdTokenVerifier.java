@@ -33,8 +33,8 @@ public class AppleIdTokenVerifier {
     private final List<String> audiences;
 
     public AppleIdTokenVerifier(
-            @Value("${oauth-provider.apple.ios.client-id:}") String iosClientId,
-            @Value("${oauth-provider.apple.web.client-id:}") String webClientId
+            @Value("${aaax.oauth-provider.apple.ios.client-id:}") String iosClientId,
+            @Value("${aaax.oauth-provider.apple.web.client-id:}") String webClientId
     ) {
         this.audiences = Stream.of(iosClientId, webClientId)
                 .filter(StringUtils::hasText)

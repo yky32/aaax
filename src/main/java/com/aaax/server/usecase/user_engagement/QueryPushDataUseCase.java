@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class QueryPushDataUseCase implements ResultUseCase<Long, PushSettingDto, Void> {
 
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     private String systemInvoker;
     private final UserDeviceUseCase userDeviceUseCase;
     private final UserProfileUseCase userProfileUseCase;

@@ -33,7 +33,7 @@ public class HandleFileUseCase {
 
     private final UtilApiClient utilApiClient;
 
-    @Value("${aaax.ext.util-enabled:false}")
+    @Value("${ext.util-enabled:false}")
     private boolean utilEnabled;
 
     public FileMetadata execute(MultipartFile file, String path) {

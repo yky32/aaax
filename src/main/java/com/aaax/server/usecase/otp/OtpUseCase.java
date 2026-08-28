@@ -40,9 +40,9 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     protected final KafkaUtil kafkaUtil;
     protected final RedisUtil redisUtil;
     protected final SystemConfigurationUseCase systemConfigurationUseCase;
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
-    @Value("${notification-template.usecase.otp-register.email:}")
+    @Value("${aaax.notification-template.usecase.otp-register.email:}")
     protected String otpRegisterTemplate;
 
     protected static @NotNull String getRedisKey(CreateOtpRequestDto dto) {

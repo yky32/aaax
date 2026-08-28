@@ -51,7 +51,7 @@ public class UaaService {
     @Lazy
     @Autowired
     private UserMetricsUseCase userMetricsUseCase;
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
 
     public Authentication getByUsername(String username) {

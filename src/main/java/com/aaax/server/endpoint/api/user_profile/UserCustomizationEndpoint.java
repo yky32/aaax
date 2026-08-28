@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 public class UserCustomizationEndpoint {
 
-    @Value("${config.system-invoker}")
+    @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
     private final UpdateAvatarUseCase updateAvatarUseCase;
     private final UserProfileUseCase userProfileUseCase;

@@ -6,6 +6,7 @@
 - Empty-DB clone: `JPA_DDL_AUTO=update` + Liquibase `oauth2_registered_client` (env, no Spring profile)
 - Optional seed (`AAAX_LOCAL_SEED`): OAuth client `client`/`secret` + `smoke.primary@aaax.local`
 - Kafka **off** by default (`AAAX_KAFKA_ENABLED=false`) — first clone only needs Postgres + Redis
+- `application.yml` grouped into `spring` / `aaax` / `ext`
 - `scripts/token-smoke.sh` / `examples/curl/login-me.sh` default to that seed
 
 ### Wave 0

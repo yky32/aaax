@@ -48,7 +48,7 @@ public class UserIdentityVerificationUseCase {
     private final SystemConfigurationUseCase systemConfigurationUseCase;
     private final UserMetricsUseCase userMetricsUseCase;
     private final KafkaUtil kafkaUtil;
-    @Value("${config.microservice.timezone:UTC}")
+    @Value("${aaax.config.microservice.timezone:UTC}")
     private String timezone;
 
     @Transactional

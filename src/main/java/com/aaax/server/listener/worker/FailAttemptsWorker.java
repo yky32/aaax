@@ -32,7 +32,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_LOGIN_ATTEMPTS_MUTATED;
 
 @Component
 @ConditionalOnProperty(
-        prefix = "spring.kafka.consumers.user-login-attempts-listener",
+        prefix = "aaax.kafka.consumers.user-login-attempts-listener",
         name = "isEnabled", havingValue = "true", matchIfMissing = false
 )
 @Slf4j
