@@ -8,6 +8,7 @@ import com.aaax.core.kafka.event.UserPermissionMutatedEvent;
 import com.aaax.core.kafka.event.UserStateMutatedEvent;
 import com.aaax.core.utils.JSONUtil;
 import com.aaax.core.utils.KafkaUtil;
+import com.aaax.core.utils.RedisUtil;
 import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.config.security.RedisOAuth2AuthorizationService;
 import com.aaax.server.entity.po.user.User;
@@ -44,7 +45,7 @@ class KafkaListenersCoverageTest {
     @Mock private UserManagementUseCase userManagementUseCase;
     @Mock private RegisterUserUseCase registerUserUseCase;
     @Mock private KafkaUtil kafkaUtil;
-    @Mock private com.aaax.core.utils.RedisUtil redisUtil;
+    @Mock private RedisUtil redisUtil;
     @Mock private Acknowledgment ack;
 
     @InjectMocks private UserStatusChangeListener userStatusChangeListener;

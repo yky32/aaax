@@ -1,5 +1,6 @@
 package com.aaax.server.usecase;
 
+import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.entity.dto.uaa.response.GetUserPreferenceResponseDto;
 import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
 import com.aaax.core.exception.BizException;
@@ -38,7 +39,7 @@ class UserPreferenceAndProfileUseCaseTest {
     @Mock private UaaService uaaService;
     @Mock private ResourceLoader resourceLoader;
     @Mock private UserProfileRepository userProfileRepository;
-    @Mock private com.aaax.core.api.UtilApiClient utilApiClient;
+    @Mock private UtilApiClient utilApiClient;
 
     @InjectMocks
     private UserPreferenceUseCase userPreferenceUseCase;

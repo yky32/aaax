@@ -1,5 +1,6 @@
 package com.aaax.core.utils;
 
+import com.aaax.core.api.Jwt;
 import com.aaax.core.api.UaaApiClient;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.SystemResponse;
@@ -8,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.time.Instant;
@@ -59,7 +59,7 @@ public class JwtUtil {
         }
     }
 
-    public static Jwt myJwt() {
+    public static org.springframework.security.oauth2.jwt.Jwt myJwt() {
         if (mySecurityContext() != null) {
             log.info("-- JwtUtil.myJwt() has value {}", mySecurityContext().getToken());
             return mySecurityContext().getToken();
@@ -100,7 +100,7 @@ public class JwtUtil {
      * Returns {@code "0"} when there is no JWT or {@code sub} is absent/blank.
      */
     public static String userId() {
-        Jwt jwt = myJwt();
+        org.springframework.security.oauth2.jwt.Jwt jwt = myJwt();
         if (jwt == null) {
             return "0";
         }
@@ -111,8 +111,8 @@ public class JwtUtil {
         return sub;
     }
 
-    public static com.aaax.core.api.Jwt login(UaaApiClient uaaApiClient, String authorization, String grantType, String username, String credentials) {
-        com.aaax.core.api.Jwt jwt = RetrofitCallHandler._execute(uaaApiClient.oauth2Login(authorization, grantType, username, credentials));
+    public static Jwt login(UaaApiClient uaaApiClient, String authorization, String grantType, String username, String credentials) {
+        Jwt jwt = RetrofitCallHandler._execute(uaaApiClient.oauth2Login(authorization, grantType, username, credentials));
         jwt.setBearerToken(jwt.getTokenType().concat(" ").concat(jwt.getAccessToken()));
         return jwt;
     }
