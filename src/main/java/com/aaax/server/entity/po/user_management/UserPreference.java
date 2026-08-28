@@ -2,11 +2,11 @@ package com.aaax.server.entity.po.user_management;
 
 import com.aaax.core.entity.AuditEntityWithIsActive;
 import com.aaax.server.entity.enu.UserPreferenceType;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 
@@ -30,8 +30,7 @@ public class UserPreference extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_preference_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_preference_id_generator")
+    @SnowflakeId
     private Long id;
 
     @Column
@@ -44,7 +43,7 @@ public class UserPreference extends AuditEntityWithIsActive {
     private String key; // the things you are pointing to.
     // ________________
     // then operate it later on this field
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> actualPreference; // dynamically
 }

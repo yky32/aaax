@@ -29,7 +29,7 @@ public class JpaUtil {
 
 
     public static Specification<?> fuzzySearchSpecification(String searchText, List<JpaSearchFieldMetadata> filters) {
-        Specification<?> specification = Specification.where(null);
+        Specification<?> specification = Specification.unrestricted();
         for (JpaSearchFieldMetadata filter : filters) {
             Specification similaritySpecificationString = null;
             switch (filter.getColumn()) {
@@ -53,7 +53,7 @@ public class JpaUtil {
     public static Specification<?> hasJsonPropertyLike(
             String jsonbFields, String dbColumnField, String searchValue
     ) {
-        Specification<?> specification = Specification.where(null);
+        Specification<?> specification = Specification.unrestricted();
                 // detect its array.
         String[] values = searchValue.split(",");
         for (String value : values) {

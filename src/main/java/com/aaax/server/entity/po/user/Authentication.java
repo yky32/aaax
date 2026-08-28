@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,8 +32,7 @@ public class Authentication extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_authentication_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_authentication_id_generator")
+    @SnowflakeId
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,7 +58,7 @@ public class Authentication extends AuditEntityWithIsActive {
     @Column
     private Integer attempts;
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<CredentialHistoryMetadata> credentialsHistories;
 }

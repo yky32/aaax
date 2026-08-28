@@ -1,8 +1,9 @@
 package com.aaax.server.entity.po.log;
 
+import com.aaax.core.utils.generator.id.SnowflakeId;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  * TYPE: activity / audit trail
@@ -36,7 +37,6 @@ public class AuthenticationLog extends BaseLog {
 
     @Id
     @Column
-    @GenericGenerator(name = "log_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "log_id_generator")
+    @SnowflakeId
     private Long id;
 }

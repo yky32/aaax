@@ -47,7 +47,7 @@ jobs:
             exit 1
           fi
           echo 'OK: settings + no private dependency coordinates'
-      - name: Test + package (JDK 21 + Boot 3.1 + Central only)
+      - name: Test + package (JDK 21 + Boot 4.1 + Central only)
         run: mvn -B package
       - name: Dependency tree has no private artifacts
         run: |

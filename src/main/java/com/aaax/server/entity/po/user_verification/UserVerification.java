@@ -2,11 +2,11 @@ package com.aaax.server.entity.po.user_verification;
 
 import com.aaax.core.constant.enu.UserVerificationStatus;
 import com.aaax.core.entity.AuditEntityWithIsActive;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 @EqualsAndHashCode(callSuper = true)
@@ -22,14 +22,13 @@ public class UserVerification extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_verification_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_verification_id_generator")
+    @SnowflakeId
     private Long id;
     @Column
     private Long userId;
     @Column
     private String extIdentifier;
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object detail; // user-register.otp
     @Enumerated(EnumType.STRING)

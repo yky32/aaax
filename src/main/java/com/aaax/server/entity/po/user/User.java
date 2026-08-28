@@ -3,14 +3,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.enu.UserStatus;
 import com.aaax.core.entity.AuditEntityWithIsActive;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,7 @@ public class User extends AuditEntityWithIsActive {
 
     @Id
     @Column
-    @GenericGenerator(name = "user_id_generator", strategy = "com.aaax.core.utils.generator.id.SnowflakeIdGenerator")
-    @GeneratedValue(generator = "user_id_generator")
+    @SnowflakeId
     private Long id;
 
     @Column(unique = true)
@@ -43,7 +42,7 @@ public class User extends AuditEntityWithIsActive {
     @Column
     private UserStatus status;
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private UserMetadata metadata;
 
@@ -63,7 +62,7 @@ public class User extends AuditEntityWithIsActive {
         }
     }
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<String> sourceSystemTags;
 }

@@ -3,10 +3,10 @@ package com.aaax.server.entity.po.log;
 import com.aaax.core.aop.log.LogScope;
 import com.aaax.core.constant.enu.LogType;
 import com.aaax.core.entity.AuditEntity;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * TYPE: activity / audit trail
@@ -36,7 +36,7 @@ public class BaseLog extends AuditEntity {
     private LogScope logScope;
     @Column
     private String scope;
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object requestContext;
     @Column
@@ -46,20 +46,20 @@ public class BaseLog extends AuditEntity {
     @Column
     private String event;
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object requestBody; // log content
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object responseBody; // log content
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object content; // log content
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object newContent; // log content
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object delta;
 
@@ -68,7 +68,7 @@ public class BaseLog extends AuditEntity {
     @Column
     private Long trafficTimeInMilliseconds;
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Object metadata;
     @Column

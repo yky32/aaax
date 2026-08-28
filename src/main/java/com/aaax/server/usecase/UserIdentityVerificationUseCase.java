@@ -161,7 +161,7 @@ public class UserIdentityVerificationUseCase {
                 pageable.getSort().iterator().next().getDirection(),
                 pageable.getSort().iterator().next().getProperty()
         );
-        Specification<UserVerification> specification = Specification.where(null);
+        Specification<UserVerification> specification = Specification.unrestricted();
         specification = specification.and(((root, query, builder) -> builder.between(root.get("createDt"), _startDt, _endDt.plusSeconds(1)))); // in-case last second. of 23:59:59
         Page<UserVerification> userVerifications = userVerificationRepository.findAll(specification, pageRequest);
         log.info("-- ================ Fetch ALL userVerifications =======================");

@@ -7,7 +7,7 @@
 | **This file** | Product + eng source of truth — **code wins if this drifts** |
 | **Repo** | https://github.com/yky32/aaax |
 | **Version** | `0.9.0-SNAPSHOT` on `main` |
-| **Stack** | JDK **21** (build) · Java **17+** · Spring Boot **3.1.0** · Apache-2.0 |
+| **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-08-28 |
 
@@ -25,7 +25,7 @@
 - Identity: `User` 1:n `Authentication` (`loginType` + `identifier`)
 - Errors: `BizException(Response)` → `BaseGlobalExceptionHandler` → `R` / `Result`
 
-It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private dump with extra Maven packages.
+It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official Spring Authorization Server sample.
 
 **ICP:** Spring/JVM teams that want a native Java authentication server without private packages.
 
@@ -51,10 +51,9 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 | Device binding on login | ❌ OFF — register path only |
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML · orgs | ❌ |
-| Boot **4.1** | ❌ later lane — parent is **3.1.0** (OSS EOL) |
+| Boot **4.1.1** | ✅ parent BOM; Java **21** |
+| Jackson **3** | ❌ later lane — still Jackson 2 via `spring-boot-jackson2` |
 | `mvn test` | ✅ unit + Testcontainers IT (Docker CLI IT excluded from default surefire) |
-
-**Spring Boot 3.1 OSS support ended 2024-06.** Do not claim production hardening on 3.1. Upgrade is an explicit later lane — not silent.
 
 ---
 
@@ -165,7 +164,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 10. Out of scope until asked
 
-- Boot 4.x upgrade
+- Jackson 3 (`tools.jackson`) for Retrofit / `JSONUtil`
 - Wiring QR/SMS / custom_code grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh

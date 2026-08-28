@@ -1,7 +1,7 @@
 --liquibase formatted sql
 --changeset aaax:V__202608280930_oauth2_registered_client.sql splitStatements:true endDelimiter:;
 
--- Spring Authorization Server JDBC RegisteredClientRepository (Boot 3.1 / SAS 1.1).
+-- Spring Authorization Server JDBC RegisteredClientRepository (Boot 4.1 / SAS 7).
 CREATE TABLE IF NOT EXISTS oauth2_registered_client
 (
     id                            varchar(100)                            NOT NULL PRIMARY KEY,
