@@ -33,8 +33,8 @@ spring:
       max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:25MB}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/aaax}
-    username: ${DB_USERNAME:aaax}
-    password: ${DB_PASSWORD:}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     hikari:
       maximum-pool-size: ${DB_POOL_MAX:10}
       minimum-idle: ${DB_POOL_MIN_IDLE:2}
