@@ -67,7 +67,7 @@ class QueryDailyLoginsMetricsUseCaseTest {
         ArgumentCaptor<Collection<String>> excluded = ArgumentCaptor.forClass(Collection.class);
         verify(authenticationLogRepository, org.mockito.Mockito.times(2))
                 .countDistinctUsersBetween(any(Instant.class), any(Instant.class), excluded.capture());
-        assertTrue(excluded.getValue().containsAll(List.of("refresh-token", "login-attempts")));
+        assertTrue(excluded.getValue().containsAll(List.of("refresh_token", "login-attempts")));
     }
 
     @Test

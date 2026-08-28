@@ -40,7 +40,7 @@ class CustomRefreshTokenAuthenticationConverterTest {
                 .thenReturn(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey());
         when(request.getParameterMap()).thenReturn(Map.of(
                 OAuth2ParameterNames.GRANT_TYPE, new String[]{GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()},
-                "refresh_token", new String[]{"rt-value"}
+                OAuth2ParameterNames.REFRESH_TOKEN, new String[]{"rt-value"}
         ));
         SecurityContextHolder.getContext().setAuthentication(clientPrincipal);
 

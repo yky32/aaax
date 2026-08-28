@@ -1,6 +1,5 @@
 package com.aaax.server.config.extension.custom_refresh_token;
 
-import com.aaax.server.config.extension.GrantTypeExtension;
 import lombok.Getter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -17,8 +16,7 @@ public class CustomRefreshTokenAuthenticationToken extends OAuth2AuthorizationGr
 
     public CustomRefreshTokenAuthenticationToken(String refreshToken, Authentication clientPrincipal,
                                                  @Nullable Map<String, Object> additionalParameters) {
-        super(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()),
-                clientPrincipal, additionalParameters);
+        super(AuthorizationGrantType.REFRESH_TOKEN, clientPrincipal, additionalParameters);
         Assert.hasText(refreshToken, "refreshToken cannot be empty");
         this.refreshToken = refreshToken;
     }

@@ -73,6 +73,8 @@ spring:
 # =============================================================================
 aaax:
   local-seed: ${AAAX_LOCAL_SEED:false}
+  cors:
+    allowed-origin-patterns: ${AAAX_CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*}
   kafka:
     enabled: ${AAAX_KAFKA_ENABLED:false}
     consumers:

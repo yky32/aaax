@@ -23,7 +23,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.36</lombok.version>
     <totp-spring-boot-starter.version>1.7.1</totp-spring-boot-starter.version>
-    <spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
   </properties>
 
   <dependencies>
@@ -96,11 +95,6 @@
       <version>${totp-spring-boot-starter.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security.oauth</groupId>
-      <artifactId>spring-security-oauth2</artifactId>
-      <version>${spring-security-oauth2.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
       <version>2.0.0</version>
@@ -109,16 +103,6 @@
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
       <version>9.37.3</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt</artifactId>
-      <version>0.9.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-jwt</artifactId>
-      <version>1.1.1.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>com.vladmihalcea</groupId>

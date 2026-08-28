@@ -1,23 +1,17 @@
 package com.aaax.server.config.security;
 
-import com.aaax.core.response.R;
-import com.aaax.core.response.SystemResponse;
-import com.aaax.core.utils.JSONUtil;
+import com.aaax.core.utils.KeystoreKeyPairs;
 import com.aaax.core.utils.RedisUtil;
-import com.aaax.core.utils.handler.EndpointHandler;
 import com.aaax.server.config.extension.CustomOAuth2RefreshTokenGenerator;
 import com.aaax.server.config.extension.CustomOAuth2TokenGenerator;
 import com.aaax.server.config.extension.GrantTypeExtension;
+import com.aaax.server.config.extension.RfcOAuth2TokenHttp;
 import com.aaax.server.config.extension.custom_password.CustomPasswordAuthenticationConverter;
 import com.aaax.server.config.extension.custom_password.CustomPasswordAuthenticationProvider;
 import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncryptedAuthenticationConverter;
 import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncryptedAuthenticationProvider;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationConverter;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationProvider;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationConverter;
-import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationProvider;
-import com.aaax.server.config.security.jwt.ClientCredentialsJwt;
-import com.aaax.server.config.security.jwt.Jwt;
 import com.aaax.server.exception.GlobalExceptionHandler;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -34,9 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,11 +41,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
@@ -80,8 +68,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @Configuration
 @RequiredArgsConstructor
@@ -111,6 +97,8 @@ public class AuthenticationServerConfig {
     private String jwkSetUri;
     @Value("${aaax.security.server.expiry-time}")
     private Integer serverTokenExpiryTime;
+    @Value("${aaax.cors.allowed-origin-patterns:http://localhost:*,http://127.0.0.1:*}")
+    private String corsOriginPatterns;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -147,46 +135,11 @@ public class AuthenticationServerConfig {
                 authorizationService(), tokenGenerator(), authenticationManager
         );
 
-        // ===== SOCIAL AUTH
-        ThirdPartyAuthenticationConverter thirdPartyAuthenticationConverter = new ThirdPartyAuthenticationConverter();
-        ThirdPartyAuthenticationProvider thirdPartyAuthenticationProvider = new ThirdPartyAuthenticationProvider(
-                authorizationService(), tokenGenerator(), authenticationManager
-        );
+        AuthenticationSuccessHandler myAuthenticationSuccessHandler = (request, response, authentication) ->
+                RfcOAuth2TokenHttp.writeSuccess(response, (OAuth2AccessTokenAuthenticationToken) authentication);
 
-
-        AuthenticationSuccessHandler myAuthenticationSuccessHandler = (request, response, authentication) -> {
-            OAuth2AccessTokenAuthenticationToken token = (OAuth2AccessTokenAuthenticationToken) authentication;
-            long expires_in = Objects.requireNonNull(token.getAccessToken().getExpiresAt()).getEpochSecond() - (System.currentTimeMillis() / 1000);
-            if (request.getParameter("grant_type").equals(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())) {
-                ClientCredentialsJwt jwt = ClientCredentialsJwt.builder()
-                        .accessToken(token.getAccessToken().getTokenValue())
-                        .build();
-                EndpointHandler.out(response, response.getStatus(), R.success(jwt));
-            } else {
-                Jwt jwt = Jwt.builder()
-                        .accessToken(token.getAccessToken().getTokenValue())
-                        .refreshToken(token.getRefreshToken() != null ? token.getRefreshToken().getTokenValue() : "--NA")
-                        .expiresIn(expires_in)
-                        .tokenType(OAuth2AccessToken.TokenType.BEARER.getValue())
-                        .build();
-                EndpointHandler.out(response, response.getStatus(), R.success(jwt));
-            }
-        };
-
-        // customize the return
-        AuthenticationFailureHandler authenticationFailureHandler = (
-                request,
-                response,
-                exception
-        ) -> {
-            OAuth2Error oAuth2Error = ((OAuth2AuthenticationException) exception).getError();
-            Map errorResponse = JSONUtil.convertFromObject(oAuth2Error, Map.class);
-            try {
-                errorResponse.put("detail", exception.getMessage());
-            } catch (Exception e) {
-            }
-            EndpointHandler.out(response, HttpStatus.UNAUTHORIZED.value(), R.fail(SystemResponse.SAU0400, errorResponse));
-        };
+        AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) ->
+                RfcOAuth2TokenHttp.writeError(response, exception);
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 // set authorization server customized grantTypeCode in metadata
@@ -196,7 +149,6 @@ public class AuthenticationServerConfig {
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT_ENCRYPTED.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())
-                                        .grantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey())
                         ))
                 // add custom grant_type here
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
@@ -206,8 +158,6 @@ public class AuthenticationServerConfig {
                         .authenticationProvider(customPasswordEncryptedAuthenticationProvider)
                         .accessTokenRequestConverter(customRefreshTokenAuthenticationConverter)
                         .authenticationProvider(customRefreshTokenAuthenticationProvider)
-                        .accessTokenRequestConverter(thirdPartyAuthenticationConverter)
-                        .authenticationProvider(thirdPartyAuthenticationProvider)
                         .accessTokenResponseHandler(myAuthenticationSuccessHandler) // final return to client side
                         .errorResponseHandler(authenticationFailureHandler) // final custom to client side
                 )
@@ -231,11 +181,15 @@ public class AuthenticationServerConfig {
     @Bean
     CorsFilter corsFilter() {
         var config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
-        config.setAllowedMethods(List.of("*")); // try
-        config.setAllowCredentials(true);
+        List<String> origins = List.of(corsOriginPatterns.split(",")).stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        config.setAllowedOriginPatterns(origins.isEmpty() ? List.of("http://localhost:*") : origins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        boolean wildcard = origins.stream().anyMatch("*"::equals);
+        config.setAllowCredentials(!wildcard);
         config.addAllowedHeader("*");
-        config.addExposedHeader("*");
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
@@ -246,7 +200,7 @@ public class AuthenticationServerConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
         http.formLogin(Customizer.withDefaults());
-        http.csrf(AbstractHttpConfigurer::disable); // __ Prevent 403
+        http.csrf(AbstractHttpConfigurer::disable); // API-only: CSRF off. Hosted browser authorize is a later lane.
 
         http.authorizeHttpRequests(az -> az
                         .requestMatchers(byPassUris).permitAll()
@@ -294,8 +248,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .redirectUri("http://insomina")
 //                .scope(OidcScopes.OPENID)
@@ -317,8 +269,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .redirectUri("http://insomina") // change later
 //                .scope(OidcScopes.OPENID)
@@ -340,7 +290,6 @@ public class AuthenticationServerConfig {
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
 //                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
-//                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.EXT_PASSWORD_GRANT.getKey()))
 //                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 //                .scope(OidcScopes.OPENID)
 //                .redirectUri("http://insomina") // change later
@@ -431,10 +380,7 @@ public class AuthenticationServerConfig {
                 throw new IllegalStateException(
                         "AAAX_JWK_KEYSTORE is set; also set AAAX_JWK_KEYSTORE_PASSWORD and AAAX_JWK_KEYSTORE_ALIAS");
             }
-            KeyStoreKeyFactory ksFactory = new KeyStoreKeyFactory(
-                    new FileSystemResource(jwkKeystorePath),
-                    jwkKeystorePassword.toCharArray());
-            return ksFactory.getKeyPair(jwkKeystoreAlias);
+            return KeystoreKeyPairs.load(jwkKeystorePath, jwkKeystorePassword, jwkKeystoreAlias);
         }
         try {
             log.warn("AAAX_JWK_KEYSTORE unset — generating ephemeral RSA (tokens invalid after restart)");

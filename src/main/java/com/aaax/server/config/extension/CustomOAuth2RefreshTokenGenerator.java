@@ -26,7 +26,7 @@ public class CustomOAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
     @Nullable
     @Override
     public OAuth2RefreshToken generate(OAuth2TokenContext context) {
-        if (!GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey().equals(context.getTokenType().getValue())) {
+        if (!GrantTypeExtension.isRefreshGrant(context.getTokenType().getValue())) {
             return null;
         }
 

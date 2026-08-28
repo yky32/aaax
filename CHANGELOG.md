@@ -2,6 +2,12 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 2
+- `/oauth2/token` returns RFC 6749 JSON (`access_token`, `token_type`, `expires_in`, `refresh_token`). `/users` and admin APIs keep the AAAX Result envelope
+- Refresh grant is `refresh_token`
+- Dropped unused `spring-security-oauth2` 2.5, `jjwt`, and `spring-security-jwt`
+- Removed `ext-password-grant` and `third-party-grant` from `/oauth2/token` (classes deleted). Google/Apple idToken verify/link remains on `SocialAuthenticationUseCase`.
+
 ### Wave 1
 - Empty-DB clone: `JPA_DDL_AUTO=update` + Liquibase `oauth2_registered_client` (env, no Spring profile)
 - Optional seed (`AAAX_LOCAL_SEED`): OAuth client `client`/`secret` + `smoke.primary@aaax.local`

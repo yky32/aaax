@@ -104,7 +104,7 @@ curl -sS -u client:secret \
   -d 'credentials=SmokePrimary!1'
 ```
 
-Live body is the `R` envelope: `data.accessToken` (not RFC `access_token`).
+Live body is RFC 6749 JSON: `access_token` (not an AAAX `R` envelope). `/users/me` still uses the Result envelope.
 
 More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
 

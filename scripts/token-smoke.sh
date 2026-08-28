@@ -25,9 +25,9 @@ else
   cat "$body"
 fi
 echo
-if grep -Eq '"accessToken"|"access_token"' "$body"; then
+if grep -Eq '"access_token"' "$body"; then
   echo "OK — token present"
   exit 0
 fi
-echo "FAIL — no accessToken / access_token in body (need AAAX_LOCAL_SEED=true and JPA_DDL_AUTO=update)"
+echo "FAIL — no access_token in body (need AAAX_LOCAL_SEED=true and JPA_DDL_AUTO=update)"
 exit 1

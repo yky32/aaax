@@ -132,11 +132,11 @@ public class CustomRefreshTokenAuthenticationProvider extends BaseAuthentication
 
         // ----- Refresh token -----
         OAuth2RefreshToken currentRefreshToken = null;
-        if (registeredClient.getAuthorizationGrantTypes().contains(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())) &&
+        if (GrantTypeExtension.allowsRefresh(registeredClient) &&
                 // Do not issue refresh token to public client
                 !clientPrincipal.getClientAuthenticationMethod().equals(ClientAuthenticationMethod.NONE)) {
 
-            tokenContext = tokenContextBuilder.tokenType(new OAuth2TokenType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())).build(); // ** key
+            tokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.REFRESH_TOKEN).build(); // ** key
             OAuth2Token generatedRefreshToken = this.tokenGenerator.generate(tokenContext);
             if (!(generatedRefreshToken instanceof OAuth2RefreshToken)) {
                 OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, "The token generator failed to generate the refresh token.", ERROR_URI);
