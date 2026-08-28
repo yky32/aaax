@@ -24,24 +24,24 @@ import java.time.Instant;
 @EntityListeners(value = AuditingEntityListener.class)
 public class AuditEntity implements Serializable {
     @Version
-    @Column(name = "version")
+    @Column
     protected int version;
 
-    @Column(name = "create_dt")
+    @Column
     @CreatedDate
     protected Instant createDt;
 
-    @Column(name = "created_by")
+    @Column
     @CreatedBy
     protected String createdBy;
     // dynamically use string to store the user key, String.valueOf(user long id)
     // example, "6821123112312578", "1000010201", "UUID"
 
-    @Column(name = "update_dt")
+    @Column
     @LastModifiedDate
     protected Instant updateDt;
 
-    @Column(name = "updated_by")
+    @Column
     @LastModifiedBy
     protected String updatedBy;
 }
