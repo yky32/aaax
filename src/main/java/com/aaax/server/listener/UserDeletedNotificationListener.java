@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import static com.aaax.core.kafka.enu.KafkaTopic.USER_DELETED;
 
 @Component
+@ConditionalOnProperty(prefix = "aaax.kafka", name = "enabled", havingValue = "true")
 @Slf4j
 @RequiredArgsConstructor
 public class UserDeletedNotificationListener extends BaseListener {

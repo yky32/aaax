@@ -57,6 +57,7 @@ set -a && source .env && set +a
 - **`JPA_DDL_AUTO=update`** — Hibernate creates domain tables on empty Postgres  
 - **`LIQUIBASE_ENABLED=true`** — creates `oauth2_registered_client`  
 - **`AAAX_LOCAL_SEED=true`** — inserts OAuth client `client`/`secret` and user `smoke.primary@aaax.local` / `SmokePrimary!1`
+- **`AAAX_KAFKA_ENABLED=false`** — Kafka is optional; first clone only needs Postgres + Redis
 
 Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in production.
 

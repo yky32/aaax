@@ -86,6 +86,8 @@ oauth-provider:
 
 aaax:
   local-seed: false
+  kafka:
+    enabled: false
   ext:
     util-enabled: false
     enabled: false

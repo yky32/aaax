@@ -19,6 +19,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -31,6 +32,7 @@ import java.util.*;
 import static com.aaax.core.kafka.enu.KafkaTopic.USER_POST_LOGIN_SUCCEED;
 
 @Component
+@ConditionalOnProperty(prefix = "aaax.kafka", name = "enabled", havingValue = "true")
 @Slf4j
 @RequiredArgsConstructor
 public class PostLoginSucceedWorker extends BaseListener {

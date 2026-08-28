@@ -25,6 +25,7 @@ import static com.aaax.core.kafka.enu.KafkaTopic.USER_HOUSEKEEPING_EXPIRED_USER_
 
 
 @Component
+@ConditionalOnProperty(prefix = "aaax.kafka", name = "enabled", havingValue = "true")
 @Slf4j
 @RequiredArgsConstructor
 public class HousekeepingUserTokenListener extends BaseListener {

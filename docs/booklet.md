@@ -45,7 +45,7 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 | Google + Apple idToken (third-party grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
 | OSS mesh strip: GrandPay / Onboarding / Profile / Tenant / IDV HTTP | ✅ |
-| Discord blank = no-op · Util gated · Kafka consumers default **off** | ✅ |
+| Discord blank = no-op · Util gated · Kafka **off** (`AAAX_KAFKA_ENABLED`) | ✅ |
 | Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset (**local only**); file via `AAAX_JWK_KEYSTORE` |
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML · orgs | ❌ |
@@ -130,7 +130,7 @@ One `application.yml`. Secrets **env only**.
 | `SERVER_PORT` | `8081` |
 | `AS_ISSUER` | `http://localhost:8081` |
 | `AAAX_UTIL_ENABLED` | `false` |
-| Kafka consumers | all `false` |
+| Kafka | **off** (`AAAX_KAFKA_ENABLED=false`) — not required for first clone |
 | `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (local clone only; tokens die on restart) |
 | `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA (local clone only) |
 | `AAAX_LOCAL_SEED` | `false` (jar default) · `true` in `.env.example` |
