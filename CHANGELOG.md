@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 8
+- Authorization-server filter chain uses `securityMatcher(getEndpointsMatcher())` so Security 7 does not treat it as “any request” (jar would not start)
+- Form login `DaoAuthenticationProvider` takes `JwtUserDetailsService` as a `@Bean` parameter (no field inject cycle with `PasswordEncoder`)
+- CI fails fast if the log contains `APPLICATION FAILED TO START`
+
 ### Wave 7
 - Hosted `/login` (Spring Security form login + CSRF) for `/oauth2/authorize`; APIs stay CSRF-off + JWT
 - Loopback `GET /authorized` shows `code` for local PKCE (`http://127.0.0.1:8081/authorized`)
