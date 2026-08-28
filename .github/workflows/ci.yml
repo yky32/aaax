@@ -57,7 +57,7 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
-      - name: Runtime smoke (discovery + JWKS)
+      - name: Runtime smoke (RFC 8414 + JWKS + PKCE)
         env:
           SERVER_PORT: "8081"
           AS_ISSUER: http://localhost:8081
@@ -70,21 +70,25 @@ jobs:
           REDIS_PORT: "6379"
           REDIS_SSL: "false"
           AAAX_UTIL_ENABLED: "false"
+          AAAX_LOCAL_SEED: "true"
         run: |
           set -euo pipefail
           java -jar target/aaax-0.9.0-SNAPSHOT.jar > /tmp/aaax.log 2>&1 &
           echo $! > /tmp/aaax.pid
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"'; then
-              echo 'OK: JWKS'
+            if curl -sf http://localhost:8081/.well-known/oauth-authorization-server | grep -q '"issuer"'; then
+              echo 'OK: RFC 8414'
+              curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"' && echo 'OK: JWKS'
               curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
-                && echo 'OK: discovery' || echo 'WARN: no OIDC discovery document'
+                && echo 'OK: OIDC discovery' || { echo 'FAIL: OIDC discovery'; tail -n 80 /tmp/aaax.log; exit 1; }
+              chmod +x scripts/pkce-smoke.sh
+              scripts/pkce-smoke.sh
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi
             sleep 3
           done
-          echo 'FAIL: app did not serve discovery in time'
+          echo 'FAIL: app did not serve RFC 8414 metadata in time'
           tail -n 80 /tmp/aaax.log
           kill "$(cat /tmp/aaax.pid)" || true
           exit 1

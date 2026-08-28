@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ import java.util.List;
 public class LocalDevSeed implements CommandLineRunner {
 
     static final String LOCAL_CLIENT_ROW_ID = "760cc5ca-b513-4ce9-9e89-185ccbe1a403";
+    static final String LOCAL_PKCE_CLIENT_ROW_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
 
     static final String OAUTH2_REGISTERED_CLIENT_DDL = """
             CREATE TABLE IF NOT EXISTS oauth2_registered_client (
@@ -72,6 +74,7 @@ public class LocalDevSeed implements CommandLineRunner {
                 LoginSmokeAccounts.PRIMARY.canonicalEmail());
         jdbcTemplate.execute(OAUTH2_REGISTERED_CLIENT_DDL);
         seedClient();
+        seedPkceClient();
         seedPrimaryUser();
     }
 
@@ -102,6 +105,34 @@ public class LocalDevSeed implements CommandLineRunner {
                 .build();
         registeredClientRepository.save(client);
         log.info("local seed: inserted OAuth client {}", LoginSmokeAccounts.OAUTH_CLIENT_ID);
+    }
+
+    private void seedPkceClient() {
+        if (registeredClientRepository.findByClientId(LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID) != null) {
+            log.info("local seed: OAuth client {} already present", LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID);
+            return;
+        }
+        RegisteredClient client = RegisteredClient
+                .withId(LOCAL_PKCE_CLIENT_ROW_ID)
+                .clientId(LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID)
+                .clientName("AAAX local PKCE")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI)
+                .scope(OidcScopes.OPENID)
+                .clientSettings(ClientSettings.builder()
+                        .requireProofKey(true)
+                        .requireAuthorizationConsent(false)
+                        .build())
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofHours(1))
+                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .reuseRefreshTokens(false)
+                        .build())
+                .build();
+        registeredClientRepository.save(client);
+        log.info("local seed: inserted OAuth client {}", LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID);
     }
 
     private void seedPrimaryUser() {

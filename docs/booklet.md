@@ -39,8 +39,9 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 |--|--|
 | Single jar, Central Maven, no private `app-core` | ✅ |
 | Postgres + Redis local (compose) | ✅ |
-| First clone: `.env` + `AAAX_LOCAL_SEED` client/user | ✅ |
-| OIDC discovery / JWKS / `/oauth2/token` | ✅ RFC `access_token` JSON |
+| First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
+| RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
+| PKCE (`aaax-pkce` seed client) | ✅ required on authorize; no hosted login yet |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (verify / link, not a token grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
@@ -76,7 +77,7 @@ Public (resource chain): register `/users/registrations` · `/users` · `/ext/us
 
 Auth’d JWT: `/users/me` · profiles · devices · preferences · metadata · permissions · RBAC templates · clients · system-configurations · mgt · verification **query**.
 
-OAuth/OIDC: `/oauth2/*` · discovery · JWKS. Issuer default `http://localhost:8081`.
+OAuth/OIDC: `/oauth2/*` · `/.well-known/oauth-authorization-server` (RFC 8414) · `/.well-known/openid-configuration` · JWKS. Issuer default `http://localhost:8081`.
 
 There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-keys` or `/keys/decryption`.
 
@@ -164,7 +165,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 10. Out of scope until asked
 
-- Prove OAuth AS metadata (RFC 8414) / PKCE as a productized client (not a README suite claim)
+- RFC 8252 native-app BCP (system browser + claimed HTTPS/loopback product path)
 - Wiring QR/SMS / custom_code grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh

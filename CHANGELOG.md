@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 6
+- RFC 8414: `/.well-known/oauth-authorization-server` is public (AS chain no longer requires auth); OIDC discovery enabled
+- CI / `scripts/quickstart-smoke.sh` require 8414 + JWKS + OIDC discovery (no more “WARN: no discovery”)
+- Local seed public client `aaax-pkce` (`requireProofKey=true`, no secret). `scripts/pkce-smoke.sh` checks authorize rejects missing `code_challenge`. Not RFC 8252 (no hosted browser login)
+
 ### Wave 5
 - App JSON is Jackson **3** (`JsonMapper` / `tools.jackson`): `JSONUtil`, Redis (`GenericJacksonJsonRedisSerializer`), MVC exception mapping
 - Dropped `spring-boot-jackson2` and Retrofit `converter-jackson` (Jackson 2). Retrofit uses a local `Jackson3ConverterFactory` until Square ships one

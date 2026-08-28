@@ -111,8 +111,11 @@ public class AuthenticationServerConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
-        http.oauth2AuthorizationServer(Customizer.withDefaults())
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+        http.oauth2AuthorizationServer(authorizationServer -> authorizationServer
+                        .oidc(Customizer.withDefaults()))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
+                        .anyRequest().authenticated());
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
 
