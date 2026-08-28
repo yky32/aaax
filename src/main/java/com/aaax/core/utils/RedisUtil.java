@@ -3,7 +3,7 @@ package com.aaax.core.utils;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.Response;
 import com.aaax.core.response.SystemResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -52,7 +52,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML · orgs | ❌ |
 | Boot **4.1.1** | ✅ parent BOM; Java **21** |
-| Jackson **3** | ❌ later lane — still Jackson 2 via `spring-boot-jackson2` |
+| Jackson **3** | ✅ `tools.jackson` (`JSONUtil`, Redis, Retrofit factory). Annotations stay `com.fasterxml.jackson.annotation` |
 | `mvn test` | ✅ unit + Testcontainers IT (Docker CLI IT excluded from default surefire) |
 
 ---
@@ -164,7 +164,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 10. Out of scope until asked
 
-- Jackson 3 (`tools.jackson`) for Retrofit / `JSONUtil`
+- Prove OAuth AS metadata (RFC 8414) / PKCE as a productized client (not a README suite claim)
 - Wiring QR/SMS / custom_code grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh

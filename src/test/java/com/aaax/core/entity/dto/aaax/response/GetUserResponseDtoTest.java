@@ -1,17 +1,21 @@
 package com.aaax.core.entity.dto.aaax.response;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class GetUserResponseDtoTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     @Test
-    void deserializesIsActiveField() throws Exception {
+    void deserializesIsActiveField() {
         String json = """
                 {
                   "id": "u_1",
@@ -28,7 +32,7 @@ class GetUserResponseDtoTest {
     }
 
     @Test
-    void ignoresUnknownFields() throws Exception {
+    void ignoresUnknownFields() {
         String json = """
                 {
                   "id": "u_2",

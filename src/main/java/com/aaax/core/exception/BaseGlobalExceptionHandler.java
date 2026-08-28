@@ -1,7 +1,7 @@
 package com.aaax.core.exception;
 
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.InvalidFormatException;
 import com.aaax.core.api.ApiClient;
 import com.aaax.core.common.AppContextHolder;
 import com.aaax.core.response.R;
@@ -95,7 +95,7 @@ public class BaseGlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getCause() instanceof InvalidFormatException ife) {
 
             if (ife.getTargetType() != null && ife.getTargetType().isEnum()) {
-                String fieldName = !ife.getPath().isEmpty() ? ife.getPath().get(0).getFieldName() : "unknown";
+                String fieldName = !ife.getPath().isEmpty() ? ife.getPath().get(0).getPropertyName() : "unknown";
                 String value = String.valueOf(ife.getValue());
                 String validValues = Arrays.toString(ife.getTargetType().getEnumConstants());
                 String message = String.format("Field '%s' with value '%s' is invalid! Accepted values are: %s", fieldName, value, validValues);

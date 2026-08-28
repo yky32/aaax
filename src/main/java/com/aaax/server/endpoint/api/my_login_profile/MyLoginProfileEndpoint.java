@@ -10,7 +10,7 @@ import com.aaax.server.config.redis.RedisKey;
 import com.aaax.server.entity.dto.response.GetUserPermissionResponseDto;
 import com.aaax.server.entity.dto.response.GetUserRouteResponseDto;
 import com.aaax.server.usecase.GetMyLoginProfileUseCase;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

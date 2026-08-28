@@ -1,6 +1,6 @@
 package com.aaax.server.validation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.aaax.core.utils.JSONUtil;
 import com.aaax.server.config.AaaxSecurityProperties;
 import com.aaax.server.entity.po.configuration.SystemConfiguration;

@@ -1,6 +1,6 @@
 package com.aaax.core.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.aaax.core.api.NotificationApiClient;
 import com.aaax.core.constant.enu.NotificationChannel;
 import com.aaax.core.entity.dto.notification.response.GetNotificationTemplateResponseDto;

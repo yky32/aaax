@@ -3,7 +3,7 @@ package com.aaax.core.utils.jpa;
 import com.aaax.core.utils.JSONUtil;
 import com.aaax.core.utils.ResourcesUtil;
 import com.aaax.core.utils.ValidationUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import jakarta.persistence.criteria.Expression;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
