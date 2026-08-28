@@ -38,6 +38,8 @@ public final class LoginSmokeAccounts {
     /** Public local client: authorization_code + PKCE only (no client_secret). */
     public static final String OAUTH_PKCE_CLIENT_ID = "aaax-pkce";
     public static final String OAUTH_PKCE_REDIRECT_URI = "http://127.0.0.1:8081/authorized";
+    /** IPv6 loopback; SAS still allows any port on this host (RFC 8252 §7.3). */
+    public static final String OAUTH_PKCE_REDIRECT_URI_V6 = "http://[::1]:8081/authorized";
     public static final String GRANT_TYPE_CUSTOM_PASSWORD = "custom-password-grant";
 
     public record Account(String email, String password) {

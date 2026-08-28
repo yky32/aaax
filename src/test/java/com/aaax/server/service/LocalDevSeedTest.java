@@ -61,6 +61,8 @@ class LocalDevSeedTest {
         assertTrue(confidential.getAuthorizationGrantTypes().stream()
                 .anyMatch(g -> "refresh_token".equals(g.getValue())));
         assertTrue(pkce.getClientSettings().isRequireProofKey());
+        assertTrue(pkce.getRedirectUris().contains(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI));
+        assertTrue(pkce.getRedirectUris().contains(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI_V6));
         assertTrue(pkce.getClientAuthenticationMethods().contains(
                 org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE));
 

@@ -120,6 +120,7 @@ public class LocalDevSeed implements CommandLineRunner {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI)
+                .redirectUri(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI_V6)
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder()
                         .requireProofKey(true)

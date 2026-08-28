@@ -57,7 +57,7 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
-      - name: Runtime smoke (RFC 8414 + JWKS + PKCE + hosted login)
+      - name: Runtime smoke (RFC 8414 + JWKS + PKCE + hosted login + loopback token)
         env:
           SERVER_PORT: "8081"
           AS_ISSUER: http://localhost:8081

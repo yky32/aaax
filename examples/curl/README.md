@@ -14,8 +14,8 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 | OIDC discovery | `GET /.well-known/openid-configuration` | **200** JSON with `issuer` |
 | Login | `POST /oauth2/token` `custom-password-grant` | **200**, `access_token` |
 | Hosted login | `GET /login` | HTML form |
-| PKCE (seed `aaax-pkce`) | `GET /oauth2/authorize` without `code_challenge` | error mentioning `code_challenge` |
-| Hosted PKCE | `./scripts/hosted-authorize-smoke.sh` | `/authorized` with `code` |
+| PKCE (seed `aaax-pkce`) | after `/login`, `GET /oauth2/authorize` without `code_challenge` | error mentioning `code_challenge` |
+| Hosted PKCE + loopback token | `./scripts/hosted-authorize-smoke.sh` | other-port loopback code + `access_token` (public client) |
 | Me | `GET /users/me` Bearer | **200** |
 | Events catalog | — | **not shipped** |
 

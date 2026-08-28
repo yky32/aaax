@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Hosted /login + PKCE authorize → loopback /authorized?code= (local seed).
-# Not RFC 8252 (no claimed HTTPS native-app path).
+# Hosted /login + PKCE authorize → loopback code → public-client token (RFC 7636 appendix verifier).
+# Loopback other-port (RFC 8252 §7.3): SAS matches 127.0.0.1 except port.
+# Not claimed HTTPS / app-store native-app path.
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT="${AAAX_PKCE_CLIENT_ID:-aaax-pkce}"
 REDIRECT="${AAAX_PKCE_REDIRECT_URI:-http://127.0.0.1:8081/authorized}"
+LOOPBACK_OTHER="${AAAX_PKCE_LOOPBACK_OTHER:-http://127.0.0.1:9/authorized}"
 USER="${AAAX_SMOKE_USER:-smoke.primary@aaax.local}"
 PASS="${AAAX_SMOKE_PASSWORD:-SmokePrimary!1}"
+# RFC 7636 appendix B
 CHALLENGE="E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+VERIFIER="dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
 AUTH_URL="${BASE}/oauth2/authorize?response_type=code&client_id=${CLIENT}&redirect_uri=${REDIRECT}&scope=openid&code_challenge=${CHALLENGE}&code_challenge_method=S256"
 
 login_html=$(curl -sf "$BASE/login" || true)
@@ -26,7 +30,8 @@ fi
 echo "OK: authorize redirects to /login"
 
 COOKIE=$(mktemp)
-trap 'rm -f "$COOKIE"' EXIT
+token_body=$(mktemp)
+trap 'rm -f "$COOKIE" "$token_body"' EXIT
 
 curl -sS -c "$COOKIE" -b "$COOKIE" -H 'Accept: text/html' -o /dev/null "$AUTH_URL"
 html=$(curl -sS -c "$COOKIE" -b "$COOKIE" "$BASE/login")
@@ -45,7 +50,45 @@ curl -sS -c "$COOKIE" -b "$COOKIE" -o /tmp/aaax-login-post.body -D /tmp/aaax-log
   --data-urlencode "password=${PASS}" \
   --data-urlencode "_csrf=${csrf}"
 
-# Saved-request should send us through authorize to /authorized?code=
+other_loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -c "$COOKIE" -b "$COOKIE" -H 'Accept: text/html' -G \
+  "$BASE/oauth2/authorize" \
+  --data-urlencode 'response_type=code' \
+  --data-urlencode "client_id=${CLIENT}" \
+  --data-urlencode "redirect_uri=${LOOPBACK_OTHER}" \
+  --data-urlencode 'scope=openid' \
+  --data-urlencode "code_challenge=${CHALLENGE}" \
+  --data-urlencode 'code_challenge_method=S256')
+if printf '%s' "$other_loc" | grep -qi 'invalid.*redirect'; then
+  echo "FAIL: loopback other-port treated as invalid redirect_uri (Location=${other_loc})" >&2
+  exit 1
+fi
+if ! printf '%s' "$other_loc" | grep -q '127.0.0.1:9' || ! printf '%s' "$other_loc" | grep -q 'code='; then
+  echo "FAIL: loopback other-port did not return a code on :9 (Location=${other_loc})" >&2
+  exit 1
+fi
+echo "OK: loopback other-port redirect (${other_loc%%&*})"
+
+other_code=$(printf '%s' "$other_loc" | sed -n 's/.*[?&]code=\([^&]*\).*/\1/p')
+if [ -z "$other_code" ]; then
+  echo "FAIL: could not parse code from other-port Location" >&2
+  exit 1
+fi
+
+token_code=$(curl -sS -o "$token_body" -w '%{http_code}' \
+  -X POST "$BASE/oauth2/token" \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=authorization_code' \
+  --data-urlencode "code=${other_code}" \
+  --data-urlencode "redirect_uri=${LOOPBACK_OTHER}" \
+  --data-urlencode "client_id=${CLIENT}" \
+  --data-urlencode "code_verifier=${VERIFIER}")
+if [ "$token_code" != "200" ] || ! grep -q '"access_token"' "$token_body"; then
+  echo "FAIL: public-client token exchange (HTTP ${token_code})" >&2
+  cat "$token_body" >&2
+  exit 1
+fi
+echo "OK: authorization_code + code_verifier minted access_token (public client, loopback other-port)"
+
 final_url=$(curl -sS -c "$COOKIE" -b "$COOKIE" -o /tmp/aaax-authorized.html -w '%{url_effective}' \
   -L -H 'Accept: text/html' "$AUTH_URL")
 if ! printf '%s' "$final_url" | grep -q 'code='; then

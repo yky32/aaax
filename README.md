@@ -80,7 +80,7 @@ chmod +x scripts/quickstart-smoke.sh
 ./scripts/quickstart-smoke.sh
 ```
 
-Expect RFC 8414 (`/.well-known/oauth-authorization-server`), OIDC discovery, and JWKS when the AS is healthy. With seed on: `./scripts/pkce-smoke.sh` then `./scripts/hosted-authorize-smoke.sh` (PKCE + hosted `/login` → `/authorized?code=`).
+Expect RFC 8414 (`/.well-known/oauth-authorization-server`), OIDC discovery, and JWKS when the AS is healthy. With seed on: `./scripts/pkce-smoke.sh` then `./scripts/hosted-authorize-smoke.sh` (hosted `/login` → loopback code → public-client token). Not claimed HTTPS.
 
 ### 5. Token
 
