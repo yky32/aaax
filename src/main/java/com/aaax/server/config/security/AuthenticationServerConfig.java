@@ -14,10 +14,6 @@ import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncrypte
 import com.aaax.server.config.extension.custom_password_e.CustomPasswordEncryptedAuthenticationProvider;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationConverter;
 import com.aaax.server.config.extension.custom_refresh_token.CustomRefreshTokenAuthenticationProvider;
-import com.aaax.server.config.extension.customcode.CustomCodeGrantAuthenticationConverter;
-import com.aaax.server.config.extension.customcode.CustomCodeGrantAuthenticationProvider;
-import com.aaax.server.config.extension.ext_password.ExtPasswordAuthenticationConverter;
-import com.aaax.server.config.extension.ext_password.ExtPasswordAuthenticationProvider;
 import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationConverter;
 import com.aaax.server.config.extension.social_auth.ThirdPartyAuthenticationProvider;
 import com.aaax.server.config.security.jwt.ClientCredentialsJwt;
@@ -132,13 +128,6 @@ public class AuthenticationServerConfig {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        // GRANT_TYPE converter 和 GRANT_TYPE provider
-
-        // ===== CUSTOM CODE
-        CustomCodeGrantAuthenticationConverter customCodeGrantAuthenticationConverter = new CustomCodeGrantAuthenticationConverter();
-        CustomCodeGrantAuthenticationProvider customCodeGrantAuthenticationProvider = new CustomCodeGrantAuthenticationProvider(
-                authorizationService(), tokenGenerator(), authenticationManager
-        );
 
         // ===== CUSTOM PASSWORD
         CustomPasswordAuthenticationConverter customPasswordAuthenticationConverter = new CustomPasswordAuthenticationConverter();
@@ -155,12 +144,6 @@ public class AuthenticationServerConfig {
         // ===== CUSTOM REFRESH TOKEN
         CustomRefreshTokenAuthenticationConverter customRefreshTokenAuthenticationConverter = new CustomRefreshTokenAuthenticationConverter();
         CustomRefreshTokenAuthenticationProvider customRefreshTokenAuthenticationProvider = new CustomRefreshTokenAuthenticationProvider(
-                authorizationService(), tokenGenerator(), authenticationManager
-        );
-
-        // ===== CUSTOM EXT PASSWORD
-        ExtPasswordAuthenticationConverter extPasswordAuthenticationConverter = new ExtPasswordAuthenticationConverter();
-        ExtPasswordAuthenticationProvider extPasswordAuthenticationProvider = new ExtPasswordAuthenticationProvider(
                 authorizationService(), tokenGenerator(), authenticationManager
         );
 
@@ -212,7 +195,6 @@ public class AuthenticationServerConfig {
                                 customizer -> customizer
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT_ENCRYPTED.getKey())
-                                        .grantType(GrantTypeExtension.CUSTOM_CODE_GRANT.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())
                                         .grantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey())
                         ))
@@ -224,10 +206,6 @@ public class AuthenticationServerConfig {
                         .authenticationProvider(customPasswordEncryptedAuthenticationProvider)
                         .accessTokenRequestConverter(customRefreshTokenAuthenticationConverter)
                         .authenticationProvider(customRefreshTokenAuthenticationProvider)
-                        .accessTokenRequestConverter(customCodeGrantAuthenticationConverter)
-                        .authenticationProvider(customCodeGrantAuthenticationProvider)
-                        .accessTokenRequestConverter(extPasswordAuthenticationConverter)
-                        .authenticationProvider(extPasswordAuthenticationProvider)
                         .accessTokenRequestConverter(thirdPartyAuthenticationConverter)
                         .authenticationProvider(thirdPartyAuthenticationProvider)
                         .accessTokenResponseHandler(myAuthenticationSuccessHandler) // final return to client side

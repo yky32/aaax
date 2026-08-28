@@ -9,12 +9,13 @@ Do not open public issues for active exploits.
 |---------|-----------|
 | `main` (`0.9.0-SNAPSHOT`) | Yes — best effort |
 
-Spring Boot **3.1.0** is **OSS EOL**. Treat this pin as qs/uaa parity, not as a currently patched Boot line.
+Spring Boot **3.1.0** is **OSS EOL**. Do not treat this pin as a currently patched Boot line.
 
-## Demo / local keys
+## Keys
 
-The jar does **not** ship a JKS. Unset env generates ephemeral RSA for local clone.  
-Production: `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` (and matching password/alias env).
+The jar does **not** ship a JKS. Unset env generates ephemeral RSA for **local clone only** (tokens invalid after restart).
+
+**Production must set** `AAAX_JWK_KEYSTORE` / `AAAX_ENCRYPTION_KEYSTORE` (and matching password/alias env). There is no HTTP API to export the private key.
 
 ## Details
 

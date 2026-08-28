@@ -387,7 +387,7 @@ class RegisterUserUseCaseTest {
         verify(userRepository).saveAndFlush(argThat(user ->
                 user.getUsername().equals(username.toLowerCase()) &&
                         user.getStatus() == UserStatus.ACTIVE &&
-                        user.getAuthentications().size() == 2
+                        user.getAuthentications().size() == 1
         ));
     }
 
@@ -405,7 +405,7 @@ class RegisterUserUseCaseTest {
 
         assertNotNull(result);
         verify(userRepository).saveAndFlush(argThat(user ->
-                        user.getAuthentications().size() == 2
+                        user.getAuthentications().size() == 1
         ));
     }
 

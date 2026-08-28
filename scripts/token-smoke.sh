@@ -29,7 +29,7 @@ Then:
     -d "credentials=$AAAX_CREDENTIALS"
 
 Expect R envelope: data.accessToken (camelCase). Test fixtures (not auto-inserted):
-  LoginSmokeAccounts — client/secret + uaa.smoke.primary@aaax.local / SmokePrimary!1
+  LoginSmokeAccounts — client/secret + smoke.primary@aaax.local / SmokePrimary!1
 EOF
 }
 

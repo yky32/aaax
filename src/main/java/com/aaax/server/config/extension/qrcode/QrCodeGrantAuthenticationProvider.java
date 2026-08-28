@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ * Not registered on {@code /oauth2/token}. Device QR login uses HTTP/WS, not this grant.
+ */
 @Slf4j
 public class QrCodeGrantAuthenticationProvider implements AuthenticationProvider {
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";

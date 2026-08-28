@@ -16,7 +16,7 @@
   <version>0.9.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>aaax</name>
-  <description>AAAX — qs/uaa + app-core in one project (com.aaax + com.aaax.core)</description>
+  <description>AAAX — self-host OpenID Connect authentication server (com.aaax.core + com.aaax.server)</description>
 
   <properties>
     <java.version>17</java.version>
