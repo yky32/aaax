@@ -41,8 +41,9 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Postgres + Redis local (compose) | ✅ |
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
-| PKCE (`aaax-pkce` seed client) | ✅ required on authorize |
-| Hosted `/login` for `/oauth2/authorize` | ✅ form login + loopback `/authorized`; not RFC 8252 |
+| PKCE (`aaax-pkce` seed client) | ✅ required on authorize after login |
+| Hosted `/login` for `/oauth2/authorize` | ✅ form login + loopback `/authorized` |
+| Native-app loopback (RFC 8252 §7.3) | ✅ any port on `127.0.0.1` / `[::1]`; public-client token + PKCE. Not claimed HTTPS |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (verify / link, not a token grant) | ✅ |
 | Register / OTP / forgot-password | ✅ |
@@ -167,7 +168,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 10. Out of scope until asked
 
-- RFC 8252 native-app BCP (system browser + claimed HTTPS/loopback product path)
+- RFC 8252 claimed HTTPS / app-store native-app path (loopback any-port + PKCE token is in §2)
 - Wiring QR/SMS / custom_code grants into `tokenEndpoint`
 - Product web (`aaax-www`) claims beyond this booklet
 - Re-adding Tenant/IDV/GrandPay mesh

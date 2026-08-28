@@ -1,25 +1,55 @@
 #!/usr/bin/env bash
-# Proves seed public client aaax-pkce requires PKCE (RFC 7636). Hosted login is scripts/hosted-authorize-smoke.sh.
+# Proves seed public client aaax-pkce requires PKCE (RFC 7636) after hosted login.
+# Unauthenticated authorize redirects to /login (not a PKCE error). Token exchange is hosted-authorize-smoke.sh.
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT="${AAAX_PKCE_CLIENT_ID:-aaax-pkce}"
 REDIRECT="${AAAX_PKCE_REDIRECT_URI:-http://127.0.0.1:8081/authorized}"
+USER="${AAAX_SMOKE_USER:-smoke.primary@aaax.local}"
+PASS="${AAAX_SMOKE_PASSWORD:-SmokePrimary!1}"
+MISSING_URL="${BASE}/oauth2/authorize?response_type=code&client_id=${CLIENT}&redirect_uri=${REDIRECT}&scope=openid"
+CHALLENGE="E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+WITH_URL="${MISSING_URL}&code_challenge=${CHALLENGE}&code_challenge_method=S256"
 
-missing=$(curl -sS -o /tmp/aaax-pkce-missing.txt -w '%{http_code}' \
-  "$BASE/oauth2/authorize?response_type=code&client_id=${CLIENT}&redirect_uri=${REDIRECT}&scope=openid")
-if ! grep -qi 'code_challenge' /tmp/aaax-pkce-missing.txt; then
-  echo "FAIL: authorize without PKCE did not mention code_challenge (HTTP ${missing})" >&2
-  cat /tmp/aaax-pkce-missing.txt >&2
+loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -H 'Accept: text/html' "$MISSING_URL")
+if ! printf '%s' "$loc" | grep -q '/login'; then
+  echo "FAIL: unauthenticated authorize without PKCE did not go to /login (Location=${loc})" >&2
   exit 1
 fi
-echo "OK: missing PKCE rejected (HTTP ${missing})"
+echo "OK: unauthenticated authorize goes to /login"
 
-# RFC 7636 example S256 challenge (does not need the verifier for this check)
-with=$(curl -sS -o /tmp/aaax-pkce-with.txt -w '%{http_code}' \
-  "$BASE/oauth2/authorize?response_type=code&client_id=${CLIENT}&redirect_uri=${REDIRECT}&scope=openid&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256")
-if grep -qi 'code_challenge' /tmp/aaax-pkce-with.txt; then
-  echo "FAIL: authorize with PKCE still complained about code_challenge (HTTP ${with})" >&2
-  cat /tmp/aaax-pkce-with.txt >&2
+COOKIE=$(mktemp)
+trap 'rm -f "$COOKIE"' EXIT
+
+html=$(curl -sS -c "$COOKIE" -b "$COOKIE" "$BASE/login")
+csrf=$(printf '%s' "$html" | sed -n 's/.*name="_csrf"[^>]*value="\([^"]*\)".*/\1/p' | head -1)
+if [ -z "$csrf" ]; then
+  csrf=$(printf '%s' "$html" | sed -n 's/.*value="\([^"]*\)"[^>]*name="_csrf".*/\1/p' | head -1)
+fi
+if [ -z "$csrf" ]; then
+  echo "FAIL: no _csrf on /login" >&2
   exit 1
 fi
-echo "OK: PKCE present is accepted at authorize (HTTP ${with}; login may follow — see hosted-authorize-smoke.sh)"
+curl -sS -c "$COOKIE" -b "$COOKIE" -o /dev/null \
+  -X POST "$BASE/login" \
+  --data-urlencode "username=${USER}" \
+  --data-urlencode "password=${PASS}" \
+  --data-urlencode "_csrf=${csrf}"
+
+missing_loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -c "$COOKIE" -b "$COOKIE" -H 'Accept: text/html' "$MISSING_URL")
+if ! printf '%s' "$missing_loc" | grep -qi 'code_challenge'; then
+  echo "FAIL: logged-in authorize without PKCE did not mention code_challenge (Location=${missing_loc})" >&2
+  exit 1
+fi
+echo "OK: missing PKCE rejected after login"
+
+with_loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -c "$COOKIE" -b "$COOKIE" -H 'Accept: text/html' "$WITH_URL")
+if printf '%s' "$with_loc" | grep -qi 'code_challenge'; then
+  echo "FAIL: logged-in authorize with PKCE still complained about code_challenge (Location=${with_loc})" >&2
+  exit 1
+fi
+if ! printf '%s' "$with_loc" | grep -q 'code='; then
+  echo "FAIL: logged-in authorize with PKCE did not return a code (Location=${with_loc})" >&2
+  exit 1
+fi
+echo "OK: PKCE present is accepted after login"

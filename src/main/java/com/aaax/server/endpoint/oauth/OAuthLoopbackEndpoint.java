@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Loopback redirect for local PKCE ({@code http://127.0.0.1:8081/authorized}).
- * Not a production native-app callback (RFC 8252 is not claimed).
+ * Native apps should use a system browser + PKCE + loopback (RFC 8252 §7.3);
+ * this page is not claimed HTTPS / app-store callback.
  */
 @Controller
 public class OAuthLoopbackEndpoint {

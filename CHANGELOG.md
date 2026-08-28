@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 9
+- Loopback PKCE: SAS allows any port on seed `127.0.0.1` / `[::1]` redirect hosts (RFC 8252 §7.3). Not claimed HTTPS
+- `scripts/hosted-authorize-smoke.sh` exchanges `authorization_code` + RFC 7636 appendix `code_verifier` as public client `aaax-pkce`
+- `scripts/pkce-smoke.sh` checks missing `code_challenge` **after** hosted login (unauthenticated authorize is 302 `/login`)
+
 ### Wave 8
 - Authorization-server filter chain uses `securityMatcher(getEndpointsMatcher())` so Security 7 does not treat it as “any request” (jar would not start)
 - Form login `DaoAuthenticationProvider` takes `JwtUserDetailsService` as a `@Bean` parameter (no field inject cycle with `PasswordEncoder`)
@@ -15,7 +20,7 @@
 ### Wave 6
 - RFC 8414: `/.well-known/oauth-authorization-server` is public (AS chain no longer requires auth); OIDC discovery enabled
 - CI / `scripts/quickstart-smoke.sh` require 8414 + JWKS + OIDC discovery (no more “WARN: no discovery”)
-- Local seed public client `aaax-pkce` (`requireProofKey=true`, no secret). `scripts/pkce-smoke.sh` checks authorize rejects missing `code_challenge`. Not RFC 8252 (no hosted browser login)
+- Local seed public client `aaax-pkce` (`requireProofKey=true`, no secret). PKCE reject is after hosted login (Wave 9)
 
 ### Wave 5
 - App JSON is Jackson **3** (`JsonMapper` / `tools.jackson`): `JSONUtil`, Redis (`GenericJacksonJsonRedisSerializer`), MVC exception mapping
