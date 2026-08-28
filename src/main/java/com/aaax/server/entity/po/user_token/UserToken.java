@@ -2,10 +2,6 @@ package com.aaax.server.entity.po.user_token;
 
 import com.aaax.core.entity.AuditEntityWithIsActive;
 import com.aaax.server.entity.enu.UserTokenType;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,12 +34,8 @@ public class UserToken extends AuditEntityWithIsActive {
     @Column
     private UserTokenType type;
     @Column
-    @JsonDeserialize(using = InstantDeserializer.class)
-    @JsonSerialize(using = InstantSerializer.class)
     private Instant issuedAt;
     @Column
-    @JsonDeserialize(using = InstantDeserializer.class)
-    @JsonSerialize(using = InstantSerializer.class)
     private Instant expireAt;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

@@ -20,7 +20,7 @@ import com.aaax.server.repository.RbacTemplateRepository;
 import com.aaax.server.repository.UserPermissionRepository;
 import com.aaax.server.service.DtoWrapper;
 import com.aaax.server.service.AaaxService;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

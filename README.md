@@ -19,7 +19,7 @@ src/main/java/com/aaax/
 └── server/    ← authentication server (entity, endpoint, usecase, OIDC, …)
 ```
 
-Jackson **2** is still on the classpath (`spring-boot-jackson2`) for Retrofit/`JSONUtil`. Jackson 3 is a later lane.
+Jackson **3** (`tools.jackson`) is the app JSON stack. `@JsonInclude` and friends stay on `com.fasterxml.jackson.annotation`.
 
 ---
 

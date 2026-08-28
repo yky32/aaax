@@ -2,12 +2,17 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 5
+- App JSON is Jackson **3** (`JsonMapper` / `tools.jackson`): `JSONUtil`, Redis (`GenericJacksonJsonRedisSerializer`), MVC exception mapping
+- Dropped `spring-boot-jackson2` and Retrofit `converter-jackson` (Jackson 2). Retrofit uses a local `Jackson3ConverterFactory` until Square ships one
+- Instant fields use built-in Java time; no jsr310 `InstantSerializer` on POs
+
 ### Wave 4
 - Spring Boot **4.1.1** (Framework 7 / Security 7 / Hibernate 7); **Java 21** required
 - Starters: `webmvc`, `security-oauth2-authorization-server`, `security-oauth2-resource-server`; Kafka via `spring-boot-starter-kafka`
 - Hibernate 7: `@SnowflakeId` (`@IdGeneratorType`) replaces `@GenericGenerator`; JSON columns use `@JdbcTypeCode(SqlTypes.JSON)`
 - Authorization server filter chain uses `HttpSecurity.oauth2AuthorizationServer` (Security 7); `DaoAuthenticationProvider` takes `UserDetailsService` in the constructor
-- Still on Jackson 2 via `spring-boot-jackson2` (Jackson 3 not in this wave)
+- Jackson 3 landed in Wave 5 (this tree used `spring-boot-jackson2` during Wave 4)
 
 ### Wave 3
 - Snowflake IDs use a 12-bit sequence cap (`1 << 12`), not XOR (`2 ^ 12` → 14)

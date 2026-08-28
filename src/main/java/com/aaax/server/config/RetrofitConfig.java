@@ -4,11 +4,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.aaax.core.api.BaseRetrofitInClusterInterceptor;
 import com.aaax.core.api.DiscordApiClient;
+import com.aaax.core.api.Jackson3ConverterFactory;
 import com.aaax.core.api.AaaxApiClient;
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.utils.RedisUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
  * HTTP clients. Tenant / IDV / GrandPay / Onboarding / Profile removed for OSS.
@@ -35,10 +35,10 @@ public class RetrofitConfig {
             new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC);
 
     @Bean
-    public JacksonConverterFactory getFactory() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return JacksonConverterFactory.create(objectMapper);
+    public Jackson3ConverterFactory getFactory() {
+        return Jackson3ConverterFactory.create(JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build());
     }
 
     private static String baseUrl(String endpoint) {
@@ -71,7 +71,7 @@ public class RetrofitConfig {
         Retrofit build = new Retrofit.Builder()
                 .baseUrl("https://discord.com/")
                 .client(http().build())
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(Jackson3ConverterFactory.create())
                 .build();
         return build.create(DiscordApiClient.class);
     }

@@ -1,5 +1,6 @@
 package com.aaax.server.config;
 
+import com.aaax.core.api.Jackson3ConverterFactory;
 import com.aaax.core.utils.RedisUtil;
 
 import org.junit.jupiter.api.DisplayName;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +24,7 @@ class RetrofitConfigTest {
     @Test
     @DisplayName("getFactory should create jackson converter")
     void getFactory_shouldCreateConverter() {
-        JacksonConverterFactory factory = retrofitConfig.getFactory();
+        Jackson3ConverterFactory factory = retrofitConfig.getFactory();
         assertNotNull(factory);
     }
 

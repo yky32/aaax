@@ -4,10 +4,6 @@ import com.aaax.core.constant.enu.LoginType;
 import com.aaax.core.entity.AuditEntityWithIsActive;
 import com.aaax.server.entity.dto.json_context.CredentialHistoryMetadata;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import com.aaax.core.utils.generator.id.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,8 +47,6 @@ public class Authentication extends AuditEntityWithIsActive {
 
     // Metadata Dt.
     @Column
-    @JsonDeserialize(using = InstantDeserializer.class)
-    @JsonSerialize(using = InstantSerializer.class)
     private Instant lastLoginDt;
 
     @Column
