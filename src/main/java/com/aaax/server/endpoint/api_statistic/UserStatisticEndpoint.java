@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-import static com.aaax.server.entity.enu.UaaAspect.USERS;
+import static com.aaax.server.entity.enu.AaaxAspect.USERS;
 
 @RestController
 @RequestMapping("/user-statistics")

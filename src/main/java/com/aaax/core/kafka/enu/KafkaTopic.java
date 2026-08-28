@@ -16,7 +16,7 @@ public interface KafkaTopic {
     String NOTIFICATION_USER_LOG_UPDATED = "notification.user-log-updated";
     // ==================== [notification service]
 
-    // ==================== [uaa service]
+    // ==================== [aaax service]
     String USER_AUTH_FORCED_LOGOUT = "user.auth.forced-logout";
     String USER_CREATED = "user.created";
     String USER_DELETED = "user.deleted";
@@ -30,7 +30,7 @@ public interface KafkaTopic {
     String USER_USER_STATUS_MUTATED = "user.user-status.mutated";
     String USER_LOGIN_ATTEMPTS_MUTATED = "user.login-attempts.mutated";
     String USER_POST_LOGIN_SUCCEED = "user.post-login.succeed";
-    // ==================== [uaa service]
+    // ==================== [aaax service]
 
     // ==================== [log service]
     String ACTIVITY_LOG_CREATED = "activity-log.created";

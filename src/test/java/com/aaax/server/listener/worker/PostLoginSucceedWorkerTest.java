@@ -36,7 +36,7 @@ class PostLoginSucceedWorkerTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(worker, "serviceName", "uaa");
+        ReflectionTestUtils.setField(worker, "serviceName", "aaax");
     }
 
     @Test

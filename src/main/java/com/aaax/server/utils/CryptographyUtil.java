@@ -1,6 +1,6 @@
 package com.aaax.server.utils;
 
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -25,7 +25,7 @@ public class CryptographyUtil {
             // Convert decrypted bytes to String
             return new String(decryptedBytes);
         } catch (Exception exception) {
-            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, UaaErrorResponse.UAA0002.getMessage(), "password, username or status decryption.");
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, AaaxErrorResponse.AAAX0002.getMessage(), "password, username or status decryption.");
             throw new OAuth2AuthenticationException(error);
         }
     }

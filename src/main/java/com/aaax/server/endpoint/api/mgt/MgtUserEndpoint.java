@@ -1,7 +1,7 @@
 package com.aaax.server.endpoint.api.mgt;
 
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;

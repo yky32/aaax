@@ -2,9 +2,9 @@ package com.aaax.server.usecase.user_engagement;
 
 import com.aaax.core.common.PushSettingDto;
 import com.aaax.core.common.jsonfield.DeviceMetadata;
-import com.aaax.core.entity.dto.uaa.response.GetUserDeviceResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserPreferenceResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserDeviceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserPreferenceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto;
 import com.aaax.server.usecase.UserDeviceUseCase;
 import com.aaax.server.usecase.UserPreferenceUseCase;
 import com.aaax.server.usecase.UserProfileUseCase;

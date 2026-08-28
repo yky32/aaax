@@ -1,6 +1,6 @@
 package com.aaax.server.endpoint.api.user_preference;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserPreferenceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserPreferenceResponseDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
 import com.aaax.core.utils.JwtUtil;

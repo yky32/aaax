@@ -3,7 +3,7 @@ package com.aaax.server.usecase;
 import com.aaax.core.constant.RegexPatternConstant;
 import com.aaax.core.constant.enu.LoginType;
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.enu.KafkaTopic;
 import com.aaax.core.kafka.event.UserStateMutatedEvent;
@@ -25,8 +25,9 @@ import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.repository.*;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
-import com.aaax.server.validation.UaaValidation;
+import com.aaax.server.service.AaaxService;
+import com.aaax.server.validation.PasswordPolicy;
+import com.aaax.server.validation.AaaxValidation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -53,22 +54,23 @@ public class UserManagementUseCase {
     private final UserPreferenceRepository userPreferenceRepository;
     private final UserTokenRepository userTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordPolicy passwordPolicy;
     private final AuthenticationRepository authenticationRepository;
     private final UserRouteRepository userRouteRepository;
     private final UserRepository userRepository;
     private final UserVerificationRepository userVerificationRepository;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final AuthenticationService authenticationService;
     private final KafkaUtil kafkaUtil;
     @PersistenceContext
     private EntityManager entityManager;
 
     public GetUserResponseDto updateCredentials(UpdatePasswordRequestDto dto, String identifier) {
-        Authentication auth = uaaService.getByUsername(identifier);
+        Authentication auth = aaaxService.getByUsername(identifier);
         if (dto.getCredentials() == null || StringUtils.isEmpty(dto.getCredentials())) {
             throw new BizException(SystemResponse.PAM0400, "Please provide password value.");
         }
-        auth.setCredentials(UaaValidation.check_passwordRequirement(passwordEncoder, dto.getCredentials(), List.of()));
+        auth.setCredentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()));
         authenticationRepository.save(auth);
         return DtoWrapper.getUserResponseDto(auth.getUser(), List.of(auth));
     }
@@ -89,14 +91,14 @@ public class UserManagementUseCase {
         if (StringUtils.isBlank(current)) {
             throw new BizException(SystemResponse.PAM0400, "identifier is required.");
         }
-        Authentication auth = uaaService.getByUsername(current);
+        Authentication auth = aaaxService.getByUsername(current);
         User user = auth.getUser();
         if (next.equals(current) || next.equalsIgnoreCase(StringUtils.defaultString(user.getUsername()))) {
             return DtoWrapper.getUserResponseDto(user, List.of(auth));
         }
         // Throws when another active identity already owns this username
         authenticationService.isThisUsernameExistedForPublicRegister(next);
-        LoginType loginType = UaaValidation.detechLoginType(next);
+        LoginType loginType = AaaxValidation.detechLoginType(next);
         user.setUsername(next);
         auth.setIdentifier(next);
         auth.setLoginType(loginType);
@@ -143,7 +145,7 @@ public class UserManagementUseCase {
     @Transactional
     public void deleteByUserId(String id, Boolean isSoftDelete) {
         log.info("-- {}.delete => {}", this.getClass().getName(), id);
-        User user = uaaService.getById(id);
+        User user = aaaxService.getById(id);
         if (isSoftDelete) {
             this._doSoftDeleteExecution(user);
         } else {
@@ -154,7 +156,7 @@ public class UserManagementUseCase {
     @Transactional
     public void deleteByIdentifier(String identifier, Boolean isSoftDelete) {
         log.info("-- {}.delete => {}", this.getClass().getName(), identifier);
-        User user = uaaService.getUserFromIdentifier(identifier);
+        User user = aaaxService.getUserFromIdentifier(identifier);
         String _userId = String.valueOf(user.getId());
         if (isSoftDelete) {
             this._doSoftDeleteExecution(user);
@@ -179,7 +181,7 @@ public class UserManagementUseCase {
 
         // ==== prepare actionBy
         try {
-            GetUserResponseDto actionUser = uaaService.get(Long.valueOf(JwtUtil.userId()));
+            GetUserResponseDto actionUser = aaaxService.get(Long.valueOf(JwtUtil.userId()));
             kafkaUtil.send(
                     KafkaTopic.USER_STATE_CHANGED,
                     UserStateMutatedEvent.builder()
@@ -234,7 +236,7 @@ public class UserManagementUseCase {
 
     private AuditAwareUser _resolveActionBy() {
         try {
-            GetUserResponseDto actionUser = uaaService.get(Long.valueOf(JwtUtil.userId()));
+            GetUserResponseDto actionUser = aaaxService.get(Long.valueOf(JwtUtil.userId()));
             return AuditAwareUser.builder()
                     .id(actionUser.getId())
                     .name(actionUser.getUsername())
@@ -249,7 +251,7 @@ public class UserManagementUseCase {
     }
 
     public GetUserResponseDto updateStatuses(UpdateUserStatusRequestDto requestDto, String identifier) {
-        User user = uaaService.getUserFromIdentifier(identifier);
+        User user = aaaxService.getUserFromIdentifier(identifier);
         user.setStatus(UserStatus.get(requestDto.getStatus()));
         user = userRepository.save(user);
 
@@ -267,7 +269,7 @@ public class UserManagementUseCase {
     }
 
     public PaginationDto.PaginationDtoBuilder getAllUsers(Pageable pageable, String startDt, String endDt, String tenantId, String query) {
-        return uaaService.getAll(pageable, null, null, tenantId, List.of(), List.of(), null, null, null, null);
+        return aaaxService.getAll(pageable, null, null, tenantId, List.of(), List.of(), null, null, null, null);
     }
 
     private void _assertDeletable(User user) {

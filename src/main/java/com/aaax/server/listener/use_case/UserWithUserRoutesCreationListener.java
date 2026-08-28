@@ -8,7 +8,7 @@ import com.aaax.core.utils.JSONUtil;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.repository.UserRouteRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -40,7 +40,7 @@ public class UserWithUserRoutesCreationListener extends BaseListener {
     private String webhookToken;
     private final UserRouteRepository userRouteRepository;
     private final DiscordApiClient discordApiClient;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
 
 
     // ______ this is the execute method you need to better implemented
@@ -48,7 +48,7 @@ public class UserWithUserRoutesCreationListener extends BaseListener {
     public void execute(ConsumerRecord<String, String> payload, Acknowledgment ack) {
         UserRoutesCreatedEvent event = JSONUtil.readValue(payload.value(), UserRoutesCreatedEvent.class);
         log.info("======= UserWithUserRoutesCreationListener => event {}", event);
-        Authentication authentication = uaaService.getByUsername(event.getUsername());
+        Authentication authentication = aaaxService.getByUsername(event.getUsername());
         Long tenantRoleRouteId = Long.valueOf(event.getTenantRoleRouteId());
         Optional<UserRoute> isExistedUserRoute = userRouteRepository.findByTenantRoleRouteIdAndUserId(tenantRoleRouteId, authentication.getUser().getId());
         UserRoute userRoute = isExistedUserRoute.orElseGet(() -> UserRoute.builder()

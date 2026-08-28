@@ -2,25 +2,25 @@ package com.aaax.server.usecase;
 
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.constant.RegexPatternConstant;
-import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserVerificationResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserVerificationResponseDto;
 import com.aaax.core.entity.dto.util.response.GetCdnResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.SystemResponse;
 import com.aaax.core.utils.*;
 import com.aaax.server.entity.dto.json_context.user_management.UserProfileMetadata;
 import com.aaax.server.entity.dto.request.UpdateUserProfileRequestDto;
-import com.aaax.server.entity.enu.UaaAspect;
+import com.aaax.server.entity.enu.AaaxAspect;
 import com.aaax.server.entity.enu.UserProfileType;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserProfile;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.exception.response.UserProfileErrorResponse;
 import com.aaax.server.repository.UserProfileRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -45,7 +45,7 @@ public class UserProfileUseCase {
     private final UserProfileRepository userProfileRepository;
     private final UtilApiClient utilApiClient;
     private final ResourceLoader resourceLoader;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     @Value("${ext.util-enabled:false}")
     private boolean utilEnabled;
     @Autowired
@@ -64,7 +64,7 @@ public class UserProfileUseCase {
 
     private Object attachAdditionalAspects(String aspect, String userId, Object context) {
         switch (aspect.toUpperCase()) { // upper-case for ignore-case
-            case (UaaAspect.VERIFICATION) -> {
+            case (AaaxAspect.VERIFICATION) -> {
                 List<GetUserVerificationResponseDto> userVerifications = userIdentityVerificationUseCase.myVerifications(userId);
                 Map _context = JSONUtil.convertFromObject(context, Map.class);
                 Map _verification = (Map) _context.getOrDefault(aspect.toLowerCase(), new HashMap<>());
@@ -78,7 +78,7 @@ public class UserProfileUseCase {
                 context = _context;
             }
             default ->
-                    throw new BizException(UaaErrorResponse.UAA4400, "Invalid [a] parameters %s from %s".formatted(aspect, UaaAspect.USER_PROFILES));
+                    throw new BizException(AaaxErrorResponse.AAAX4400, "Invalid [a] parameters %s from %s".formatted(aspect, AaaxAspect.USER_PROFILES));
         }
         return context;
     }
@@ -90,7 +90,7 @@ public class UserProfileUseCase {
                     try {
                         identifier = (String) ((Map<?, ?>) JwtUtil.getFromJwt(JwtUtil.METADATA)).get("identifier");
                     } catch (Exception e) {
-                        GetUserResponseDto userResponseDto = uaaService.getOne(userId);
+                        GetUserResponseDto userResponseDto = aaaxService.getOne(userId);
                         identifier = userResponseDto.getUsername();
                     }
                     return doCreateDefault(new HashMap(), Long.valueOf(IdSplitter.split(userId)));
@@ -104,7 +104,7 @@ public class UserProfileUseCase {
     }
 
     public GetUserProfileResponseDto updateUserProfileMgt(String userId, UpdateUserProfileRequestDto requestDto, String systemSource) {
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
         return updateUserProfile(String.valueOf(user.getId()), requestDto, user.getUsername(), systemSource);
     }
 
@@ -164,7 +164,7 @@ public class UserProfileUseCase {
         if (isExistedUserProfile.isPresent()) {
             return isExistedUserProfile.get();
         }
-        User user = uaaService.getById(Long.valueOf(IdSplitter.split(userId)));
+        User user = aaaxService.getById(Long.valueOf(IdSplitter.split(userId)));
         Map defaulProfileMetadata = this._defaultMetadataJson();
         defaulProfileMetadata.put("email", ValidationUtil.patternMatches(user.getUsername(), RegexPatternConstant.EMAIL_PATTERN) ? user.getUsername() : "INVALID EMAIL");
         if (Optional.ofNullable(metadata).isEmpty()) {

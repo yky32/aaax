@@ -13,7 +13,7 @@ import com.aaax.core.utils.RetrofitCallHandler;
 import com.aaax.server.config.security.RedisOAuth2AuthorizationService;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.AccessControlUseCase;
 import com.aaax.server.usecase.RegisterUserUseCase;
 import com.aaax.server.usecase.UserManagementUseCase;
@@ -39,7 +39,7 @@ class KafkaListenersCoverageTest {
 
     @Mock private DiscordApiClient discordApiClient;
     @Mock private RedisOAuth2AuthorizationService redisOauth2AuthorizationService;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private UserRepository userRepository;
     @Mock private AccessControlUseCase accessControlUseCase;
     @Mock private UserManagementUseCase userManagementUseCase;
@@ -70,7 +70,7 @@ class KafkaListenersCoverageTest {
     void statusChange_shouldUpdateAndNotify() {
         String payload = JSONUtil.writeValue(UserStateMutatedEvent.builder()
                 .userId("u_1").toBeStatus(UserStatus.SUSPENDED).build());
-        when(uaaService.getById("u_1")).thenReturn(User.builder().id(1L).status(UserStatus.ACTIVE).build());
+        when(aaaxService.getById("u_1")).thenReturn(User.builder().id(1L).status(UserStatus.ACTIVE).build());
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         try (MockedStatic<RetrofitCallHandler> retrofit = mockStatic(RetrofitCallHandler.class)) {

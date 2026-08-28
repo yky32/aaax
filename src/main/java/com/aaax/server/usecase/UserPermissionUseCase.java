@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
 import com.aaax.server.repository.UserPermissionRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ResourceLoader;
@@ -13,6 +13,6 @@ import org.springframework.stereotype.Component;
 public class UserPermissionUseCase {
 
     private final UserPermissionRepository userPermissionRepository;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final ResourceLoader resourceLoader;
 }

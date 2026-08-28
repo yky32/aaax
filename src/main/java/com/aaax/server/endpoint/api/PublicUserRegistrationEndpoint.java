@@ -1,6 +1,6 @@
 package com.aaax.server.endpoint.api;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
@@ -33,8 +33,8 @@ public class PublicUserRegistrationEndpoint {
     /**
      * Start public register (sends OTP), or availability-only when {@code check=1}.
      * <ul>
-     *   <li>{@code POST /users/registrations} — occupied → 409 UAA0409; free → 200 + OTP</li>
-     *   <li>{@code POST /users/registrations?check=1} — occupied → 409 UAA0409; free → 200,
+     *   <li>{@code POST /users/registrations} — occupied → 409 AAAX0409; free → 200 + OTP</li>
+     *   <li>{@code POST /users/registrations?check=1} — occupied → 409 AAAX0409; free → 200,
      *       <b>no</b> OTP / no username hold (legacy FE probe)</li>
      * </ul>
      * {@code check} truthy values: {@code 1}, {@code true}, {@code yes} (case-insensitive).

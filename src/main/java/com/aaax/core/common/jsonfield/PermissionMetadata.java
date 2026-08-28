@@ -2,8 +2,8 @@ package com.aaax.core.common.jsonfield;
 
 
 import com.aaax.core.constant.enu.OperationAction;
-import com.aaax.core.constant.enu.uaa.Authorities;
-import com.aaax.core.constant.enu.uaa.PermissionEffect;
+import com.aaax.core.constant.enu.aaax.Authorities;
+import com.aaax.core.constant.enu.aaax.PermissionEffect;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

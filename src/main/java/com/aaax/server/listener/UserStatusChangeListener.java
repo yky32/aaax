@@ -9,7 +9,7 @@ import com.aaax.core.utils.JSONUtil;
 import com.aaax.server.config.security.RedisOAuth2AuthorizationService;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -40,7 +40,7 @@ public class UserStatusChangeListener extends BaseListener {
     private String webhookToken;
     private final DiscordApiClient discordApiClient;
     private final OAuth2AuthorizationService redisOauth2AuthorizationService;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserRepository userRepository;
 
 
@@ -57,7 +57,7 @@ public class UserStatusChangeListener extends BaseListener {
                 event
         );
         // === TAKE action
-        User user = uaaService.getById(event.getUserId());
+        User user = aaaxService.getById(event.getUserId());
         if (!event.getToBeStatus().equals(user.getStatus())) {
             user.setStatus(event.getToBeStatus());
             userRepository.save(user);

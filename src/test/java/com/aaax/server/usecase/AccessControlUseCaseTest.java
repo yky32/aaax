@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.common.jsonfield.PermissionMetadata;
-import com.aaax.core.constant.enu.uaa.Authorities;
+import com.aaax.core.constant.enu.aaax.Authorities;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.event.UserPermissionMutatedEvent;
 import com.aaax.core.utils.RedisUtil;
@@ -13,7 +13,7 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserPermission;
 import com.aaax.server.repository.RbacTemplateRepository;
 import com.aaax.server.repository.UserPermissionRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class AccessControlUseCaseTest {
     @Mock private RbacTemplateRepository rbacTemplateRepository;
     @Mock private UserPermissionRepository userPermissionRepository;
     @Mock private RedisUtil redisUtil;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private ResourceLoader resourceLoader;
 
     @InjectMocks
@@ -92,7 +92,7 @@ class AccessControlUseCaseTest {
     @DisplayName("assignPermissionToUser should create permissions for new user")
     void assignPermissionToUser_shouldCreateForNewUser() {
         User user = User.builder().id(1L).username("u").build();
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
         when(userPermissionRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userPermissionRepository.saveAndFlush(any())).thenAnswer(inv -> {
             UserPermission up = inv.getArgument(0);
@@ -128,7 +128,7 @@ class AccessControlUseCaseTest {
                 .apiVersion("1.0")
                 .actualPermissions(new HashMap<>(Map.of("old", Map.of())))
                 .build();
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
         when(userPermissionRepository.findByUserId(1L)).thenReturn(Optional.of(existing));
         when(userPermissionRepository.saveAndFlush(existing)).thenReturn(existing);
         when(userPermissionRepository.save(existing)).thenReturn(existing);

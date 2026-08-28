@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
  */
 public interface AuthenticationErrorResponse {
     Response ATH0001 = new Response("ATH0001", "Authentication record not found.", HttpStatus.NOT_FOUND);
-    /** Provider identity already linked to another UAA user. */
+    /** Provider identity already linked to another AAAX user. */
     Response ATH0002 = new Response("ATH0002", "Authentication identity is already linked to another account.", HttpStatus.CONFLICT);
     /** Unlink not allowed (e.g. last method, or email ACO protected). */
     Response ATH0003 = new Response("ATH0003", "Cannot unlink this authentication method.", HttpStatus.BAD_REQUEST);

@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * Enforces {@link RequiredRoles} using live roles from UAA so operator access
+ * Enforces {@link RequiredRoles} using live roles from AAAX so operator access
  * reflects hot-reloaded permissions without relying on immutable JWT scopes.
  * <p>
  * Register as a Spring {@code @Bean} (typically from each service's {@code AopConfig}).

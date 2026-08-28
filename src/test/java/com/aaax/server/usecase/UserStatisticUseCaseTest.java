@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.response.PaginationDto;
-import com.aaax.server.entity.enu.UaaAspect;
+import com.aaax.server.entity.enu.AaaxAspect;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserStatisticRepository;
@@ -60,12 +60,12 @@ class UserStatisticUseCaseTest {
     void usersCount_shouldCountUsers() {
         when(userRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(User.builder().id(1L).build()));
-        when(userStatisticRepository.usersCount(anyList(), any(), any(), any(), eq(UaaAspect.USER)))
+        when(userStatisticRepository.usersCount(anyList(), any(), any(), any(), eq(AaaxAspect.USER)))
                 .thenReturn(3L);
 
-        long count = userStatisticUseCase.usersCount(null, List.of("ACTIVE"), null, null, UaaAspect.USER);
+        long count = userStatisticUseCase.usersCount(null, List.of("ACTIVE"), null, null, AaaxAspect.USER);
 
         assertEquals(3L, count);
-        verify(userStatisticRepository).usersCount(eq(List.of(1L)), eq(List.of("ACTIVE")), any(), any(), eq(UaaAspect.USER));
+        verify(userStatisticRepository).usersCount(eq(List.of(1L)), eq(List.of("ACTIVE")), any(), any(), eq(AaaxAspect.USER));
     }
 }

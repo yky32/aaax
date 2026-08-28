@@ -1,6 +1,6 @@
 package com.aaax.server.endpoint.api.user_profile;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.JwtUtil;
 import com.aaax.server.usecase.UserProfileUseCase;

@@ -1,6 +1,6 @@
 package com.aaax.server.endpoint.api.forgot_password;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
 import com.aaax.server.entity.dto.request.ForgotPasswordRequestDto;

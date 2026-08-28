@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.ResourcesUtil;
 import com.aaax.server.entity.dto.response.GetUserPermissionResponseDto;
@@ -15,7 +15,7 @@ import com.aaax.server.exception.response.UserRouteErrorResponse;
 import com.aaax.server.repository.UserPermissionRepository;
 import com.aaax.server.repository.UserRouteRepository;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GetMyLoginProfileUseCase {
 
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserRouteRepository userRouteRepository;
     private final UserPermissionRepository userPermissionRepository;
     private final ResourceLoader resourceLoader;
@@ -46,7 +46,7 @@ public class GetMyLoginProfileUseCase {
     }
 
     private GetUserResponseDto getMyMetadata(Long userId) {
-        return uaaService.get(userId);
+        return aaaxService.get(userId);
     }
 
     public GetUserPermissionResponseDto getMyPermissions(Long userId) {

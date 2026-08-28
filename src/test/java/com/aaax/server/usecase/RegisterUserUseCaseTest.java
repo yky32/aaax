@@ -4,7 +4,7 @@ import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.enu.LoginType;
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.enu.KafkaTopic;
 import com.aaax.core.utils.KafkaUtil;
@@ -16,12 +16,13 @@ import com.aaax.server.entity.dto.response.PendingVerifyUserResponseDto;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.OtpErrorResponse;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.otp.RegisterUserOtpUseCase;
+import com.aaax.server.validation.PasswordPolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class RegisterUserUseCaseTest {
     @Mock
     private RedisUtil redisUtil;
     @Mock
-    private UaaService uaaService;
+    private AaaxService aaaxService;
     @Mock
     private AuthenticationService authenticationService;
     @Mock
@@ -70,6 +71,8 @@ class RegisterUserUseCaseTest {
     private UserPreferenceUseCase userPreferenceUseCase;
     @Mock
     private UtilApiClient utilApiClient;
+    @Mock
+    private PasswordPolicy passwordPolicy;
 
     @InjectMocks
     private RegisterUserUseCase registerUserUseCase;
@@ -78,6 +81,8 @@ class RegisterUserUseCaseTest {
     void setUp() {
         ReflectionTestUtils.setField(registerUserUseCase, "systemInvoker", "test-system");
         ReflectionTestUtils.setField(registerUserUseCase, "userCreatedWaitingTimeMs", 1L);
+        lenient().when(passwordPolicy.encode(any(), anyString()))
+                .thenAnswer(inv -> passwordEncoder.encode(inv.getArgument(1)));
     }
 
     // ==================== detectAlias Tests ====================
@@ -196,16 +201,16 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    @DisplayName("register_public_checkOnly occupied → UAA0409")
+    @DisplayName("register_public_checkOnly occupied → AAAX0409")
     void register_public_checkOnly_occupied() {
         RegisterUserRequestDto requestDto = RegisterUserRequestDto.builder()
                 .username("taken@test.com").build();
-        doThrow(new BizException(UaaErrorResponse.UAA0409))
+        doThrow(new BizException(AaaxErrorResponse.AAAX0409))
                 .when(authenticationService).isThisUsernameExistedForPublicRegister(anyString());
 
         BizException ex = assertThrows(BizException.class,
                 () -> registerUserUseCase.register_public_checkOnly(requestDto));
-        assertEquals(UaaErrorResponse.UAA0409.getCode(), ex.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0409.getCode(), ex.getResponse().getCode());
         verify(registerUserOtpUseCase, never()).generate(any(), anyString());
     }
 
@@ -252,13 +257,13 @@ class RegisterUserUseCaseTest {
                 .user(existingUser).build();
 
         when(authenticationService.findOptionalByDynamicIdentifier(anyString())).thenReturn(Optional.of(auth));
-        when(uaaService.getById(1L)).thenReturn(existingUser);
+        when(aaaxService.getById(1L)).thenReturn(existingUser);
 
         BizException exception = assertThrows(BizException.class, () -> {
             registerUserUseCase.execute(requestDto, UserStatus.ACTIVE, UserMetadata.builder().build());
         });
 
-        assertEquals(UaaErrorResponse.UAA0409.getCode(), exception.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0409.getCode(), exception.getResponse().getCode());
     }
 
     @Test
@@ -274,13 +279,13 @@ class RegisterUserUseCaseTest {
                 .user(inactiveUser).build();
 
         when(authenticationService.findOptionalByDynamicIdentifier(anyString())).thenReturn(Optional.of(auth));
-        when(uaaService.getById(1L)).thenReturn(inactiveUser);
+        when(aaaxService.getById(1L)).thenReturn(inactiveUser);
 
         BizException exception = assertThrows(BizException.class, () -> {
             registerUserUseCase.execute(requestDto, UserStatus.ACTIVE, UserMetadata.builder().build());
         });
 
-        assertEquals(UaaErrorResponse.UAA0004.getCode(), exception.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0004.getCode(), exception.getResponse().getCode());
     }
 
     @Test
@@ -297,7 +302,7 @@ class RegisterUserUseCaseTest {
         pendingUser.setAuthentications(List.of(auth));
 
         when(authenticationService.findOptionalByDynamicIdentifier(anyString())).thenReturn(Optional.of(auth));
-        when(uaaService.getById(1L)).thenReturn(pendingUser);
+        when(aaaxService.getById(1L)).thenReturn(pendingUser);
         when(userRepository.saveAndFlush(any(User.class))).thenReturn(pendingUser);
 
         GetUserResponseDto result = registerUserUseCase.execute(
@@ -424,7 +429,7 @@ class RegisterUserUseCaseTest {
                 .credentials("encodedOldPassword").user(user).build();
         user.setAuthentications(List.of(auth));
 
-        when(uaaService.getByUsername(identifier)).thenReturn(auth);
+        when(aaaxService.getByUsername(identifier)).thenReturn(auth);
         when(passwordEncoder.matches("oldPassword", "encodedOldPassword")).thenReturn(true);
         when(passwordEncoder.matches("newPassword", "encodedOldPassword")).thenReturn(false);
         when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
@@ -449,7 +454,7 @@ class RegisterUserUseCaseTest {
         Authentication auth = Authentication.builder().identifier(identifier)
                 .credentials("encodedPassword").user(user).build();
 
-        when(uaaService.getByUsername(identifier)).thenReturn(auth);
+        when(aaaxService.getByUsername(identifier)).thenReturn(auth);
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
         assertThrows(BizException.class, () -> {
@@ -469,7 +474,7 @@ class RegisterUserUseCaseTest {
         Authentication auth = Authentication.builder().identifier(identifier)
                 .credentials("encodedPassword").user(user).build();
 
-        when(uaaService.getByUsername(identifier)).thenReturn(auth);
+        when(aaaxService.getByUsername(identifier)).thenReturn(auth);
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
 
         assertThrows(BizException.class, () -> {
@@ -489,7 +494,7 @@ class RegisterUserUseCaseTest {
                 .credentials("encodedPassword").user(user).build();
         user.setAuthentications(List.of(auth));
 
-        when(uaaService.getByUsername(identifier)).thenReturn(auth);
+        when(aaaxService.getByUsername(identifier)).thenReturn(auth);
 
         var result = registerUserUseCase.updateCredentials(dto, identifier);
 

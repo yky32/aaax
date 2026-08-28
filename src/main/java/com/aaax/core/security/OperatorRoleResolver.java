@@ -1,7 +1,7 @@
 package com.aaax.core.security;
 
-import com.aaax.core.api.UaaApiClient;
-import com.aaax.core.entity.dto.uaa.response.GetMyRolesResponseDto;
+import com.aaax.core.api.AaaxApiClient;
+import com.aaax.core.entity.dto.aaax.response.GetMyRolesResponseDto;
 import com.aaax.core.utils.RetrofitCallHandler;
 
 import java.util.Collections;
@@ -9,28 +9,28 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Resolves live roles from UAA ({@code GET /users/my-roles}) so operator access
+ * Resolves live roles from AAAX ({@code GET /users/my-roles}) so operator access
  * reflects hot-reloaded permissions without relying on immutable JWT scopes.
  * <p>
  * Services should register this as a {@code @Bean}, injecting the user-token
- * {@link UaaApiClient} (typically {@code @Qualifier("uaaApiClient")}).
+ * {@link AaaxApiClient} (typically {@code @Qualifier("aaaxApiClient")}).
  */
 public class OperatorRoleResolver {
 
-    private final UaaApiClient uaaApiClient;
+    private final AaaxApiClient aaaxApiClient;
     private final String operatorRole;
 
-    public OperatorRoleResolver(UaaApiClient uaaApiClient, String operatorRole) {
-        this.uaaApiClient = uaaApiClient;
+    public OperatorRoleResolver(AaaxApiClient aaaxApiClient, String operatorRole) {
+        this.aaaxApiClient = aaaxApiClient;
         this.operatorRole = operatorRole;
     }
 
-    public OperatorRoleResolver(UaaApiClient uaaApiClient) {
-        this(uaaApiClient, OperatorRoles.ADMIN);
+    public OperatorRoleResolver(AaaxApiClient aaaxApiClient) {
+        this(aaaxApiClient, OperatorRoles.ADMIN);
     }
 
     public List<String> currentUserRoles() {
-        GetMyRolesResponseDto response = RetrofitCallHandler.execute(uaaApiClient.getMyRoles());
+        GetMyRolesResponseDto response = RetrofitCallHandler.execute(aaaxApiClient.getMyRoles());
         if (response == null || response.getRoles() == null) {
             return Collections.emptyList();
         }
@@ -41,7 +41,7 @@ public class OperatorRoleResolver {
         return hasAnyRole(operatorRoleName());
     }
 
-    /** True when the caller holds at least one of the given live UAA roles. */
+    /** True when the caller holds at least one of the given live AAAX roles. */
     public boolean hasAnyRole(String... roles) {
         if (roles == null || roles.length == 0) {
             return true;

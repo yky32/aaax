@@ -14,6 +14,9 @@ import java.util.Properties;
 
 @Slf4j
 public class SnowflakeIdGenerator implements IdentifierGenerator {
+    /** 12-bit sequence; exclusive cap. (`2 ^ 12` is XOR → 14 — do not use.) */
+    static final long MAX_SEQUENCE = 1L << 12;
+
     private long machineId = 0;
     private long timestamp = 0;
     private long sequence = 0;
@@ -32,23 +35,16 @@ public class SnowflakeIdGenerator implements IdentifierGenerator {
             timestamp = currentTimestamp;
             sequence = 0;
         } else if (currentTimestamp == timestamp) {
-            //sequence greater than max allowed sequence, try again
-            if (sequence >= (2 ^ 12)) return 0;
+            if (sequence >= MAX_SEQUENCE) {
+                return 0;
+            }
         }
         //clock drift
         else if (currentTimestamp < timestamp) {
             return 0;
         }
         long _machineId = Optional.of(SnowflakeIdGeneratorConfiguration.MACHINE_ID).orElse(Math.toIntExact(machineId));
-        log.info(
-            """
-            
-            ==================
-            _machineId = [{}]
-            IDENTIFIER = [{}]
-            ==================
-            """, _machineId, SnowflakeIdGeneratorConfiguration.IDENTIFIER
-        );
+        log.trace("snowflake machineId={} identifier={}", _machineId, SnowflakeIdGeneratorConfiguration.IDENTIFIER);
         return (timestamp << (64 - 1 - 41)) | (_machineId << (64 - 1 - 41 - 10)) | sequence++;
     }
 

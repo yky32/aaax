@@ -37,13 +37,13 @@ class FailAttemptsWorkerTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(failAttemptsWorker, "serviceName", "uaa");
+        ReflectionTestUtils.setField(failAttemptsWorker, "serviceName", "aaax");
         ReflectionTestUtils.setField(failAttemptsWorker, "entityManager", entityManager);
     }
 
     @Test
-    @DisplayName("execute should increment attempts on failure")
-    void execute_shouldIncrementOnFailure() {
+    @DisplayName("execute should write login-attempt log without mutating attempts")
+    void execute_shouldLogWithoutMutatingAttempts() {
         Authentication auth = Authentication.builder()
                 .identifier("user@test.com")
                 .attempts(2)
@@ -62,7 +62,7 @@ class FailAttemptsWorkerTest {
 
         failAttemptsWorker.execute(record, acknowledgment);
 
-        assertEquals(3, auth.getAttempts());
+        assertEquals(2, auth.getAttempts());
         assertNotNull(auth.getLastLoginDt());
         verify(authenticationRepository).save(auth);
         verify(authenticationLogRepository).saveAndFlush(any());
@@ -70,8 +70,8 @@ class FailAttemptsWorkerTest {
     }
 
     @Test
-    @DisplayName("execute should reset attempts on success")
-    void execute_shouldResetOnSuccess() {
+    @DisplayName("execute should not reset attempts on success (post_check owns that)")
+    void execute_shouldNotResetAttemptsOnSuccess() {
         Authentication auth = Authentication.builder()
                 .identifier("user@test.com")
                 .attempts(5)
@@ -89,6 +89,6 @@ class FailAttemptsWorkerTest {
 
         failAttemptsWorker.execute(record, acknowledgment);
 
-        assertEquals(0, auth.getAttempts());
+        assertEquals(5, auth.getAttempts());
     }
 }

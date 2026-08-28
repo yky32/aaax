@@ -1,7 +1,7 @@
 package com.aaax.server.endpoint.api.user_verification;
 
 import com.aaax.core.constant.enu.UserVerificationStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserVerificationResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserVerificationResponseDto;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;

@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.aaax.core.api.BaseRetrofitInClusterInterceptor;
 import com.aaax.core.api.DiscordApiClient;
-import com.aaax.core.api.UaaApiClient;
+import com.aaax.core.api.AaaxApiClient;
 import com.aaax.core.api.UtilApiClient;
 import com.aaax.core.utils.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,13 +57,13 @@ public class RetrofitConfig {
     }
 
     @Bean
-    public UaaApiClient uaaApiClient(@Value("${ext.api.client.uaa-svc.url:}") String endpoint) {
+    public AaaxApiClient aaaxApiClient(@Value("${ext.api.client.aaax-svc.url:}") String endpoint) {
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(baseUrl(endpoint))
                 .client(http().build())
                 .addConverterFactory(getFactory())
                 .build();
-        return build.create(UaaApiClient.class);
+        return build.create(AaaxApiClient.class);
     }
 
     @Bean

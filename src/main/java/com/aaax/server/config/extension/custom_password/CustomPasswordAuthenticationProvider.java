@@ -7,7 +7,7 @@ import com.aaax.server.config.extension.BaseAuthenticationProvider;
 import com.aaax.server.config.extension.GrantTypeExtension;
 import com.aaax.server.entity.dto.response.GetUserPermissionResponseDto;
 import com.aaax.server.entity.po.user.User;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.usecase.GetMyLoginProfileUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +97,7 @@ public class CustomPasswordAuthenticationProvider extends BaseAuthenticationProv
         if (!authenticationService.check(auth, credentials)) {
             authenticationService.post_check(auth, false);
             log.info("-- Invalid authenticationService.check : {}", username);
-            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, UaaErrorResponse.UAA0002.getMessage(), "password, username or status");
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, AaaxErrorResponse.AAAX0002.getMessage(), "password, username or status");
             throw new OAuth2AuthenticationException(error);
         }
         // ============= series of checking for granting token to [user].

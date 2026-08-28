@@ -44,7 +44,7 @@ class OtpUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(otpUseCase, "systemInvoker", "uaa");
+        ReflectionTestUtils.setField(otpUseCase, "systemInvoker", "aaax");
         ReflectionTestUtils.setField(otpUseCase, "otpRegisterTemplate", "otp.user-register");
         ReflectionTestUtils.setField(otpUseCase, "otpRegisterTemplate", "otp.register");
     }

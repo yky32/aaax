@@ -1,13 +1,13 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserRouteRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class GetUserUseCaseTest {
 
     @Mock private PasswordEncoder passwordEncoder;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private UserRepository userRepository;
     @Mock private AuthenticationRepository authenticationRepository;
     @Mock private UserRouteRepository userRouteRepository;
@@ -34,9 +34,9 @@ class GetUserUseCaseTest {
     private GetUserUseCase getUserUseCase;
 
     @Test
-    @DisplayName("execute(Long) should delegate to uaaService")
+    @DisplayName("execute(Long) should delegate to aaaxService")
     void execute_byId_shouldDelegate() {
-        when(uaaService.get(1L)).thenReturn(GetUserResponseDto.builder().id("1").build());
+        when(aaaxService.get(1L)).thenReturn(GetUserResponseDto.builder().id("1").build());
         assertEquals("1", getUserUseCase.execute(1L).getId());
     }
 
@@ -44,7 +44,7 @@ class GetUserUseCaseTest {
     @DisplayName("execute(String) should lookup by username")
     void execute_byIdentifier_shouldDelegate() {
         Authentication auth = Authentication.builder().identifier("u@test.com").build();
-        when(uaaService.getByUsername("u@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("u@test.com")).thenReturn(auth);
         assertEquals("u@test.com", getUserUseCase.execute("u@test.com").getIdentifier());
     }
 

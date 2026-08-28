@@ -2,7 +2,7 @@ package com.aaax.server.usecase;
 
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.utils.InstantUtil;
-import com.aaax.server.entity.enu.UaaAspect;
+import com.aaax.server.entity.enu.AaaxAspect;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserStatisticRepository;
@@ -65,10 +65,10 @@ public class UserStatisticUseCase {
 
         // validations
         switch (aspect) {
-            case (UaaAspect.USER) -> {
+            case (AaaxAspect.USER) -> {
 
             }
-            case (UaaAspect.VERIFICATION) -> {
+            case (AaaxAspect.VERIFICATION) -> {
 
             }
         }

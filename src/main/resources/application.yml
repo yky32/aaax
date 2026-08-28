@@ -105,12 +105,16 @@ aaax:
     user-created-waiting-time-ms: ${USER_CREATED_WAITING_TIME_MS:1}
     system-invoker: ${SYSTEM_INVOKER:AAAX}
     device-binding:
-      mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+      # OFF: login does not check devices. TRUST_LATEST only applies to POST /user-devices.
+      mode: ${CONFIG_DEVICE_BINDING_MODE:OFF}
     microservice:
       timezone: ${MICROSERVICE_TIME_ZONE:UTC}
     # Protected bootstrap accounts (comma-separated usernames) — never bulk-deleted
     protected-usernames: ${AAAX_PROTECTED_USERNAMES:admin@aaax.local}
   security:
+    max-login-attempts: ${AAAX_MAX_LOGIN_ATTEMPTS:5}
+    password-patterns:
+      - ".{8,}"
     issuer: ${AS_ISSUER:http://localhost:8081}
     registered-client:
       secret: ${REGISTERED_CLIENT_SECRET:secret}
@@ -157,10 +161,10 @@ ext:
   util-enabled: ${AAAX_UTIL_ENABLED:false}
   api:
     client:
-      uaa-svc:
-        url: ${UAA_SVC_URL:http://127.0.0.1:1/}
-        client-id: ${UAA_SVC_CLIENT_ID:server}
-        client-secret: ${UAA_SVC_CLIENT_SECRET:}
+      aaax-svc:
+        url: ${AAAX_SVC_URL:http://127.0.0.1:1/}
+        client-id: ${AAAX_SVC_CLIENT_ID:server}
+        client-secret: ${AAAX_SVC_CLIENT_SECRET:}
       elk:
         webhookId: ${ELK_WEBHOOK_ID:}
         webhookToken: ${ELK_WEBHOOK_TOKEN:}

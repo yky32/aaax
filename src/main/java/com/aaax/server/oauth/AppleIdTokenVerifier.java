@@ -10,7 +10,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.aaax.core.exception.BizException;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -45,10 +45,10 @@ public class AppleIdTokenVerifier {
 
     public AppleIdTokenClaims verify(String idToken) {
         if (!StringUtils.hasText(idToken)) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Apple", "error", "idToken is blank"));
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Apple", "error", "idToken is blank"));
         }
         if (audiences.isEmpty()) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Apple", "error", "No Apple client-id configured"));
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Apple", "error", "No Apple client-id configured"));
         }
 
         try {
@@ -64,7 +64,7 @@ public class AppleIdTokenVerifier {
 
             String sub = claims.getSubject();
             if (!StringUtils.hasText(sub)) {
-                throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Apple", "error", "sub is missing"));
+                throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Apple", "error", "sub is missing"));
             }
 
             Map<String, Object> appleIdTokenClaimsJson = new LinkedHashMap<>();
@@ -90,13 +90,13 @@ public class AppleIdTokenVerifier {
             throw e;
         } catch (Exception e) {
             log.warn("Apple id_token verification failed", e);
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Apple", "error", e.getMessage()));
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Apple", "error", e.getMessage()));
         }
     }
 
     private void validateIssuer(JWTClaimsSet claims) throws ParseException {
         if (!APPLE_ISSUER.equals(claims.getIssuer())) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of(
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of(
                     "provider", "Apple",
                     "error", "invalid issuer: " + claims.getIssuer()
             ));
@@ -106,11 +106,11 @@ public class AppleIdTokenVerifier {
     private void validateAudience(JWTClaimsSet claims) {
         List<String> tokenAudiences = claims.getAudience();
         if (tokenAudiences == null || tokenAudiences.isEmpty()) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Apple", "error", "aud is missing"));
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Apple", "error", "aud is missing"));
         }
         boolean matched = tokenAudiences.stream().anyMatch(audiences::contains);
         if (!matched) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of(
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of(
                     "provider", "Apple",
                     "error", "aud does not match configured Apple client-id"
             ));

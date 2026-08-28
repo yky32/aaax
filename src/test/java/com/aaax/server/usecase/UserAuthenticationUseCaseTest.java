@@ -10,7 +10,8 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.AuthenticationErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.service.AuthenticationService;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
+import com.aaax.server.validation.PasswordPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,9 +36,11 @@ class UserAuthenticationUseCaseTest {
     @Mock
     private AuthenticationRepository authenticationRepository;
     @Mock
-    private UaaService uaaService;
+    private AaaxService aaaxService;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private PasswordPolicy passwordPolicy;
     @Mock
     private SocialAuthenticationUseCase socialAuthenticationUseCase;
 
@@ -114,8 +117,8 @@ class UserAuthenticationUseCaseTest {
     @DisplayName("addLinkedAuthentications password-style should save new authentication")
     void addLinkedAuthentications_passwordStyle_shouldSave() {
         User user = User.builder().id(1L).username("user@test.com").build();
-        when(uaaService.getById("u_1")).thenReturn(user);
-        when(passwordEncoder.encode("Password1")).thenReturn("encoded");
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(passwordPolicy.encode(passwordEncoder, "Password1")).thenReturn("encoded");
         when(authenticationRepository.findByLoginTypeAndIdentifierIgnoreCase(any(), anyString()))
                 .thenReturn(Optional.empty());
 
@@ -135,7 +138,7 @@ class UserAuthenticationUseCaseTest {
     @DisplayName("addLinkedAuthentications social delegates to same verify/link path as OAuth")
     void addLinkedAuthentications_google_delegatesToSocialUseCase() {
         User user = User.builder().id(1L).username("user@test.com").build();
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
 
         userAuthenticationUseCase.addLinkedAuthentications("u_1",
                 AddLinkedAuthenticationRequestDto.builder()
@@ -150,7 +153,7 @@ class UserAuthenticationUseCaseTest {
     @DisplayName("addLinkedAuthentications social surfaces conflict from shared link path")
     void addLinkedAuthentications_google_conflictPropagates() {
         User user = User.builder().id(1L).username("a@test.com").build();
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
         doThrow(new BizException(AuthenticationErrorResponse.ATH0002))
                 .when(socialAuthenticationUseCase).linkProviderToUser(user, "google", "tok");
 
@@ -167,7 +170,7 @@ class UserAuthenticationUseCaseTest {
     @DisplayName("fetchLinkedAuthentications should return dto with canUnlink rules")
     void fetchLinkedAuthentications_shouldReturnDtos() {
         User user = User.builder().id(1L).username("a@test.com").build();
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
         when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of(
                 Authentication.builder().loginType(LoginType.EMAIL).identifier("a@test.com").user(user).build(),
                 Authentication.builder().loginType(LoginType.GOOGLE).identifier("a@test.com").user(user).build(),

@@ -60,9 +60,12 @@ aaax:
     credentials-history-size: 0
     system-invoker: ${SYSTEM_INVOKER:AAAX}
     device-binding:
-      mode: ${CONFIG_DEVICE_BINDING_MODE:TRUST_LATEST}
+      mode: ${CONFIG_DEVICE_BINDING_MODE:OFF}
     protected-usernames: admin@aaax.local,ios-tester@aaax.local
   security:
+    max-login-attempts: 5
+    password-patterns:
+      - ".{8,}"
     issuer: ${AS_ISSUER:http://localhost:8081}
     registered-client:
       secret: ${REGISTERED_CLIENT_SECRET:secret}
@@ -101,10 +104,10 @@ ext:
   util-enabled: false
   api:
     client:
-      uaa-svc:
-        url: ${UAA_SVC_URL:http://127.0.0.1:1/}
-        client-id: ${UAA_SVC_CLIENT_ID:server}
-        client-secret: ${UAA_SVC_CLIENT_SECRET:}
+      aaax-svc:
+        url: ${AAAX_SVC_URL:http://127.0.0.1:1/}
+        client-id: ${AAAX_SVC_CLIENT_ID:server}
+        client-secret: ${AAAX_SVC_CLIENT_SECRET:}
       elk:
         webhookId: ${ELK_WEBHOOK_ID:}
         webhookToken: ${ELK_WEBHOOK_TOKEN:}
@@ -114,5 +117,5 @@ ext:
       util-svc:
         url: ${UTIL_SVC_URL:http://127.0.0.1:1/}
   webhook:
-    uaa:
-      domain: ${UAA_WEBHOOK:}
+    aaax:
+      domain: ${AAAX_WEBHOOK:}

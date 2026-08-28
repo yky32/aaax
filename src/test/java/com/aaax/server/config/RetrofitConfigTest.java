@@ -47,8 +47,8 @@ class RetrofitConfigTest {
     }
 
     @Test
-    @DisplayName("uaaApiClient should build retrofit client")
-    void uaaApiClient_shouldBuild() {
-        assertNotNull(retrofitConfig.uaaApiClient("https://uaa.test/"));
+    @DisplayName("aaaxApiClient should build retrofit client")
+    void aaaxApiClient_shouldBuild() {
+        assertNotNull(retrofitConfig.aaaxApiClient("https://aaax.test/"));
     }
 }

@@ -9,12 +9,12 @@ import com.aaax.core.utils.RedisUtil;
 import com.aaax.server.entity.dto.json_context.OtpMetadata;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.usecase.otp.ForgotPasswordOtpUseCase;
 import com.aaax.server.utils.CryptographyUtil;
-import com.aaax.server.validation.UaaValidation;
+import com.aaax.server.validation.AaaxValidation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,10 +101,10 @@ class AuthenticationServiceTest {
                 .build();
         auth.setIsActive(true);
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -129,10 +129,10 @@ class AuthenticationServiceTest {
                 .build();
         auth.setIsActive(false);
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -151,10 +151,10 @@ class AuthenticationServiceTest {
         // Arrange
         String identifier = "nonexistent@test.com";
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.empty());
 
@@ -175,10 +175,10 @@ class AuthenticationServiceTest {
     @DisplayName("findOptionalByDynamicIdentifier should detect correct login type")
     void findOptionalByDynamicIdentifier_shouldDetectCorrectLoginType(String identifier, LoginType expectedType) {
         // Arrange
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(expectedType);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(expectedType);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, expectedType))
                     .thenReturn(Optional.empty());
 
@@ -204,10 +204,10 @@ class AuthenticationServiceTest {
                 .build();
         auth.setIsActive(true);
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -226,10 +226,10 @@ class AuthenticationServiceTest {
         // Arrange
         String identifier = "nonexistent@test.com";
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.empty());
 
@@ -238,7 +238,7 @@ class AuthenticationServiceTest {
                 authenticationService.findValidRecordsByDynamicIdentifier(identifier);
             });
 
-            assertEquals(UaaErrorResponse.UAA0001.getCode(), exception.getResponse().getCode());
+            assertEquals(AaaxErrorResponse.AAAX0001.getCode(), exception.getResponse().getCode());
             assertTrue(exception.toString().contains(identifier));
         }
     }
@@ -255,10 +255,10 @@ class AuthenticationServiceTest {
                 .build();
         auth.setIsActive(false);
 
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
-            mockedValidation.when(() -> UaaValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent(identifier)).thenReturn(identifier);
+            mockedValidation.when(() -> AaaxValidation.detechLoginType(identifier)).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType(identifier, LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -267,7 +267,7 @@ class AuthenticationServiceTest {
                 authenticationService.findValidRecordsByDynamicIdentifier(identifier);
             });
 
-            assertEquals(UaaErrorResponse.UAA0001.getCode(), exception.getResponse().getCode());
+            assertEquals(AaaxErrorResponse.AAAX0001.getCode(), exception.getResponse().getCode());
             assertTrue(exception.toString().contains(identifier));
         }
     }
@@ -313,7 +313,7 @@ class AuthenticationServiceTest {
             authenticationService.findByIdentifierWithLoginType(identifier, loginType);
         });
 
-        assertEquals(UaaErrorResponse.UAA0001.getCode(), exception.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0001.getCode(), exception.getResponse().getCode());
         assertTrue(exception.toString().contains(identifier));
     }
 
@@ -339,7 +339,7 @@ class AuthenticationServiceTest {
             authenticationService.findByIdentifierWithLoginType(identifier, loginType);
         });
 
-        assertEquals(UaaErrorResponse.UAA0001.getCode(), exception.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0001.getCode(), exception.getResponse().getCode());
         assertTrue(exception.toString().contains(identifier));
     }
 
@@ -477,6 +477,27 @@ class AuthenticationServiceTest {
         assertFalse(result);
     }
 
+    @Test
+    @DisplayName("check should return false when login attempts at max")
+    void check_shouldReturnFalseWhenLockedOut() {
+        String credentials = "password123";
+        User user = User.builder()
+                .id(1L)
+                .status(com.aaax.core.constant.enu.UserStatus.ACTIVE)
+                .build();
+        user.setIsActive(true);
+        Authentication auth = Authentication.builder()
+                .identifier("user@test.com")
+                .credentials("encodedPassword")
+                .user(user)
+                .attempts(5)
+                .build();
+        when(encoder.matches(credentials, "encodedPassword")).thenReturn(true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertFalse(authenticationService.check(auth, credentials));
+    }
+
     // ==================== check_password Tests ====================
 
     @Test
@@ -532,7 +553,8 @@ class AuthenticationServiceTest {
         // Act
         authenticationService.post_check(auth, true);
 
-        // Assert
+        assertEquals(0, auth.getAttempts());
+        verify(authenticationRepository).save(auth);
         verify(kafkaUtil).send(eq(com.aaax.core.kafka.enu.KafkaTopic.USER_LOGIN_ATTEMPTS_MUTATED), any());
     }
 
@@ -549,7 +571,8 @@ class AuthenticationServiceTest {
         // Act
         authenticationService.post_check(auth, false);
 
-        // Assert
+        assertEquals(1, auth.getAttempts());
+        verify(authenticationRepository).save(auth);
         verify(kafkaUtil).send(eq(com.aaax.core.kafka.enu.KafkaTopic.USER_LOGIN_ATTEMPTS_MUTATED), any());
     }
 
@@ -558,10 +581,10 @@ class AuthenticationServiceTest {
     void findValidRecordsByDynamicIdentifier_shouldReturnActive() {
         Authentication auth = Authentication.builder().identifier("user@test.com").build();
         auth.setIsActive(true);
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier("user@test.com")).thenReturn("user@test.com");
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent("user@test.com")).thenReturn("user@test.com");
-            mockedValidation.when(() -> UaaValidation.detechLoginType("user@test.com")).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier("user@test.com")).thenReturn("user@test.com");
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent("user@test.com")).thenReturn("user@test.com");
+            mockedValidation.when(() -> AaaxValidation.detechLoginType("user@test.com")).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType("user@test.com", LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -574,10 +597,10 @@ class AuthenticationServiceTest {
     void findValidRecordsByDynamicIdentifier_shouldThrowWhenInactive() {
         Authentication auth = Authentication.builder().identifier("user@test.com").build();
         auth.setIsActive(false);
-        try (MockedStatic<UaaValidation> mockedValidation = mockStatic(UaaValidation.class)) {
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifier("user@test.com")).thenReturn("user@test.com");
-            mockedValidation.when(() -> UaaValidation.toCanonicalIdentifierIfPresent("user@test.com")).thenReturn("user@test.com");
-            mockedValidation.when(() -> UaaValidation.detechLoginType("user@test.com")).thenReturn(LoginType.EMAIL);
+        try (MockedStatic<AaaxValidation> mockedValidation = mockStatic(AaaxValidation.class)) {
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifier("user@test.com")).thenReturn("user@test.com");
+            mockedValidation.when(() -> AaaxValidation.toCanonicalIdentifierIfPresent("user@test.com")).thenReturn("user@test.com");
+            mockedValidation.when(() -> AaaxValidation.detechLoginType("user@test.com")).thenReturn(LoginType.EMAIL);
             when(authenticationRepository.findByIdentifierIgnoreCaseAndLoginType("user@test.com", LoginType.EMAIL))
                     .thenReturn(Optional.of(auth));
 
@@ -621,7 +644,7 @@ class AuthenticationServiceTest {
 
         BizException ex = assertThrows(BizException.class,
                 () -> authenticationService.isThisUsernameExistedForPublicRegister("user@test.com"));
-        assertEquals(UaaErrorResponse.UAA0409.getCode(), ex.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0409.getCode(), ex.getResponse().getCode());
     }
 
     @Test
@@ -639,7 +662,7 @@ class AuthenticationServiceTest {
 
         BizException ex = assertThrows(BizException.class,
                 () -> authenticationService.isThisUsernameExistedForPublicRegister("user@test.com"));
-        assertEquals(UaaErrorResponse.UAA8420.getCode(), ex.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX8420.getCode(), ex.getResponse().getCode());
     }
 
     @Test
@@ -659,6 +682,6 @@ class AuthenticationServiceTest {
 
         BizException ex = assertThrows(BizException.class,
                 () -> authenticationService.isThisUsernameExistedForPublicRegister("user@test.com"));
-        assertEquals(UaaErrorResponse.UAA8400.getCode(), ex.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX8400.getCode(), ex.getResponse().getCode());
     }
 }

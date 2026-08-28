@@ -1,8 +1,8 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.api.UtilApiClient;
-import com.aaax.core.entity.dto.uaa.response.GetUserPreferenceResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserPreferenceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.ResourcesUtil;
 import com.aaax.server.entity.dto.request.UpdateUserPreferenceRequestDto;
@@ -13,7 +13,7 @@ import com.aaax.server.entity.po.user_management.UserPreference;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.repository.UserPreferenceRepository;
 import com.aaax.server.repository.UserProfileRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 class UserPreferenceAndProfileUseCaseTest {
 
     @Mock private UserPreferenceRepository userPreferenceRepository;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private ResourceLoader resourceLoader;
     @Mock private UserProfileRepository userProfileRepository;
     @Mock private UtilApiClient utilApiClient;
@@ -65,7 +65,7 @@ class UserPreferenceAndProfileUseCaseTest {
                 .actualPreference(Map.of("themes", Map.of("selected", "dark")))
                 .build();
         preference.setUpdateDt(java.time.Instant.now());
-        when(uaaService.getById(1L)).thenReturn(null);
+        when(aaaxService.getById(1L)).thenReturn(null);
         when(userPreferenceRepository.findByUserIdAndTypeAndKey(1L, UserPreferenceType.DEFAULT.name(), "general"))
                 .thenReturn(Optional.of(preference));
         try (MockedStatic<ResourcesUtil> resources = mockStatic(ResourcesUtil.class)) {
@@ -93,7 +93,7 @@ class UserPreferenceAndProfileUseCaseTest {
     @Test
     @DisplayName("queryUserPreference should map all preferences")
     void queryUserPreference_shouldMapAll() {
-        when(uaaService.getById("1")).thenReturn(null);
+        when(aaaxService.getById("1")).thenReturn(null);
         UserPreference preference = UserPreference.builder()
                 .id(1L).userId(1L).actualPreference(Map.of("x", 1)).build();
         preference.setUpdateDt(java.time.Instant.now());
@@ -220,7 +220,7 @@ class UserPreferenceAndProfileUseCaseTest {
     void doCreateDefault_shouldPersist() {
         when(userProfileRepository.findByUserIdAndType(8L, UserProfileType.DEFAULT.name()))
                 .thenReturn(Optional.empty());
-        when(uaaService.getById(8L)).thenReturn(
+        when(aaaxService.getById(8L)).thenReturn(
                 com.aaax.server.entity.po.user.User.builder().id(8L).username("user@test.com").build());
         when(userProfileRepository.save(any())).thenAnswer(inv -> {
             UserProfile p = inv.getArgument(0);
@@ -274,7 +274,7 @@ class UserPreferenceAndProfileUseCaseTest {
     @Test
     @DisplayName("updateUserProfileMgt should resolve username then update")
     void updateUserProfileMgt_shouldDelegate() {
-        when(uaaService.getById("3")).thenReturn(
+        when(aaaxService.getById("3")).thenReturn(
                 com.aaax.server.entity.po.user.User.builder().id(3L).username("u@test.com").build());
         UserProfile profile = UserProfile.builder()
                 .id(2L).userId(3L).alias("nick")

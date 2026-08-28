@@ -1,7 +1,7 @@
 package com.aaax.server.service;
 
 import com.aaax.core.common.i18n.i18n;
-import com.aaax.core.entity.dto.uaa.response.*;
+import com.aaax.core.entity.dto.aaax.response.*;
 import com.aaax.core.response.Pagination;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.utils.JSONUtil;

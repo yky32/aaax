@@ -1,14 +1,14 @@
 package com.aaax.server.endpoint.api;
 
 import com.aaax.core.constant.RegexPatternConstant;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.core.utils.ValidationUtil;
 import com.aaax.server.entity.dto.request.UpdatePasswordRequestDto;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.RegisterUserUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ import java.util.Optional;
 @Slf4j
 public class UserEndpoint {
 
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final RegisterUserUseCase registerUserUseCase;
     @Value("${aaax.config.system-invoker}")
     protected String systemInvoker;
@@ -63,7 +63,7 @@ public class UserEndpoint {
             @RequestParam(required = false) String namesQuery,
             @RequestParam(required = false) String emailQuery
     ) {
-        PaginationDto.PaginationDtoBuilder result = uaaService.getAll(pageable, startDt, endDt, tenantId, ss, a, ids, query, namesQuery, emailQuery);
+        PaginationDto.PaginationDtoBuilder result = aaaxService.getAll(pageable, startDt, endDt, tenantId, ss, a, ids, query, namesQuery, emailQuery);
         return R.success((List<GetUserResponseDto>) result.build().getData(), result.build().getPagination());
     }
 
@@ -79,7 +79,7 @@ public class UserEndpoint {
         ss = Optional.ofNullable(ss).isEmpty() ? systemInvoker : ss;
 
         if (StringUtils.isNotBlank(identifierType)) {
-            return R.success(uaaService.getByIdentifierType(id, identifierType));
+            return R.success(aaaxService.getByIdentifierType(id, identifierType));
         }
         // Catering no jpa auditor case.
         if (
@@ -92,6 +92,6 @@ public class UserEndpoint {
                     .build();
             return R.success(responseDto);
         }
-        return R.success(uaaService.getOne(id, a, ss));
+        return R.success(aaaxService.getOne(id, a, ss));
     }
 }

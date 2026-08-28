@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Requires the caller to hold at least one of the given live UAA roles
+ * Requires the caller to hold at least one of the given live AAAX roles
  * ({@code GET /users/my-roles}), checked before the endpoint runs.
  * <p>
  * When {@link #value()} is empty, falls back to {@code app.tgt.operator.role}

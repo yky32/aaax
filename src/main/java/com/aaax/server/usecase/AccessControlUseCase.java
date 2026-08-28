@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.common.jsonfield.PermissionMetadata;
-import com.aaax.core.constant.enu.uaa.Authorities;
+import com.aaax.core.constant.enu.aaax.Authorities;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.event.UserPermissionMutatedEvent;
 import com.aaax.core.response.PaginationDto;
@@ -19,7 +19,7 @@ import com.aaax.server.exception.response.RbacTemplateErrorResponse;
 import com.aaax.server.repository.RbacTemplateRepository;
 import com.aaax.server.repository.UserPermissionRepository;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -48,7 +48,7 @@ public class AccessControlUseCase {
     private final RbacTemplateRepository rbacTemplateRepository;
     private final UserPermissionRepository userPermissionRepository;
     private final RedisUtil redisUtil;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final ResourceLoader resourceLoader;
 
     @Transactional
@@ -94,7 +94,7 @@ public class AccessControlUseCase {
     }
 
     public GetUserPermissionResponseDto assignPermissionToUser(@Valid UserPermissionMutatedEvent requestDto) {
-        User user = uaaService.getById(requestDto.getUserId()); // just for verification
+        User user = aaaxService.getById(requestDto.getUserId()); // just for verification
         Optional<UserPermission> isExistedUserPermission = userPermissionRepository.findByUserId(user.getId());
         UserPermission userPermission = isExistedUserPermission.orElseGet(() ->
                 UserPermission.builder()
@@ -174,7 +174,7 @@ public class AccessControlUseCase {
 
     public GetUserPermissionResponseDto assignRoleToUser(String userId, @Valid AssignUserRoleRequestDto dto) {
         Map config = ResourcesUtil.readJson("config/user_permissions_sample.json", resourceLoader, Map.class);
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
         Optional<UserPermission> isExistedUserPermission = userPermissionRepository.findByUserId(user.getId());
         UserPermission userPermission = isExistedUserPermission.orElseGet(() ->
                 UserPermission.builder()

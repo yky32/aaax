@@ -8,7 +8,7 @@ import retrofit2.http.Path;
 
 /**
  * Retrofit client for notification-service. Wire with
- * {@code ext.api.client.notification-svc.url} like {@link UaaApiClient} / {@link UtilApiClient}.
+ * {@code ext.api.client.notification-svc.url} like {@link AaaxApiClient} / {@link UtilApiClient}.
  */
 public interface NotificationApiClient {
 

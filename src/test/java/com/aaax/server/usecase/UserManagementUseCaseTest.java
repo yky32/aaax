@@ -2,7 +2,7 @@ package com.aaax.server.usecase;
 
 import com.aaax.core.constant.enu.LoginType;
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.KafkaUtil;
 import com.aaax.server.entity.dto.request.UpdatePasswordRequestDto;
@@ -15,7 +15,8 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.repository.*;
 import com.aaax.server.service.AuthenticationService;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
+import com.aaax.server.validation.PasswordPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,11 +46,12 @@ class UserManagementUseCaseTest {
     @Mock private UserPreferenceRepository userPreferenceRepository;
     @Mock private UserTokenRepository userTokenRepository;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private PasswordPolicy passwordPolicy;
     @Mock private AuthenticationRepository authenticationRepository;
     @Mock private UserRouteRepository userRouteRepository;
     @Mock private UserRepository userRepository;
     @Mock private UserVerificationRepository userVerificationRepository;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private AuthenticationService authenticationService;
     @Mock private KafkaUtil kafkaUtil;
 
@@ -70,8 +72,8 @@ class UserManagementUseCaseTest {
     void updateCredentials_shouldEncodeAndSave() {
         User user = buildUser(1L, "user@test.com");
         Authentication auth = user.getAuthentications().get(0);
-        when(uaaService.getByUsername("user@test.com")).thenReturn(auth);
-        when(passwordEncoder.encode("NewPass1")).thenReturn("encoded");
+        when(aaaxService.getByUsername("user@test.com")).thenReturn(auth);
+        when(passwordPolicy.encode(passwordEncoder, "NewPass1")).thenReturn("encoded");
 
         GetUserResponseDto result = userManagementUseCase.updateCredentials(
                 UpdatePasswordRequestDto.builder().credentials("NewPass1").build(), "user@test.com");
@@ -85,7 +87,7 @@ class UserManagementUseCaseTest {
     @DisplayName("updateCredentials should throw when password blank")
     void updateCredentials_shouldThrowWhenBlank() {
         User user = buildUser(1L, "user@test.com");
-        when(uaaService.getByUsername("user@test.com")).thenReturn(user.getAuthentications().get(0));
+        when(aaaxService.getByUsername("user@test.com")).thenReturn(user.getAuthentications().get(0));
         assertThrows(BizException.class, () -> userManagementUseCase.updateCredentials(
                 UpdatePasswordRequestDto.builder().credentials("").build(), "user@test.com"));
     }
@@ -107,7 +109,7 @@ class UserManagementUseCaseTest {
                 .context(context)
                 .build();
 
-        when(uaaService.getByUsername("old@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("old@test.com")).thenReturn(auth);
         doNothing().when(authenticationService).isThisUsernameExistedForPublicRegister("new@test.com");
         when(userRepository.saveAndFlush(user)).thenReturn(user);
         when(authenticationRepository.saveAndFlush(auth)).thenReturn(auth);
@@ -147,7 +149,7 @@ class UserManagementUseCaseTest {
                 .context(context)
                 .build();
 
-        when(uaaService.getByUsername("old@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("old@test.com")).thenReturn(auth);
         doNothing().when(authenticationService).isThisUsernameExistedForPublicRegister("new@test.com");
         when(userRepository.saveAndFlush(user)).thenReturn(user);
         when(authenticationRepository.saveAndFlush(auth)).thenReturn(auth);
@@ -168,7 +170,7 @@ class UserManagementUseCaseTest {
     void updateUsername_shouldSkipMissingProfile() {
         User user = buildUser(9L, "old@test.com");
         Authentication auth = user.getAuthentications().get(0);
-        when(uaaService.getByUsername("old@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("old@test.com")).thenReturn(auth);
         doNothing().when(authenticationService).isThisUsernameExistedForPublicRegister("new@test.com");
         when(userRepository.saveAndFlush(user)).thenReturn(user);
         when(authenticationRepository.saveAndFlush(auth)).thenReturn(auth);
@@ -188,7 +190,7 @@ class UserManagementUseCaseTest {
     @DisplayName("deleteByUserId soft delete should deactivate user and auth")
     void deleteByUserId_softDelete_shouldDeactivate() {
         User user = buildUser(2L, "user@test.com");
-        when(uaaService.getById("u_2")).thenReturn(user);
+        when(aaaxService.getById("u_2")).thenReturn(user);
         try (MockedStatic<com.aaax.core.utils.JwtUtil> jwt = mockStatic(com.aaax.core.utils.JwtUtil.class)) {
             jwt.when(com.aaax.core.utils.JwtUtil::userId).thenThrow(new RuntimeException("no jwt"));
 
@@ -205,7 +207,7 @@ class UserManagementUseCaseTest {
     void deleteByUserId_softDelete_shouldNoOpWhenInactive() {
         User user = buildUser(2L, "user@test.com");
         user.setIsActive(false);
-        when(uaaService.getById("u_2")).thenReturn(user);
+        when(aaaxService.getById("u_2")).thenReturn(user);
 
         userManagementUseCase.deleteByUserId("u_2", true);
 
@@ -216,7 +218,7 @@ class UserManagementUseCaseTest {
     @DisplayName("deleteByUserId hard delete should remove related records and publish kafka")
     void deleteByUserId_hardDelete_shouldRemove() {
         User user = buildUser(3L, "user@test.com");
-        when(uaaService.getById("u_3")).thenReturn(user);
+        when(aaaxService.getById("u_3")).thenReturn(user);
         when(userRouteRepository.findAllByUserId(3L)).thenReturn(List.of(UserRoute.builder().id(99L).userId(3L).build()));
         try (MockedStatic<com.aaax.core.utils.JwtUtil> jwt = mockStatic(com.aaax.core.utils.JwtUtil.class)) {
             jwt.when(com.aaax.core.utils.JwtUtil::userId).thenThrow(new RuntimeException("no jwt"));
@@ -240,7 +242,7 @@ class UserManagementUseCaseTest {
     @DisplayName("delete should reject protected accounts")
     void delete_shouldRejectProtected() {
         User user = buildUser(1L, "admin@aaax.local");
-        when(uaaService.getById("u_1")).thenReturn(user);
+        when(aaaxService.getById("u_1")).thenReturn(user);
         assertThrows(BizException.class, () -> userManagementUseCase.deleteByUserId("u_1", false));
     }
 
@@ -248,7 +250,7 @@ class UserManagementUseCaseTest {
     @DisplayName("deleteByIdentifier should soft delete via identifier lookup")
     void deleteByIdentifier_shouldSoftDelete() {
         User user = buildUser(4L, "user@test.com");
-        when(uaaService.getUserFromIdentifier("user@test.com")).thenReturn(user);
+        when(aaaxService.getUserFromIdentifier("user@test.com")).thenReturn(user);
         try (MockedStatic<com.aaax.core.utils.JwtUtil> jwt = mockStatic(com.aaax.core.utils.JwtUtil.class)) {
             jwt.when(com.aaax.core.utils.JwtUtil::userId).thenThrow(new RuntimeException("no jwt"));
             userManagementUseCase.deleteByIdentifier("user@test.com", true);
@@ -260,7 +262,7 @@ class UserManagementUseCaseTest {
     @DisplayName("updateStatuses should update status and publish event")
     void updateStatuses_shouldUpdateAndPublish() {
         User user = buildUser(5L, "user@test.com");
-        when(uaaService.getUserFromIdentifier("user@test.com")).thenReturn(user);
+        when(aaaxService.getUserFromIdentifier("user@test.com")).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
         GetUserResponseDto result = userManagementUseCase.updateStatuses(
@@ -272,9 +274,9 @@ class UserManagementUseCaseTest {
     }
 
     @Test
-    @DisplayName("getAllUsers should delegate to uaaService")
+    @DisplayName("getAllUsers should delegate to aaaxService")
     void getAllUsers_shouldDelegate() {
-        when(uaaService.getAll(any(), isNull(), isNull(), eq("t1"), anyList(), anyList(), isNull(), isNull(), isNull(), isNull()))
+        when(aaaxService.getAll(any(), isNull(), isNull(), eq("t1"), anyList(), anyList(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(com.aaax.core.response.PaginationDto.builder());
         assertNotNull(userManagementUseCase.getAllUsers(PageRequest.of(0, 10), null, null, "t1", null));
     }

@@ -2,13 +2,13 @@ package com.aaax.server.usecase;
 
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.utils.RedisUtil;
 import com.aaax.server.entity.dto.request.UpdateAccessMetadataRequestDto;
 import com.aaax.server.entity.dto.request.UpdateExtReferenceRequestDto;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 class UpdateUserMetadataUseCaseTest {
 
     @Mock private UserRepository userRepository;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private RedisUtil redisUtil;
 
     @InjectMocks
@@ -41,7 +41,7 @@ class UpdateUserMetadataUseCaseTest {
         UserMetadata metadata = new UserMetadata();
         User user = User.builder().id(1L).username("u").status(UserStatus.ACTIVE).metadata(metadata).build();
         user.setAuthentications(List.of());
-        when(uaaService.getById(1L)).thenReturn(user);
+        when(aaaxService.getById(1L)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
         Map<String, Object> ext = Map.of("ext", "ref-1");
@@ -57,7 +57,7 @@ class UpdateUserMetadataUseCaseTest {
     void updateAccess_shouldClearCaches() {
         User user = User.builder().id(2L).username("u2").status(UserStatus.ACTIVE).build();
         user.setAuthentications(List.of());
-        when(uaaService.getById("u_2")).thenReturn(user);
+        when(aaaxService.getById("u_2")).thenReturn(user);
         when(userRepository.saveAndFlush(user)).thenReturn(user);
         when(redisUtil.getListByWildCard(anyString())).thenReturn(Set.of("user:login-my-tenants:1", "user:login-my-tenants:2"));
 

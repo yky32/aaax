@@ -5,7 +5,7 @@ import com.aaax.core.constant.enu.UserStatus;
 import com.aaax.core.exception.BizException;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.usecase.otp.ForgotPasswordOtpUseCase;
@@ -43,7 +43,7 @@ class AuthenticationServiceCaseInsensitiveTest {
     private AuthenticationService authenticationService;
 
     @Test
-    @DisplayName("public register: mixed-case email matches existing → UAA0409")
+    @DisplayName("public register: mixed-case email matches existing → AAAX0409")
     void existed_mixedCase_throws409() {
         User user = User.builder().id(1L).username("acekaiyin@gmail.com").status(UserStatus.ACTIVE).build();
         Authentication auth = Authentication.builder()
@@ -58,7 +58,7 @@ class AuthenticationServiceCaseInsensitiveTest {
 
         BizException ex = assertThrows(BizException.class,
                 () -> authenticationService.isThisUsernameExistedForPublicRegister("Acekaiyin@gmail.com"));
-        assertEquals(UaaErrorResponse.UAA0409.getCode(), ex.getResponse().getCode());
+        assertEquals(AaaxErrorResponse.AAAX0409.getCode(), ex.getResponse().getCode());
     }
 
     @Test

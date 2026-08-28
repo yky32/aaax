@@ -1,8 +1,8 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.*;
+import com.aaax.core.entity.dto.aaax.response.*;
 import com.aaax.core.utils.IdSplitter;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 public class UserMetricsUseCase {
 
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserPreferenceUseCase userPreferenceUseCase;
     private final UserDeviceUseCase userDeviceUseCase;
     private final UserProfileUseCase userProfileUseCase;
@@ -26,7 +26,7 @@ public class UserMetricsUseCase {
     private UserIdentityVerificationUseCase userIdentityVerificationUseCase;
 
     public GetUserMetricsResponseDto execute(String userId, String sourceSystem) {
-        GetUserResponseDto user = uaaService.get(Long.valueOf(IdSplitter.split(userId)));
+        GetUserResponseDto user = aaaxService.get(Long.valueOf(IdSplitter.split(userId)));
         GetUserPreferenceResponseDto userPreference = userPreferenceUseCase.getUserPreference(userId, "general");
         GetUserDeviceResponseDto userDevice = Optional.ofNullable(sourceSystem).isPresent() ? userDeviceUseCase.myDevicesOfSourceSystem(userId, sourceSystem) : null;
         GetUserProfileResponseDto userProfile = userProfileUseCase.getUserProfile(userId);
