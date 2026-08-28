@@ -52,23 +52,6 @@ class CustomRefreshTokenAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("convert should accept legacy grant_type refresh-token")
-    void convert_shouldAcceptLegacyGrantName() {
-        when(request.getParameter(OAuth2ParameterNames.GRANT_TYPE)).thenReturn("refresh-token");
-        when(request.getParameterMap()).thenReturn(Map.of(
-                OAuth2ParameterNames.GRANT_TYPE, new String[]{"refresh-token"},
-                OAuth2ParameterNames.REFRESH_TOKEN, new String[]{"rt-value"}
-        ));
-        SecurityContextHolder.getContext().setAuthentication(clientPrincipal);
-
-        Authentication result = converter.convert(request);
-
-        assertInstanceOf(CustomRefreshTokenAuthenticationToken.class, result);
-        assertEquals("rt-value", ((CustomRefreshTokenAuthenticationToken) result).getRefreshToken());
-        SecurityContextHolder.clearContext();
-    }
-
-    @Test
     @DisplayName("convert should throw when refresh_token missing")
     void convert_shouldThrowWhenRefreshTokenMissing() {
         when(request.getParameter(OAuth2ParameterNames.GRANT_TYPE))

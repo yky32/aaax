@@ -92,7 +92,6 @@ public class LocalDevSeed implements CommandLineRunner {
                 .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey()))
                 .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT_ENCRYPTED.getKey()))
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .authorizationGrantType(new AuthorizationGrantType("refresh-token"))
                 .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey()))
                 .redirectUri("http://127.0.0.1:8081/authorized")
                 .scope(OidcScopes.OPENID)

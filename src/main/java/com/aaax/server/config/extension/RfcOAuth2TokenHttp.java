@@ -39,8 +39,7 @@ public final class RfcOAuth2TokenHttp {
                 : scopes.stream().collect(Collectors.joining(" "));
         String refreshToken = null;
         OAuth2RefreshToken refresh = token.getRefreshToken();
-        if (refresh != null && refresh.getTokenValue() != null && !refresh.getTokenValue().isBlank()
-                && !"--NA".equals(refresh.getTokenValue())) {
+        if (refresh != null && refresh.getTokenValue() != null && !refresh.getTokenValue().isBlank()) {
             refreshToken = refresh.getTokenValue();
         }
         write(response, HttpStatus.OK.value(), new TokenResponse(

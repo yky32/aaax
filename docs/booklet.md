@@ -91,7 +91,7 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 |--------------|--------|
 | `custom-password-grant` | Primary password |
 | `custom-password-grant:e` | Encrypted password |
-| `refresh_token` | RFC refresh (legacy `refresh-token` still accepted) |
+| `refresh_token` | RFC refresh |
 | `third-party-grant` | Google / Apple idToken |
 | authorization_code / client_credentials | SAS defaults |
 

@@ -4,7 +4,7 @@
 
 ### Wave 2
 - `/oauth2/token` returns RFC 6749 JSON (`access_token`, `token_type`, `expires_in`, `refresh_token`). `/users` and admin APIs keep the AAAX Result envelope
-- Refresh grant is `refresh_token` (legacy `refresh-token` still accepted)
+- Refresh grant is `refresh_token`
 - Dropped unused `spring-security-oauth2` 2.5, `jjwt`, and `spring-security-jwt`
 - CORS origins from `AAAX_CORS_ORIGINS` (localhost by default; `*` disables credentials). CSRF remains off for this API-only tree
 

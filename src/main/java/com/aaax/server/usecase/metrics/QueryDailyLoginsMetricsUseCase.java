@@ -21,7 +21,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class QueryDailyLoginsMetricsUseCase {
 
-    static final Set<String> EXCLUDED_EVENTS = Set.of("refresh_token", "refresh-token", "login-attempts");
+    static final Set<String> EXCLUDED_EVENTS = Set.of("refresh_token", "login-attempts");
 
     private final AuthenticationLogRepository authenticationLogRepository;
 

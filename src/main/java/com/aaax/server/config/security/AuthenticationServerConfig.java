@@ -158,7 +158,6 @@ public class AuthenticationServerConfig {
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_PASSWORD_GRANT_ENCRYPTED.getKey())
                                         .grantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey())
-                                        .grantType("refresh-token")
                                         .grantType(GrantTypeExtension.THIRD_PARTY_OAUTH_GRANT.getKey())
                         ))
                 // add custom grant_type here

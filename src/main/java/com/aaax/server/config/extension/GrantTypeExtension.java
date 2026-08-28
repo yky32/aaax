@@ -16,8 +16,6 @@ public enum GrantTypeExtension {
     THIRD_PARTY_OAUTH_GRANT("third-party-grant")
     ;
 
-    private static final String LEGACY_REFRESH_GRANT = "refresh-token";
-
     private final String key;
 
     GrantTypeExtension(String key) {
@@ -25,11 +23,7 @@ public enum GrantTypeExtension {
     }
 
     public static boolean isRefreshGrant(String grantTypeKey) {
-        return grantTypeKey != null && (
-                CUSTOM_REFRESH_TOKEN.key.equalsIgnoreCase(grantTypeKey)
-                        || LEGACY_REFRESH_GRANT.equalsIgnoreCase(grantTypeKey)
-                        || AuthorizationGrantType.REFRESH_TOKEN.getValue().equalsIgnoreCase(grantTypeKey)
-        );
+        return CUSTOM_REFRESH_TOKEN.key.equalsIgnoreCase(grantTypeKey);
     }
 
     public static boolean allowsRefresh(RegisteredClient client) {
@@ -37,9 +31,6 @@ public enum GrantTypeExtension {
     }
 
     public static GrantTypeExtension get(String grantTypeKey) {
-        if (isRefreshGrant(grantTypeKey)) {
-            return CUSTOM_REFRESH_TOKEN;
-        }
         for (GrantTypeExtension value : GrantTypeExtension.values()) {
             if (grantTypeKey.equalsIgnoreCase(value.key)) {
                 return value;

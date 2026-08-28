@@ -36,11 +36,4 @@ class GrantTypeExtensionTest {
         AuthorizationGrantType type = GrantTypeExtension.toAuthorizationGrantType("custom-password-grant");
         assertEquals("custom-password-grant", type.getValue());
     }
-
-    @Test
-    @DisplayName("get should accept legacy refresh-token grant name")
-    void get_shouldAcceptLegacyRefreshGrant() {
-        assertEquals(GrantTypeExtension.CUSTOM_REFRESH_TOKEN, GrantTypeExtension.get("refresh-token"));
-        assertEquals("refresh_token", GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey());
-    }
 }
