@@ -39,3 +39,4 @@ echo
 echo "OK — 8414 + OIDC discovery + JWKS."
 echo "Token (needs client + user already in DB): ./scripts/token-smoke.sh"
 echo "PKCE public client (needs AAAX_LOCAL_SEED): ./scripts/pkce-smoke.sh"
+echo "Hosted /login + code (needs seed): ./scripts/hosted-authorize-smoke.sh"

@@ -32,7 +32,7 @@ class AuthenticationServerConfigBeansTest {
         config = new AuthenticationServerConfig(request, globalExceptionHandler);
         ReflectionTestUtils.setField(config, "issuerUrl", "https://aaax.test");
         ReflectionTestUtils.setField(config, "jwkSetUri", "https://aaax.test/jwks");
-        ReflectionTestUtils.setField(config, "serverTokenExpiryTime", 3600);
+        ReflectionTestUtils.setField(config, "jwtUserDetailsService", new JwtUserDetailsService());
     }
 
     @Test

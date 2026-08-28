@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Proves seed public client aaax-pkce requires PKCE (RFC 7636). Does not complete a login (hosted authorize is later).
+# Proves seed public client aaax-pkce requires PKCE (RFC 7636). Hosted login is scripts/hosted-authorize-smoke.sh.
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT="${AAAX_PKCE_CLIENT_ID:-aaax-pkce}"
@@ -22,4 +22,4 @@ if grep -qi 'code_challenge' /tmp/aaax-pkce-with.txt; then
   cat /tmp/aaax-pkce-with.txt >&2
   exit 1
 fi
-echo "OK: PKCE present is accepted at authorize (HTTP ${with}; login/consent may still follow)"
+echo "OK: PKCE present is accepted at authorize (HTTP ${with}; login may follow — see hosted-authorize-smoke.sh)"

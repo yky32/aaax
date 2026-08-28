@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 7
+- Hosted `/login` (Spring Security form login + CSRF) for `/oauth2/authorize`; APIs stay CSRF-off + JWT
+- Loopback `GET /authorized` shows `code` for local PKCE (`http://127.0.0.1:8081/authorized`)
+- `scripts/hosted-authorize-smoke.sh` + CI: login then PKCE authorize yields an authorization code. Not RFC 8252
+
 ### Wave 6
 - RFC 8414: `/.well-known/oauth-authorization-server` is public (AS chain no longer requires auth); OIDC discovery enabled
 - CI / `scripts/quickstart-smoke.sh` require 8414 + JWKS + OIDC discovery (no more “WARN: no discovery”)
