@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.KafkaUtil;
 import com.aaax.core.utils.RedisUtil;
@@ -14,10 +14,11 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.exception.response.OtpErrorResponse;
 import com.aaax.server.usecase.otp.ForgotPasswordOtpUseCase;
 import com.aaax.server.utils.OtpUtil;
+import com.aaax.server.validation.PasswordPolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class ResetPasswordUseCaseTest {
     @Mock
     private KafkaUtil kafkaUtil;
     @Mock
-    private UaaService uaaService;
+    private AaaxService aaaxService;
     @Mock
     private AuthenticationService authenticationService;
     @Mock
@@ -55,6 +56,8 @@ class ResetPasswordUseCaseTest {
     private ForgotPasswordOtpUseCase forgotPasswordOtpUseCase;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private PasswordPolicy passwordPolicy;
     @Mock
     private SystemConfigurationUseCase systemConfigurationUseCase;
 
@@ -74,7 +77,7 @@ class ResetPasswordUseCaseTest {
         Authentication auth = Authentication.builder().identifier("user@test.com").user(user).build();
         auth.setIsActive(true);
         when(redisUtil.hasKey(anyString())).thenReturn(false);
-        when(uaaService.getByUsername("user@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("user@test.com")).thenReturn(auth);
         when(systemConfigurationUseCase.getOptionalSystemConfig(anyString(), anyString())).thenReturn(Optional.empty());
         when(forgotPasswordOtpUseCase.generate(any(), eq("forgot-password")))
                 .thenReturn(OtpMetadata.builder().code("123456").ttl(300).build());
@@ -92,7 +95,7 @@ class ResetPasswordUseCaseTest {
     @DisplayName("initiate should return default dto when user not found")
     void initiate_shouldReturnDefaultWhenUserMissing() {
         when(redisUtil.hasKey(anyString())).thenReturn(false);
-        when(uaaService.getByUsername("missing@test.com")).thenThrow(new RuntimeException("not found"));
+        when(aaaxService.getByUsername("missing@test.com")).thenThrow(new RuntimeException("not found"));
 
         PendingVerifyUserResponseDto result = resetPasswordUseCase.initiate(
                 ForgotPasswordRequestDto.builder().username("missing@test.com").build());
@@ -107,7 +110,7 @@ class ResetPasswordUseCaseTest {
     void initiate_shouldCleanupVerifiedKey() {
         String verifiedKey = OtpUtil.markAsVerified(RedisKey.OTP_RESET_PASSWORD.getKey().concat("user@test.com"));
         when(redisUtil.hasKey(verifiedKey)).thenReturn(true);
-        when(uaaService.getByUsername("user@test.com")).thenThrow(new RuntimeException("skip"));
+        when(aaaxService.getByUsername("user@test.com")).thenThrow(new RuntimeException("skip"));
 
         resetPasswordUseCase.initiate(ForgotPasswordRequestDto.builder().username("user@test.com").build());
 
@@ -122,7 +125,7 @@ class ResetPasswordUseCaseTest {
         Authentication auth = Authentication.builder().identifier("user@test.com").user(user).build();
         auth.setIsActive(true);
         when(forgotPasswordOtpUseCase.verify(any())).thenReturn(true);
-        when(uaaService.getByUsername("user@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("user@test.com")).thenReturn(auth);
 
         assertTrue(resetPasswordUseCase.validate(
                 ForgotPasswordRequestDto.builder().username("user@test.com").code("123456").build()));
@@ -140,7 +143,7 @@ class ResetPasswordUseCaseTest {
                 ForgotPasswordRequestDto.builder().username("user@test.com").code("000000").build()));
 
         verify(authenticationRepository, never()).saveAndFlush(any());
-        verify(uaaService, never()).getByUsername(anyString());
+        verify(aaaxService, never()).getByUsername(anyString());
     }
 
     @Test
@@ -177,9 +180,7 @@ class ResetPasswordUseCaseTest {
                 .user(user)
                 .build();
         when(authenticationService.findByDynamicIdentifier("user@test.com")).thenReturn(auth);
-        when(systemConfigurationUseCase.getOptionalSystemConfig("USER_CREDENTIALS_REQUIREMENT_REG_EXP", "GLOBAL"))
-                .thenReturn(Optional.empty());
-        when(passwordEncoder.encode("NewPass1")).thenReturn("encoded-new");
+        when(passwordPolicy.encode(passwordEncoder, "NewPass1")).thenReturn("encoded-new");
 
         GetUserResponseDto result = resetPasswordUseCase.updateNewPassword(
                 ForgotPasswordRequestDto.builder().username("user@test.com").credentials("NewPass1").build());

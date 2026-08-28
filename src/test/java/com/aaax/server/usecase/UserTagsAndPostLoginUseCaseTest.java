@@ -1,6 +1,6 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRepository;

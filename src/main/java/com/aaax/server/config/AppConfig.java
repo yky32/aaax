@@ -3,7 +3,7 @@ package com.aaax.server.config;
 import com.aaax.core.api.DiscordApiClient;
 import com.aaax.core.config.api_handler.InServiceElkHandler;
 import com.aaax.core.filter.AppFilter;
-import com.aaax.core.security.UaaAuditAware;
+import com.aaax.core.security.AaaxAuditAware;
 import com.aaax.core.utils.ApplicationContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +40,8 @@ public class AppConfig {
     }
 
     @Bean
-    public UaaAuditAware uaaAuditAware() {
-        return UaaAuditAware.builder()
+    public AaaxAuditAware aaaxAuditAware() {
+        return AaaxAuditAware.builder()
                 .defaultUsername(serviceName)
                 .build();
     }

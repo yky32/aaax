@@ -54,14 +54,9 @@ public class FailAttemptsWorker extends BaseListener {
         LoginAttemptsMutatedEvent event = JSONUtil.readValue(payload.value(), LoginAttemptsMutatedEvent.class);
         entityManager.clear();
         Authentication authentication = authenticationService.findValidRecordsByDynamicIdentifier(event.getUsername().toLowerCase());
-        int attempts;
-        if (!event.getIsSuccess()) {
-            attempts = Optional.ofNullable(authentication.getAttempts()).orElse(0) + 1;
-        } else {
-            attempts = 0;
-        }
+        int attempts = Optional.ofNullable(authentication.getAttempts()).orElse(0);
         log.info("========{}=============== {} @@ {}", attempts, this.getClass().getSimpleName(), event);
-        authentication.setAttempts(attempts); // reset
+        // Attempts are incremented in AuthenticationService.post_check (Kafka is off by default).
         authentication.setLastLoginDt(Instant.now());
         authenticationRepository.save(authentication);
 

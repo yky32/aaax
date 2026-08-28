@@ -2,7 +2,7 @@ package com.aaax.server.usecase;
 
 import com.aaax.core.common.jsonfield.DeviceMetadata;
 import com.aaax.core.common.jsonfield.DeviceProfileMetadata;
-import com.aaax.core.entity.dto.uaa.response.GetUserDeviceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserDeviceResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.ResourcesUtil;
 import com.aaax.server.entity.dto.request.RegisterUserDeviceRequestDto;

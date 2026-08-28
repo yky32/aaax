@@ -1,7 +1,7 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.*;
-import com.aaax.server.service.UaaService;
+import com.aaax.core.entity.dto.aaax.response.*;
+import com.aaax.server.service.AaaxService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserMetricsUseCaseTest {
 
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private UserPreferenceUseCase userPreferenceUseCase;
     @Mock private UserDeviceUseCase userDeviceUseCase;
     @Mock private UserProfileUseCase userProfileUseCase;
@@ -38,7 +38,7 @@ class UserMetricsUseCaseTest {
     @Test
     @DisplayName("execute should aggregate preference profile device and verifications")
     void execute_shouldAggregate() {
-        when(uaaService.get(1L)).thenReturn(GetUserResponseDto.builder().id("u_1").build());
+        when(aaaxService.get(1L)).thenReturn(GetUserResponseDto.builder().id("u_1").build());
         when(userPreferenceUseCase.getUserPreference("u_1", "general"))
                 .thenReturn(GetUserPreferenceResponseDto.builder().context(Map.of("theme", "dark")).build());
         when(userDeviceUseCase.myDevicesOfSourceSystem("u_1", "APP"))
@@ -60,7 +60,7 @@ class UserMetricsUseCaseTest {
     @Test
     @DisplayName("execute should skip device when sourceSystem null")
     void execute_shouldSkipDeviceWhenNoSourceSystem() {
-        when(uaaService.get(2L)).thenReturn(GetUserResponseDto.builder().id("u_2").build());
+        when(aaaxService.get(2L)).thenReturn(GetUserResponseDto.builder().id("u_2").build());
         when(userPreferenceUseCase.getUserPreference("u_2", "general"))
                 .thenReturn(GetUserPreferenceResponseDto.builder().build());
         when(userProfileUseCase.getUserProfile("u_2"))

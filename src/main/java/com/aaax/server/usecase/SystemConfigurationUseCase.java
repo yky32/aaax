@@ -134,7 +134,7 @@ public class SystemConfigurationUseCase {
                     .filter(s -> s.getScope().equals(scope))
                     .findFirst();
             if (scopeSystemConfiguration.isPresent()) {
-                log.info("===== uaa system config query: target: {}, scope: {}, value: {}", target, scope, scopeSystemConfiguration.get().getValue());
+                log.info("===== aaax system config query: target: {}, scope: {}, value: {}", target, scope, scopeSystemConfiguration.get().getValue());
                 return DtoWrapper.getSystemConfiguration(scopeSystemConfiguration.get());
             }
         }
@@ -143,7 +143,7 @@ public class SystemConfigurationUseCase {
                 .filter(s -> s.getScope().equalsIgnoreCase(SystemConfigurationScope.GLOBAL.name()))
                 .findFirst();
         if (systemConfiguration.isPresent()) {
-            log.info("===== uaa system config query: target: {}, scope: {}, value: {}", target, scope, systemConfiguration.get().getValue());
+            log.info("===== aaax system config query: target: {}, scope: {}, value: {}", target, scope, systemConfiguration.get().getValue());
             return DtoWrapper.getSystemConfiguration(systemConfiguration.get());
         }
         throw new BizException(SystemConfigurationErrorResponse.SYC0001, "Invalid [target / scope].");
@@ -194,7 +194,7 @@ public class SystemConfigurationUseCase {
     }
 
     private static String redisKey(String target, String scope) {
-        return RedisKey.UAA_SYSTEM_CONFIGURATION.getKey().concat(target.concat(":").concat(scope));
+        return RedisKey.AAAX_SYSTEM_CONFIGURATION.getKey().concat(target.concat(":").concat(scope));
     }
 
     private static String normalizeTarget(String target) {

@@ -6,14 +6,14 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.aaax.core.common.jsonfield.UserMetadata;
 import com.aaax.core.constant.enu.LoginType;
-import com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.JSONUtil;
 import com.aaax.server.entity.dto.request.UpdateUserProfileRequestDto;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.AuthenticationErrorResponse;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.oauth.AppleIdTokenClaims;
 import com.aaax.server.oauth.AppleIdTokenVerifier;
 import com.aaax.server.repository.AuthenticationRepository;
@@ -148,13 +148,13 @@ public class SocialAuthenticationUseCase {
         GoogleIdToken.Payload payload = this._verifyGoogleIdToken(idToken);
         String email = payload.getEmail();
         if (StringUtils.isBlank(email)) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of(
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of(
                     "provider", "Google",
                     "reason", "email missing from idToken"
             ));
         }
         if (Boolean.FALSE.equals(payload.getEmailVerified())) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of(
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of(
                     "provider", "Google",
                     "reason", "email not verified on Google account"
             ));
@@ -183,7 +183,7 @@ public class SocialAuthenticationUseCase {
         AppleIdTokenClaims claims = appleIdTokenVerifier.verify(idToken);
         String sub = claims.getSub();
         if (StringUtils.isBlank(sub)) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of(
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of(
                     "provider", "Apple",
                     "reason", "sub missing from idToken"
             ));
@@ -453,10 +453,10 @@ public class SocialAuthenticationUseCase {
         try {
             _idToken = verifier.verify(idToken);
         } catch (GeneralSecurityException | IOException e) {
-            throw new BizException(UaaErrorResponse.UAA0401, Map.of("provider", "Google", "error", e.getMessage()));
+            throw new BizException(AaaxErrorResponse.AAAX0401, Map.of("provider", "Google", "error", e.getMessage()));
         }
         if (_idToken == null) {
-            throw new BizException(UaaErrorResponse.UAA0401, "[_idToken] is null.");
+            throw new BizException(AaaxErrorResponse.AAAX0401, "[_idToken] is null.");
         }
         return _idToken.getPayload();
     }

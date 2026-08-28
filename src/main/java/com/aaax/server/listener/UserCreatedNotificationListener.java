@@ -65,7 +65,7 @@ public class UserCreatedNotificationListener extends BaseListener {
         // 1. EMAIL Notifications [logic between PMS or PG]
 
         GetSystemConfigurationRequestDto config = systemConfigurationUseCase.query("NOTIFICATION", "USER_CREATED_EVENT_TEMPLATE_ID");
-        log.info("==== uaa user created config: {}", config);
+        log.info("==== aaax user created config: {}", config);
         Map configMap = JSONUtil.convertFromObject(config.getValue(), Map.class);
         Map<String, Object> parameterMap = Map.of(
                 "templateId", configMap.getOrDefault("templateId", "N/A").toString(),

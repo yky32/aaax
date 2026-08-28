@@ -1,6 +1,6 @@
 package com.aaax.core.security;
 
-import com.aaax.core.api.UaaApiClient;
+import com.aaax.core.api.AaaxApiClient;
 import com.aaax.core.exception.BizException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -46,7 +46,7 @@ class RequiredRolesAspectTest {
     }
 
     private static OperatorRoleResolver stubResolver(boolean allow, String operatorRole) {
-        return new OperatorRoleResolver(mock(UaaApiClient.class), operatorRole) {
+        return new OperatorRoleResolver(mock(AaaxApiClient.class), operatorRole) {
             @Override
             public boolean hasAnyRole(String... roles) {
                 if (!allow) {

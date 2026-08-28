@@ -8,7 +8,7 @@ import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.repository.UserRouteRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +32,7 @@ class UserWithUserRoutesCreationListenerTest {
 
     @Mock private UserRouteRepository userRouteRepository;
     @Mock private DiscordApiClient discordApiClient;
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private Acknowledgment ack;
 
     @InjectMocks
@@ -49,7 +49,7 @@ class UserWithUserRoutesCreationListenerTest {
     void execute_shouldCreateRoute() {
         User user = User.builder().id(5L).username("u@test.com").build();
         Authentication auth = Authentication.builder().user(user).identifier("u@test.com").build();
-        when(uaaService.getByUsername("u@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("u@test.com")).thenReturn(auth);
         when(userRouteRepository.findByTenantRoleRouteIdAndUserId(77L, 5L)).thenReturn(Optional.empty());
         when(userRouteRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -75,7 +75,7 @@ class UserWithUserRoutesCreationListenerTest {
         User user = User.builder().id(5L).username("u@test.com").build();
         Authentication auth = Authentication.builder().user(user).identifier("u@test.com").build();
         UserRoute existing = UserRoute.builder().id(1L).userId(5L).tenantRoleRouteId(77L).build();
-        when(uaaService.getByUsername("u@test.com")).thenReturn(auth);
+        when(aaaxService.getByUsername("u@test.com")).thenReturn(auth);
         when(userRouteRepository.findByTenantRoleRouteIdAndUserId(77L, 5L)).thenReturn(Optional.of(existing));
         when(userRouteRepository.save(existing)).thenReturn(existing);
 

@@ -2,8 +2,8 @@ package com.aaax.server.endpoint.api.user_metadata;
 
 import com.aaax.core.common.jsonfield.PermissionMetadata;
 import com.aaax.core.constant.enu.OperationAction;
-import com.aaax.core.constant.enu.uaa.Authorities;
-import com.aaax.core.constant.enu.uaa.PermissionEffect;
+import com.aaax.core.constant.enu.aaax.Authorities;
+import com.aaax.core.constant.enu.aaax.PermissionEffect;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.event.UserPermissionMutatedEvent;
 import com.aaax.core.response.R;

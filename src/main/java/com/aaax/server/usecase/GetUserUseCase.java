@@ -1,6 +1,6 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
@@ -9,7 +9,7 @@ import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserRouteRepository;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -21,13 +21,13 @@ import java.util.List;
 public class GetUserUseCase {
 
     private final PasswordEncoder passwordEncoder;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserRepository userRepository;
     private final AuthenticationRepository authenticationRepository;
     private final UserRouteRepository userRouteRepository;
 
     public GetUserResponseDto execute(Long userId) {
-        return uaaService.get(userId);
+        return aaaxService.get(userId);
     }
 
     /**
@@ -35,7 +35,7 @@ public class GetUserUseCase {
      * @return Authentication.class
      */
     public Authentication execute(String identifier) {
-        Authentication authentication = uaaService.getByUsername(identifier);
+        Authentication authentication = aaaxService.getByUsername(identifier);
         return authentication;
     }
 

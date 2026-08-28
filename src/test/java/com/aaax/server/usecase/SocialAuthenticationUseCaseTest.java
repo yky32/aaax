@@ -141,7 +141,7 @@ class SocialAuthenticationUseCaseTest {
         )).thenReturn(created);
         when(userProfileUseCase._defaultMetadataJson()).thenReturn(new java.util.HashMap<>());
         when(userProfileUseCase.getUserProfile("7")).thenReturn(
-                com.aaax.core.entity.dto.uaa.response.GetUserProfileResponseDto.builder()
+                com.aaax.core.entity.dto.aaax.response.GetUserProfileResponseDto.builder()
                         .context(java.util.Map.of())
                         .build()
         );

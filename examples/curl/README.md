@@ -6,7 +6,7 @@ There is **no** `/v1/accounts` and **no** events catalog (`/v1/admin/events`) on
 
 | Recipe | Path | Expect |
 |--------|------|--------|
-| Register start | `POST /users/registrations` | **200** `SYS0000` + OTP metadata; occupied **409** `UAA0409` |
+| Register start | `POST /users/registrations` | **200** `SYS0000` + OTP metadata; occupied **409** `AAAX0409` |
 | Register verify | `POST /users/verifications` | **200** |
 | Create user | `POST /users` | **200** |
 | General OTP | `POST /authentications/one-time-passwords/general` | **200** |
@@ -31,7 +31,7 @@ BASE="${AAAX_BASE:-http://localhost:8081}"
 curl -sS -w "\nHTTP %{http_code}\n" -X POST "$BASE/users/registrations" \
   -H 'content-type: application/json' \
   -d '{"username":"user@example.com","credentials":"Password1!"}'
-# occupied → HTTP 409, code UAA0409
+# occupied → HTTP 409, code AAAX0409
 # OTP payload is logged locally; then:
 curl -sS -w "\nHTTP %{http_code}\n" -X POST "$BASE/users/verifications" \
   -H 'content-type: application/json' \

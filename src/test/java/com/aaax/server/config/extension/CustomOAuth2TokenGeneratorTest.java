@@ -87,7 +87,7 @@ class CustomOAuth2TokenGeneratorTest {
         when(context.get("identifier")).thenReturn("user@test.com");
         when(context.get("extReferenceMap")).thenReturn(Map.of("k", "v"));
         when(request.getScheme()).thenReturn("https");
-        when(request.getServerName()).thenReturn("uaa.test");
+        when(request.getServerName()).thenReturn("aaax.test");
 
         Jwt jwt = Jwt.withTokenValue("user-jwt")
                 .header("alg", "RS256")

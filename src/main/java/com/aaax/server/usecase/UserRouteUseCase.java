@@ -11,7 +11,7 @@ import com.aaax.server.entity.dto.request.CreateUserRouteMgtRequestDto;
 import com.aaax.server.entity.dto.response.GetUserRouteResponseDto;
 import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.entity.po.user.User;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.repository.UserRouteRepository;
 import com.aaax.server.service.DtoWrapper;
@@ -41,7 +41,7 @@ public class UserRouteUseCase {
     public GetUserRouteResponseDto createUserRoute(String userId, CreateUserRouteMgtRequestDto requestDto) {
         User user = userRepository
                 .findById(Long.valueOf(IdSplitter.split(userId)))
-                .orElseThrow(() -> new BizException(UaaErrorResponse.UAA0001, Map.of("userId", userId)));
+                .orElseThrow(() -> new BizException(AaaxErrorResponse.AAAX0001, Map.of("userId", userId)));
 
         long trrId = 0L;
         if (StringUtils.isNotBlank(requestDto.getTenantRoleRouteId())) {

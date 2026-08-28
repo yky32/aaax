@@ -1,12 +1,11 @@
 package com.aaax.server.usecase;
 
 import com.aaax.core.constant.enu.UserStatus;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.enu.KafkaTopic;
 import com.aaax.core.kafka.event.UserStateMutatedEvent;
 import com.aaax.core.utils.InstantUtil;
-import com.aaax.core.utils.JSONUtil;
 import com.aaax.core.utils.KafkaUtil;
 import com.aaax.core.utils.RedisUtil;
 import com.aaax.server.config.redis.RedisKey;
@@ -22,16 +21,16 @@ import com.aaax.server.entity.enu.OtpSystemConfigTarget;
 import com.aaax.server.entity.enu.OtpType;
 import com.aaax.server.entity.po.configuration.SystemConfiguration;
 import com.aaax.server.entity.po.user.Authentication;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.otp.ForgotPasswordOtpUseCase;
 import com.aaax.server.utils.OtpUtil;
-import com.aaax.server.validation.UaaValidation;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.aaax.server.validation.PasswordPolicy;
+import com.aaax.server.validation.AaaxValidation;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,12 +62,13 @@ public class ResetPasswordUseCase {
     private static final String SYSTEM_CONFIG_OTP_TARGET = OtpSystemConfigTarget.OTP_RESET_PASSWORD_TTL;
     private final RedisUtil redisUtil;
     private final KafkaUtil kafkaUtil;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final AuthenticationService  authenticationService;
     private final UserRepository userRepository;
     private final AuthenticationRepository authenticationRepository;
     private final ForgotPasswordOtpUseCase forgotPasswordOtpUseCase;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordPolicy passwordPolicy;
     private final SystemConfigurationUseCase systemConfigurationUseCase;
     @Value("${aaax.config.credentials-history-size:0}")
     private Integer credentialsHistorySize;
@@ -83,7 +83,7 @@ public class ResetPasswordUseCase {
     // === STEP 1 — OTP only (no login lock)
     public PendingVerifyUserResponseDto initiate(@Valid ForgotPasswordRequestDto dto) {
         if (dto.getUsername() != null) {
-            dto.setUsername(UaaValidation.toCanonicalIdentifier(dto.getUsername()));
+            dto.setUsername(AaaxValidation.toCanonicalIdentifier(dto.getUsername()));
         }
         // ====== check is verified == early return
         String verifiedKey = isVerified(dto.getUsername());
@@ -95,7 +95,7 @@ public class ResetPasswordUseCase {
 
         // Ensure account exists; do NOT deactivate auth here (prevents lockout DoS via "forgot password").
         try {
-            uaaService.getByUsername(dto.getUsername());
+            aaaxService.getByUsername(dto.getUsername());
         } catch (Exception e) {
             // for user not found case — same generic response (no enumeration)
             return DtoWrapper.getDefaultPendingVerifyUserResponseDto(dto.getUsername());
@@ -126,7 +126,7 @@ public class ResetPasswordUseCase {
      */
     private void _lockAuthenticationUntilPasswordReset(String username) {
         try {
-            Authentication authentication = uaaService.getByUsername(username);
+            Authentication authentication = aaaxService.getByUsername(username);
             if (Boolean.FALSE.equals(authentication.getIsActive())) {
                 return;
             }
@@ -154,7 +154,7 @@ public class ResetPasswordUseCase {
         String redisKey = isVerified(requestDto.getUsername());
         // ==== final validations
         if (!redisUtil.hasKey(redisKey)) {
-            throw new BizException(UaaErrorResponse.UAA0400, "No Verified key. => ".concat(requestDto.getUsername()));
+            throw new BizException(AaaxErrorResponse.AAAX0400, "No Verified key. => ".concat(requestDto.getUsername()));
         }
         // ==== final validations end
 
@@ -199,16 +199,11 @@ public class ResetPasswordUseCase {
             // Check if any of the latest 10 entries contain the newPassword
             boolean isExisted = sortedHistories.stream().anyMatch(history -> history.getCredentials() != null && passwordEncoder.matches(dto.getCredentials(), history.getCredentials()));
             if (isExisted) {
-                throw new BizException(UaaErrorResponse.UAA0003, "Existed in the previous list size. => ".concat(String.valueOf(sortedHistories.size())));
+                throw new BizException(AaaxErrorResponse.AAAX0003, "Existed in the previous list size. => ".concat(String.valueOf(sortedHistories.size())));
             }
             authentication.setCredentialsHistories(sortedHistories);
         }
-        Optional<SystemConfiguration> config = systemConfigurationUseCase.getOptionalSystemConfig("USER_CREDENTIALS_REQUIREMENT_REG_EXP", "GLOBAL");
-        List<String> regexps = new ArrayList<>();
-        if (config.isPresent()) {
-            regexps = JSONUtil.convertFromObject(config.get().getValue(), new TypeReference<>() {});
-        }
-        authentication.setCredentials(UaaValidation.check_passwordRequirement(passwordEncoder, dto.getCredentials(), regexps));
+        authentication.setCredentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()));
         authentication.setIsActive(true); // resumed this authentication
         authenticationRepository.saveAndFlush(authentication);
 
@@ -258,6 +253,6 @@ public class ResetPasswordUseCase {
         if (dto == null || dto.getUsername() == null) {
             return;
         }
-        dto.setUsername(UaaValidation.toCanonicalIdentifier(dto.getUsername()));
+        dto.setUsername(AaaxValidation.toCanonicalIdentifier(dto.getUsername()));
     }
 }

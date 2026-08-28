@@ -1,7 +1,7 @@
 package com.aaax.core.utils;
 
 import com.aaax.core.api.Jwt;
-import com.aaax.core.api.UaaApiClient;
+import com.aaax.core.api.AaaxApiClient;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.response.SystemResponse;
 import com.nimbusds.jwt.JWTParser;
@@ -111,8 +111,8 @@ public class JwtUtil {
         return sub;
     }
 
-    public static Jwt login(UaaApiClient uaaApiClient, String authorization, String grantType, String username, String credentials) {
-        Jwt jwt = RetrofitCallHandler._execute(uaaApiClient.oauth2Login(authorization, grantType, username, credentials));
+    public static Jwt login(AaaxApiClient aaaxApiClient, String authorization, String grantType, String username, String credentials) {
+        Jwt jwt = RetrofitCallHandler._execute(aaaxApiClient.oauth2Login(authorization, grantType, username, credentials));
         jwt.setBearerToken(jwt.getTokenType().concat(" ").concat(jwt.getAccessToken()));
         return jwt;
     }

@@ -1,7 +1,7 @@
 package com.aaax.server.entity.dto.json_context;
 import com.aaax.core.common.jsonfield.PermissionMetadata;
-import com.aaax.core.constant.enu.uaa.Authorities;
-import com.aaax.core.constant.enu.uaa.PermissionEffect;
+import com.aaax.core.constant.enu.aaax.Authorities;
+import com.aaax.core.constant.enu.aaax.PermissionEffect;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
 package com.aaax.server.endpoint.api.user_device;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserDeviceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserDeviceResponseDto;
 import com.aaax.core.response.PaginationDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;

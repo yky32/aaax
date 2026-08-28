@@ -60,7 +60,7 @@ class CustomRefreshTokenAuthenticationProviderHappyPathTest {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .scope("openid")
                 .build();
-        AuthorizationServerSettings settings = AuthorizationServerSettings.builder().issuer("https://uaa.test").build();
+        AuthorizationServerSettings settings = AuthorizationServerSettings.builder().issuer("https://aaax.test").build();
         AuthorizationServerContextHolder.setContext(new AuthorizationServerContext() {
             @Override public String getIssuer() { return settings.getIssuer(); }
             @Override public AuthorizationServerSettings getAuthorizationServerSettings() { return settings; }

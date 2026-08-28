@@ -10,16 +10,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
-import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,18 +56,13 @@ class SmsGrantAuthenticationProviderTest {
     }
 
     @Test
-    @DisplayName("authenticate should throw when token generator returns null")
-    void authenticate_shouldThrowWhenTokenGeneratorFails() {
+    @DisplayName("authenticate should reject unimplemented SMS grant even with a valid client")
+    void authenticate_shouldRejectUnimplementedGrant() {
         when(clientPrincipal.isAuthenticated()).thenReturn(true);
         when(clientPrincipal.getRegisteredClient()).thenReturn(registeredClient);
-        when(tokenGenerator.generate(any())).thenReturn(null);
-        AuthorizationServerContext serverContext = mock(AuthorizationServerContext.class);
-        AuthorizationServerContextHolder.setContext(serverContext);
-        try {
-            SmsGrantAuthenticationToken auth = new SmsGrantAuthenticationToken("123", clientPrincipal, null);
-            assertThrows(OAuth2AuthenticationException.class, () -> provider.authenticate(auth));
-        } finally {
-            AuthorizationServerContextHolder.resetContext();
-        }
+        SmsGrantAuthenticationToken auth = new SmsGrantAuthenticationToken("123", clientPrincipal, null);
+        OAuth2AuthenticationException ex =
+                assertThrows(OAuth2AuthenticationException.class, () -> provider.authenticate(auth));
+        assertEquals(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE, ex.getError().getErrorCode());
     }
 }

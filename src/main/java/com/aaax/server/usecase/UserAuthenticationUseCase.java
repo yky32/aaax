@@ -11,8 +11,9 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.AuthenticationErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.service.AuthenticationService;
-import com.aaax.server.service.UaaService;
-import com.aaax.server.validation.UaaValidation;
+import com.aaax.server.service.AaaxService;
+import com.aaax.server.validation.PasswordPolicy;
+import com.aaax.server.validation.AaaxValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,12 +43,13 @@ public class UserAuthenticationUseCase {
 
     private final AuthenticationService authenticationService;
     private final AuthenticationRepository authenticationRepository;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordPolicy passwordPolicy;
     private final SocialAuthenticationUseCase socialAuthenticationUseCase;
 
     public boolean authenticate(UserAuthenticationCheckRequestDto dto) {
-        String identifier = UaaValidation.toCanonicalIdentifier(dto.getUsername());
+        String identifier = AaaxValidation.toCanonicalIdentifier(dto.getUsername());
         List<Authentication> authentications = authenticationRepository.findAllByIdentifierIgnoreCase(identifier);
         if (authentications.isEmpty()) {
             throw new BizException(AuthenticationErrorResponse.ATH0001);
@@ -81,7 +83,7 @@ public class UserAuthenticationUseCase {
                 StringUtils.isNotBlank(dto.getUsername()),
                 StringUtils.isNotBlank(dto.getCredentials())
         );
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
 
         if (StringUtils.isNotBlank(dto.getProvider()) || StringUtils.isNotBlank(dto.getIdToken())) {
             this._linkSocialProvider(user, dto);
@@ -114,8 +116,8 @@ public class UserAuthenticationUseCase {
             throw new BizException(AuthenticationErrorResponse.ATH0004,
                     "username and credentials required, or provider+idToken for social link.");
         }
-        LoginType loginType = UaaValidation.detechLoginType(dto.getUsername());
-        String identifier = UaaValidation.toCanonicalIdentifier(dto.getUsername());
+        LoginType loginType = AaaxValidation.detechLoginType(dto.getUsername());
+        String identifier = AaaxValidation.toCanonicalIdentifier(dto.getUsername());
 
         Optional<Authentication> existing =
                 authenticationRepository.findByLoginTypeAndIdentifierIgnoreCase(loginType, identifier);
@@ -130,7 +132,7 @@ public class UserAuthenticationUseCase {
         Authentication authentication = Authentication.builder()
                 .identifier(identifier)
                 .user(user)
-                .credentials(UaaValidation.check_passwordRequirement(passwordEncoder, dto.getCredentials(), List.of()))
+                .credentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()))
                 .loginType(loginType)
                 .lastLoginDt(Instant.now())
                 .attempts(0)
@@ -144,7 +146,7 @@ public class UserAuthenticationUseCase {
 
     public List<GetLinkedAuthenticationResponseDto> fetchLinkedAuthentications(String userId) {
         Long uid = IdSplitter.splitToLong(userId);
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
         String accountUsername = user.getUsername();
         List<Authentication> authentications = authenticationRepository.findByUser_Id(uid);
         int methodCount = authentications.size();

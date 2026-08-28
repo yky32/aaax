@@ -7,7 +7,7 @@ import com.aaax.core.constant.RegexPatternConstant;
 import com.aaax.core.constant.enu.LoginType;
 import com.aaax.core.constant.enu.UserStatus;
 import com.aaax.core.entity.dto.KeyValue;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.entity.dto.util.response.GetRefDataResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.kafka.enu.KafkaTopic;
@@ -30,16 +30,17 @@ import com.aaax.server.entity.po.user.Authentication;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.exception.response.OtpErrorResponse;
 import com.aaax.server.exception.response.SystemConfigurationErrorResponse;
-import com.aaax.server.exception.response.UaaErrorResponse;
+import com.aaax.server.exception.response.AaaxErrorResponse;
 import com.aaax.server.exception.response.UseRegistrationErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.repository.UserRepository;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.otp.RegisterUserOtpUseCase;
 import com.aaax.server.utils.OtpUtil;
-import com.aaax.server.validation.UaaValidation;
+import com.aaax.server.validation.PasswordPolicy;
+import com.aaax.server.validation.AaaxValidation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -53,7 +54,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.*;
 
-import static com.aaax.server.validation.UaaValidation.detechLoginType;
+import static com.aaax.server.validation.AaaxValidation.detechLoginType;
 
 @Component
 @RequiredArgsConstructor
@@ -65,13 +66,14 @@ public class RegisterUserUseCase {
     private final AuthenticationRepository authenticationRepository;
     private final KafkaUtil kafkaUtil;
     private final RedisUtil redisUtil;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final AuthenticationService authenticationService;
     private final RegisterUserOtpUseCase registerUserOtpUseCase;
     private final SystemConfigurationUseCase systemConfigurationUseCase;
     private final UserProfileUseCase userProfileUseCase;
     private final UserPreferenceUseCase userPreferenceUseCase;
     private final UtilApiClient utilApiClient;
+    private final PasswordPolicy passwordPolicy;
     @Value("${aaax.config.user-created-waiting-time-ms:1}")
     private long userCreatedWaitingTimeMs;
     @Value("${aaax.config.system-invoker}")
@@ -107,10 +109,10 @@ public class RegisterUserUseCase {
         prepareRegisterDto(requestDto);
         // ===========  VALIDATIONS
         if (StringUtils.isBlank(requestDto.getUsername())) {
-            throw new BizException(UaaErrorResponse.UAA0400, "[username] was empty/null of ".concat(this.getClass().getSimpleName()));
+            throw new BizException(AaaxErrorResponse.AAAX0400, "[username] was empty/null of ".concat(this.getClass().getSimpleName()));
         }
         if (StringUtils.isBlank(requestDto.getCredentials())) {
-            throw new BizException(UaaErrorResponse.UAA0400, "[credentials] was empty/nul of ".concat(this.getClass().getSimpleName()));
+            throw new BizException(AaaxErrorResponse.AAAX0400, "[credentials] was empty/nul of ".concat(this.getClass().getSimpleName()));
         }
         // ===========  VALIDATIONS
 
@@ -118,7 +120,7 @@ public class RegisterUserUseCase {
         String redisKey = isVerified(requestDto.getUsername());
         // ==== final validations
         if (!redisUtil.hasKey(redisKey)) {
-            throw new BizException(UaaErrorResponse.UAA0400, "No Verified key. => ".concat(requestDto.getUsername()));
+            throw new BizException(AaaxErrorResponse.AAAX0400, "No Verified key. => ".concat(requestDto.getUsername()));
         }
         // ==== final validations end
         GetUserResponseDto execute = this.execute(requestDto);
@@ -165,7 +167,7 @@ public class RegisterUserUseCase {
         if (requestDto == null || StringUtils.isBlank(requestDto.getUsername())) {
             return;
         }
-        requestDto.setUsername(UaaValidation.toCanonicalIdentifier(requestDto.getUsername()));
+        requestDto.setUsername(AaaxValidation.toCanonicalIdentifier(requestDto.getUsername()));
     }
 
     private CreateOtpRequestDto _configuredAndFetchedFromDb(RegisterUserRequestDto dto) {
@@ -221,14 +223,14 @@ public class RegisterUserUseCase {
         if (authenticationOptional.isPresent()) {
             // == existed user.
             // == check status one-by-one
-            user = uaaService.getById(authenticationOptional.get().getUser().getId());
+            user = aaaxService.getById(authenticationOptional.get().getUser().getId());
             switch (user.getStatus()) {
                 case ACTIVE -> {
                     log.info("-- user existed {} and return", username);
-                    throw new BizException(UaaErrorResponse.UAA0409, "username =>".concat(username));
+                    throw new BizException(AaaxErrorResponse.AAAX0409, "username =>".concat(username));
                 }
                 case PENDING_VERIFY -> user.setStatus(status); // active the users
-                case INACTIVE -> throw new BizException(UaaErrorResponse.UAA0004, "username =>".concat(username));
+                case INACTIVE -> throw new BizException(AaaxErrorResponse.AAAX0004, "username =>".concat(username));
             }
         } else {
             // == [branch-new] user. Always store canonical lowercase email/username.
@@ -238,7 +240,7 @@ public class RegisterUserUseCase {
                     .metadata(metadata)
                     .build();
             Authentication authentication = Authentication.builder()
-                    .credentials(UaaValidation.check_passwordRequirement(passwordEncoder, dto.getCredentials(), List.of()))
+                    .credentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()))
                     .identifier(username)
                     .user(user)
                     .loginType(loginType)
@@ -292,18 +294,18 @@ public class RegisterUserUseCase {
 
     public GetUserResponseDto updateCredentials(UpdatePasswordRequestDto dto, String identifier) {
         log.info("-- RegisterUserUseCase updateCredentials start : {} - {}", identifier, dto);
-        Authentication auth = uaaService.getByUsername(identifier);
+        Authentication auth = aaaxService.getByUsername(identifier);
         if (dto.getCredentials() != null) {
             // check existing password
             if (!passwordEncoder.matches(dto.getExistingCredentials(), auth.getCredentials())) {
                 log.info("-- RegisterUserUseCase updateCredentials : {} -> Incorrect existing password", identifier);
-                throw new BizException(UaaErrorResponse.UAA0003, "Incorrect existing password.");
+                throw new BizException(AaaxErrorResponse.AAAX0003, "Incorrect existing password.");
             }
             if (passwordEncoder.matches(dto.getCredentials(), auth.getCredentials())) {
-                log.info("-- RegisterUserUseCase updateCredentials : {} -> {}", identifier, UaaErrorResponse.UAA0003.getMessage());
-                throw new BizException(UaaErrorResponse.UAA0003);
+                log.info("-- RegisterUserUseCase updateCredentials : {} -> {}", identifier, AaaxErrorResponse.AAAX0003.getMessage());
+                throw new BizException(AaaxErrorResponse.AAAX0003);
             }
-            auth.setCredentials(UaaValidation.check_passwordRequirement(passwordEncoder, dto.getCredentials(), List.of()));
+            auth.setCredentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()));
             authenticationRepository.save(auth);
             log.info("-- RegisterUserUseCase updateCredentials end : {} - {}", identifier, dto);
         }
@@ -368,7 +370,7 @@ public class RegisterUserUseCase {
                                 .filter(map -> map.get("code").equals(_areaCode))
                                 .findFirst()
                                 .orElseThrow(() -> new BizException(
-                                        UaaErrorResponse.UAA4400,
+                                        AaaxErrorResponse.AAAX4400,
                                         "[%s] => [%s]".formatted("areaCode", _areaCode)));
                     } catch (BizException e) {
                         throw e;

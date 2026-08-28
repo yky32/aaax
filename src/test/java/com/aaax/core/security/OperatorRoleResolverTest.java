@@ -1,7 +1,7 @@
 package com.aaax.core.security;
 
-import com.aaax.core.api.UaaApiClient;
-import com.aaax.core.entity.dto.uaa.response.GetMyRolesResponseDto;
+import com.aaax.core.api.AaaxApiClient;
+import com.aaax.core.entity.dto.aaax.response.GetMyRolesResponseDto;
 import com.aaax.core.utils.RetrofitCallHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -20,9 +20,9 @@ class OperatorRoleResolverTest {
 
     @Test
     void hasAnyRole_trueWhenOneRoleMatches() {
-        UaaApiClient uaaApiClient = mock(UaaApiClient.class);
-        when(uaaApiClient.getMyRoles()).thenReturn(null);
-        OperatorRoleResolver resolver = new OperatorRoleResolver(uaaApiClient);
+        AaaxApiClient aaaxApiClient = mock(AaaxApiClient.class);
+        when(aaaxApiClient.getMyRoles()).thenReturn(null);
+        OperatorRoleResolver resolver = new OperatorRoleResolver(aaaxApiClient);
         GetMyRolesResponseDto dto = GetMyRolesResponseDto.builder()
                 .roles(List.of("normal", OperatorRoles.ADMIN))
                 .build();
@@ -35,9 +35,9 @@ class OperatorRoleResolverTest {
 
     @Test
     void hasOperatorRole_trueWhenRolePresent() {
-        UaaApiClient uaaApiClient = mock(UaaApiClient.class);
-        when(uaaApiClient.getMyRoles()).thenReturn(null);
-        OperatorRoleResolver resolver = new OperatorRoleResolver(uaaApiClient);
+        AaaxApiClient aaaxApiClient = mock(AaaxApiClient.class);
+        when(aaaxApiClient.getMyRoles()).thenReturn(null);
+        OperatorRoleResolver resolver = new OperatorRoleResolver(aaaxApiClient);
         GetMyRolesResponseDto dto = GetMyRolesResponseDto.builder()
                 .roles(List.of("normal", OperatorRoles.ADMIN))
                 .build();
@@ -50,9 +50,9 @@ class OperatorRoleResolverTest {
 
     @Test
     void hasOperatorRole_falseWhenRoleMissing() {
-        UaaApiClient uaaApiClient = mock(UaaApiClient.class);
-        when(uaaApiClient.getMyRoles()).thenReturn(null);
-        OperatorRoleResolver resolver = new OperatorRoleResolver(uaaApiClient);
+        AaaxApiClient aaaxApiClient = mock(AaaxApiClient.class);
+        when(aaaxApiClient.getMyRoles()).thenReturn(null);
+        OperatorRoleResolver resolver = new OperatorRoleResolver(aaaxApiClient);
         GetMyRolesResponseDto dto = GetMyRolesResponseDto.builder()
                 .roles(List.of("normal"))
                 .build();
@@ -65,7 +65,7 @@ class OperatorRoleResolverTest {
 
     @Test
     void operatorRoleName_usesConfiguredValue() {
-        OperatorRoleResolver resolver = new OperatorRoleResolver(mock(UaaApiClient.class), "custom_operator");
+        OperatorRoleResolver resolver = new OperatorRoleResolver(mock(AaaxApiClient.class), "custom_operator");
         assertEquals("custom_operator", resolver.operatorRoleName());
     }
 }

@@ -10,7 +10,7 @@ import com.aaax.server.entity.po.UserRoute;
 import com.aaax.server.entity.po.user_management.UserPermission;
 import com.aaax.server.repository.UserPermissionRepository;
 import com.aaax.server.repository.UserRouteRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.core.utils.ResourcesUtil;
 
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 class GetMyLoginProfileUseCaseTest {
 
     @Mock
-    private UaaService uaaService;
+    private AaaxService aaaxService;
     @Mock
     private UserRouteRepository userRouteRepository;
     @Mock

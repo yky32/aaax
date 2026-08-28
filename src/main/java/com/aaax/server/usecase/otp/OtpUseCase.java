@@ -22,7 +22,7 @@ import com.aaax.server.exception.response.OtpErrorResponse;
 import com.aaax.server.usecase.SystemConfigurationUseCase;
 import com.aaax.server.usecase.intf.OtpHandler;
 import com.aaax.server.utils.OtpUtil;
-import com.aaax.server.validation.UaaValidation;
+import com.aaax.server.validation.AaaxValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +46,7 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
     protected String otpRegisterTemplate;
 
     protected static @NotNull String getRedisKey(CreateOtpRequestDto dto) {
-        String to = UaaValidation.toCanonicalIdentifierIfPresent(dto.getTo());
+        String to = AaaxValidation.toCanonicalIdentifierIfPresent(dto.getTo());
         if (StringUtils.isNotBlank(to)) {
             dto.setTo(to);
         }
@@ -185,7 +185,7 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
 
     public boolean verify(VerifyOtpRequestDto dto) {
         if (StringUtils.isNotBlank(dto.getTo())) {
-            dto.setTo(UaaValidation.toCanonicalIdentifier(dto.getTo()));
+            dto.setTo(AaaxValidation.toCanonicalIdentifier(dto.getTo()));
         }
         this.mustValidations(dto.getUsecase(), dto.getTo());
         if (StringUtils.isBlank(dto.getCode())) {

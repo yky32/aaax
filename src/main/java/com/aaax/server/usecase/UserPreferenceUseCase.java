@@ -1,6 +1,6 @@
 package com.aaax.server.usecase;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserPreferenceResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserPreferenceResponseDto;
 import com.aaax.core.exception.BizException;
 import com.aaax.core.utils.IdSplitter;
 import com.aaax.core.utils.ResourcesUtil;
@@ -10,7 +10,7 @@ import com.aaax.server.entity.po.user_management.UserPreference;
 import com.aaax.server.exception.response.UserPreferenceErrorResponse;
 import com.aaax.server.repository.UserPreferenceRepository;
 import com.aaax.server.service.DtoWrapper;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.*;
 public class UserPreferenceUseCase {
 
     private final UserPreferenceRepository userPreferenceRepository;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final ResourceLoader resourceLoader;
 
     public GetUserPreferenceResponseDto getUserPreference(String userId, String key) {
@@ -33,7 +33,7 @@ public class UserPreferenceUseCase {
         if (!config.containsKey(key)) {
             throw new BizException(UserPreferenceErrorResponse.UPN0001, Map.of("availableKeys", config.keySet()));
         }
-        uaaService.getById(IdSplitter.splitToLong(userId));
+        aaaxService.getById(IdSplitter.splitToLong(userId));
         UserPreference userPreference = userPreferenceRepository.findByUserIdAndTypeAndKey(
                 IdSplitter.splitToLong(userId), UserPreferenceType.DEFAULT.name(), key
         ).orElseGet(() -> this.generateUserPreference(userId, key, (Map<String, Object>) config.getOrDefault(key, new HashMap<>())));
@@ -175,7 +175,7 @@ public class UserPreferenceUseCase {
     }
 
     public List<GetUserPreferenceResponseDto> queryUserPreference(String userId) {
-        uaaService.getById(IdSplitter.split(userId));
+        aaaxService.getById(IdSplitter.split(userId));
         List<UserPreference> userPreferences = userPreferenceRepository.findAllByUserIdAndType(Long.valueOf(IdSplitter.split(userId)), UserPreferenceType.DEFAULT.name());
         return userPreferences.stream().map(DtoWrapper::getGetUserPreferenceResponseDto).toList();
     }

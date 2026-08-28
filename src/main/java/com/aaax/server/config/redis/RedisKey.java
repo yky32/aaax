@@ -29,7 +29,7 @@ public enum RedisKey {
     // ==== OTP =====
 
     // ==== SYSTEM CONFIGURATION ====
-    UAA_SYSTEM_CONFIGURATION("uaa:", "system-configuration:"),
+    AAAX_SYSTEM_CONFIGURATION("aaax:", "system-configuration:"),
 
     // ==== Others =====
     DEVICE_SESSIONS("device:", "session:"),

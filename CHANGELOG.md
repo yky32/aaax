@@ -2,6 +2,14 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Wave 3
+- Snowflake IDs use a 12-bit sequence cap (`1 << 12`), not XOR (`2 ^ 12` → 14)
+- Password policy: default min 8 chars (`aaax.security.password-patterns`); system config still overrides
+- Login lockout: `aaax.security.max-login-attempts` (default 5), incremented in-process (Kafka off does not skip it)
+- Device binding **OFF** on login; `TRUST_LATEST` only applies to `POST /user-devices`
+- Stub QR/SMS/`custom_code` grants refuse to mint tokens (no hardcoded `123`)
+- Java types, packages, and error codes: `UAA*` → `AAAX*` (e.g. occupied register is `AAAX0409`)
+
 ### Wave 2
 - `/oauth2/token` returns RFC 6749 JSON (`access_token`, `token_type`, `expires_in`, `refresh_token`). `/users` and admin APIs keep the AAAX Result envelope
 - Refresh grant is `refresh_token`
@@ -31,7 +39,7 @@
 - JWK + encryption: **no JKS in the jar**; ephemeral RSA when env unset; file path+password+alias otherwise
 - Smoke mixed-case email domain `@aaax.local`
 - Drop unused core leftovers (`CardBrand`, empty tenant PaymentGateway metadata)
-- Register no longer imports unused `UaaApiClient`
+- Register no longer imports unused `AaaxApiClient`
 - Testcontainers on `mvn test` (IT); Docker CLI IT excluded from default surefire
 
 ### Structure

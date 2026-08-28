@@ -10,7 +10,7 @@ import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.exception.response.UserProfileErrorResponse;
 import com.aaax.server.repository.UserProfileRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.service.UserProfileService;
 import com.aaax.server.usecase.HandleFileUseCase;
 import com.aaax.server.usecase.UseCase;
@@ -30,7 +30,7 @@ import static com.aaax.server.entity.dto.Common.S3_PATH_USER_PROFILE;
 @Slf4j
 public class UpdateAvatarUseCase implements UseCase<Long, List<MultipartFile>> {
 
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserProfileRepository userProfileRepository;
     private final HandleFileUseCase handleFileUseCase;
 
@@ -39,7 +39,7 @@ public class UpdateAvatarUseCase implements UseCase<Long, List<MultipartFile>> {
         if (files.size() > 1) {
             throw new BizException(UserProfileErrorResponse.UPR0002);
         }
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
         UserProfile userProfile = userProfileRepository.findByUserIdAndType(userId, UserProfileType.DEFAULT.name()).orElseThrow(() -> new BizException(UserProfileErrorResponse.UPR0001, Map.of("userId", userId)));
         Map context = JSONUtil.convertFromObject(userProfile.getContext(), Map.class);
         // replace the avatar field, update as new value
@@ -53,7 +53,7 @@ public class UpdateAvatarUseCase implements UseCase<Long, List<MultipartFile>> {
     }
 
     public void executeUrlOnly(Long userId, String avatarUrl) {
-        User user = uaaService.getById(userId);
+        User user = aaaxService.getById(userId);
         UserProfile userProfile = userProfileRepository.findByUserIdAndType(userId, UserProfileType.DEFAULT.name()).orElseThrow(() -> new BizException(UserProfileErrorResponse.UPR0001, Map.of("userId", userId)));
         Map context = JSONUtil.convertFromObject(userProfile.getContext(), Map.class);
         context.put("avatar", avatarUrl); // update the avatar field

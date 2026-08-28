@@ -1,13 +1,13 @@
 package com.aaax.server.endpoint.api.user_metadata;
 
-import com.aaax.core.entity.dto.uaa.response.GetUserMetricsResponseDto;
-import com.aaax.core.entity.dto.uaa.response.GetUserResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserMetricsResponseDto;
+import com.aaax.core.entity.dto.aaax.response.GetUserResponseDto;
 import com.aaax.core.response.R;
 import com.aaax.core.response.Result;
 import com.aaax.core.utils.JwtUtil;
 import com.aaax.server.entity.dto.request.UpdateAccessMetadataRequestDto;
 import com.aaax.server.entity.dto.request.UpdateExtReferenceRequestDto;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.UpdateUserMetadataUseCase;
 import com.aaax.server.usecase.UserMetricsUseCase;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class UserMetadataEndpoint {
 
     private final UpdateUserMetadataUseCase updateUserMetadataUseCase;
-    private final UaaService uaaService;
+    private final AaaxService aaaxService;
     private final UserMetricsUseCase metricsUseCase;
 
     @PutMapping("/users/{userId}/metadata/ext-reference")
@@ -49,7 +49,7 @@ public class UserMetadataEndpoint {
     @PreAuthorize("isAuthenticated()")
     public Result<GetUserResponseDto> getOne() {
         String userId = JwtUtil.userId();
-        return R.success(uaaService.me(userId));
+        return R.success(aaaxService.me(userId));
     }
 
 

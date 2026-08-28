@@ -8,7 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
  * TYPE: activity / audit trail
  * SCOPE: int / ext
  * REQUEST_CONTEXT: ip, user-agent, device, api, request-id, headers, path, requstBody, start_dt, end_dt
- * SYSTEM: uaa, payment-service, tenant-service, util
+ * SYSTEM: aaax, payment-service, tenant-service, util
  * DOMAIN: user
  * EVENT: user.created
  * CONTENT: logging content

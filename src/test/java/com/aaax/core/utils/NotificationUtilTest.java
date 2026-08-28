@@ -79,7 +79,7 @@ class NotificationUtilTest {
                 "a@b.com",
                 Locale.EN,
                 Map.of("userId", "u"),
-                "UAA"
+                "AAAX"
         );
 
         assertEquals(List.of(NotificationChannel.EMAIL), dto.getChannels());

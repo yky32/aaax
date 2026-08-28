@@ -47,6 +47,8 @@ It is **not** a Clerk/Logto clone, **not** a Boot 4 rewrite, **not** a private d
 | OSS mesh strip: GrandPay / Onboarding / Profile / Tenant / IDV HTTP | ✅ |
 | Discord blank = no-op · Util gated · Kafka **off** (`AAAX_KAFKA_ENABLED`) | ✅ |
 | Demo JKS **not** in the jar | ✅ ephemeral RSA if env unset (**local only**); file via `AAAX_JWK_KEYSTORE` |
+| Password policy (min 8 unless system config) + login lockout (5) | ✅ |
+| Device binding on login | ❌ OFF — register path only |
 | Hosted `/admin` · `/sign-in` · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
 | Passkeys · SAML · orgs | ❌ |
 | Boot **4.1** | ❌ later lane — parent is **3.1.0** (OSS EOL) |
@@ -94,7 +96,7 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 | `refresh_token` | RFC refresh |
 | authorization_code / client_credentials | SAS defaults |
 
-**Not on `/oauth2/token`:** QR/SMS / `custom_code` grant classes still on disk. Device QR still has `POST /devices/qr-code-login` + WS. Google/Apple idToken **verify/link** stays in `SocialAuthenticationUseCase`; it is not a token grant.
+**Not on `/oauth2/token`:** QR/SMS / `custom_code` classes still on disk; they **reject** (`unsupported_grant_type`) and must not mint tokens. Device QR still has `POST /devices/qr-code-login` + WS. Google/Apple idToken **verify/link** stays in `SocialAuthenticationUseCase`; it is not a token grant.
 
 **LoginType enum:** `USERNAME · MOBILE · EMAIL · GOOGLE · FACEBOOK · APPLE · LINE · OTP` · `GRANDPAY` reserved. Social **verify** path = Google + Apple only. Social signup does **not** create a password login.
 
@@ -133,6 +135,8 @@ One `application.yml`. Three roots: `spring` (Boot native) · `aaax` (this app) 
 | `AAAX_JWK_KEYSTORE` | empty → **ephemeral RSA** (local clone only; tokens die on restart) |
 | `AAAX_ENCRYPTION_KEYSTORE` | empty → ephemeral RSA (local clone only) |
 | `AAAX_LOCAL_SEED` | `false` (jar default) · `true` in `.env.example` |
+| `AAAX_MAX_LOGIN_ATTEMPTS` | `5` |
+| `CONFIG_DEVICE_BINDING_MODE` | `OFF` (login does not check devices) |
 
 File keystores: set path **and** password **and** alias. Nothing ships in the jar. Production **must** set `AAAX_JWK_KEYSTORE`.
 
@@ -145,6 +149,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 - Discord / ELK webhooks no-op when id/token blank.
 - CSRF is **disabled** on the resource chain (API-only). Hosted browser authorize is a later lane.
 - CORS: `AAAX_CORS_ORIGINS` (default `http://localhost:*` and `http://127.0.0.1:*`). Wildcard `*` turns credentials off.
+- Passwords: default pattern `.{8,}` (`aaax.security.password-patterns`). Failed logins lock after `aaax.security.max-login-attempts` (5).
 - Private encryption key is **not** exposed over HTTP.
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
 

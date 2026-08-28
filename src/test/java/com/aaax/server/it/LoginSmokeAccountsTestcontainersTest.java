@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Login quality gate (infra slice): two fixed smoke accounts seedable via Testcontainers PG,
- * Redis container up for future full grant IT. Does not boot full UAA (Kafka/Liquibase) —
+ * Redis container up for future full grant IT. Does not boot full AAAX (Kafka/Liquibase) —
  * asserts identity store + BCrypt match that password-grant depends on.
  */
 @Testcontainers(disabledWithoutDocker = true)
@@ -32,9 +32,9 @@ class LoginSmokeAccountsTestcontainersTest {
     @Container
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(DockerImageName.parse("postgres:15-alpine"))
-            .withDatabaseName("uaa_smoke")
-            .withUsername("uaa")
-            .withPassword("uaa");
+            .withDatabaseName("aaax_smoke")
+            .withUsername("aaax")
+            .withPassword("aaax");
 
     @Container
     @SuppressWarnings("resource")

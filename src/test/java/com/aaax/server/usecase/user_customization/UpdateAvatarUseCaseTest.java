@@ -6,7 +6,7 @@ import com.aaax.server.entity.enu.UserProfileType;
 import com.aaax.server.entity.po.user.User;
 import com.aaax.server.entity.po.user_management.UserProfile;
 import com.aaax.server.repository.UserProfileRepository;
-import com.aaax.server.service.UaaService;
+import com.aaax.server.service.AaaxService;
 import com.aaax.server.usecase.HandleFileUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UpdateAvatarUseCaseTest {
 
-    @Mock private UaaService uaaService;
+    @Mock private AaaxService aaaxService;
     @Mock private UserProfileRepository userProfileRepository;
     @Mock private HandleFileUseCase handleFileUseCase;
     @Mock private MultipartFile file;
@@ -46,7 +46,7 @@ class UpdateAvatarUseCaseTest {
     @Test
     @DisplayName("execute should upload and persist avatar url")
     void execute_shouldPersistAvatar() {
-        when(uaaService.getById(1L)).thenReturn(User.builder().id(1L).build());
+        when(aaaxService.getById(1L)).thenReturn(User.builder().id(1L).build());
         UserProfile profile = UserProfile.builder()
                 .id(9L).userId(1L)
                 .context(new HashMap<>(Map.of("avatar", "old")))
@@ -65,7 +65,7 @@ class UpdateAvatarUseCaseTest {
     @Test
     @DisplayName("executeUrlOnly should update avatar without upload")
     void executeUrlOnly_shouldUpdate() {
-        when(uaaService.getById(2L)).thenReturn(User.builder().id(2L).build());
+        when(aaaxService.getById(2L)).thenReturn(User.builder().id(2L).build());
         UserProfile profile = UserProfile.builder()
                 .id(3L).userId(2L)
                 .context(new HashMap<>(Map.of("avatar", "old")))
@@ -82,7 +82,7 @@ class UpdateAvatarUseCaseTest {
     @Test
     @DisplayName("execute should throw when profile missing")
     void execute_shouldThrowWhenProfileMissing() {
-        when(uaaService.getById(1L)).thenReturn(User.builder().id(1L).build());
+        when(aaaxService.getById(1L)).thenReturn(User.builder().id(1L).build());
         when(userProfileRepository.findByUserIdAndType(1L, UserProfileType.DEFAULT.name()))
                 .thenReturn(Optional.empty());
         assertThrows(BizException.class, () -> updateAvatarUseCase.execute(1L, List.of(file)));

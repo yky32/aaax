@@ -30,8 +30,8 @@ class AuthenticationServerConfigBeansTest {
     @BeforeEach
     void setUp() {
         config = new AuthenticationServerConfig(request, globalExceptionHandler);
-        ReflectionTestUtils.setField(config, "issuerUrl", "https://uaa.test");
-        ReflectionTestUtils.setField(config, "jwkSetUri", "https://uaa.test/jwks");
+        ReflectionTestUtils.setField(config, "issuerUrl", "https://aaax.test");
+        ReflectionTestUtils.setField(config, "jwkSetUri", "https://aaax.test/jwks");
         ReflectionTestUtils.setField(config, "serverTokenExpiryTime", 3600);
     }
 
@@ -46,7 +46,7 @@ class AuthenticationServerConfigBeansTest {
     @DisplayName("authorizationServerSettings should use issuer")
     void authorizationServerSettings_shouldUseIssuer() {
         AuthorizationServerSettings settings = config.authorizationServerSettings();
-        assertEquals("https://uaa.test", settings.getIssuer());
+        assertEquals("https://aaax.test", settings.getIssuer());
     }
 
     @Test

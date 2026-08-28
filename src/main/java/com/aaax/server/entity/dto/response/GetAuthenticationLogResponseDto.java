@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 /**
- * Admin-facing row for UAA authentication activity (login success / fail attempts).
+ * Admin-facing row for AAAX authentication activity (login success / fail attempts).
  */
 @Data
 @Builder

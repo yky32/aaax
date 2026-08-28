@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoginSmokeAccountsDockerTest {
 
     private static final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
-    private static final String PG_NAME = "uaa-login-smoke-pg";
-    private static final String REDIS_NAME = "uaa-login-smoke-redis";
+    private static final String PG_NAME = "aaax-login-smoke-pg";
+    private static final String REDIS_NAME = "aaax-login-smoke-redis";
     private static String jdbcUrl;
     private static int redisPort;
 
@@ -55,9 +55,9 @@ class LoginSmokeAccountsDockerTest {
 
         exec("docker", "run", "-d", "--rm",
                 "--name", PG_NAME,
-                "-e", "POSTGRES_DB=uaa_smoke",
-                "-e", "POSTGRES_USER=uaa",
-                "-e", "POSTGRES_PASSWORD=uaa",
+                "-e", "POSTGRES_DB=aaax_smoke",
+                "-e", "POSTGRES_USER=aaax",
+                "-e", "POSTGRES_PASSWORD=aaax",
                 "-p", "55432:5432",
                 "postgres:15-alpine");
 
@@ -66,7 +66,7 @@ class LoginSmokeAccountsDockerTest {
                 "-p", "56379:6379",
                 "redis:7-alpine");
 
-        jdbcUrl = "jdbc:postgresql://127.0.0.1:55432/uaa_smoke";
+        jdbcUrl = "jdbc:postgresql://127.0.0.1:55432/aaax_smoke";
         redisPort = 56379;
 
         waitForPostgres();
@@ -105,12 +105,12 @@ class LoginSmokeAccountsDockerTest {
                 StandardCharsets.UTF_8
         );
         // Write to temp and docker exec -i psql for reliable multi-statement
-        Path tmp = Files.createTempFile("uaa-smoke-seed", ".sql");
+        Path tmp = Files.createTempFile("aaax-smoke-seed", ".sql");
         Files.writeString(tmp, sql);
         try {
             Process p = new ProcessBuilder(
                     "docker", "exec", "-i", PG_NAME,
-                    "psql", "-U", "uaa", "-d", "uaa_smoke", "-v", "ON_ERROR_STOP=1"
+                    "psql", "-U", "aaax", "-d", "aaax_smoke", "-v", "ON_ERROR_STOP=1"
             ).redirectErrorStream(true).start();
             try (var in = Files.newInputStream(tmp); var out = p.getOutputStream()) {
                 in.transferTo(out);
@@ -127,7 +127,7 @@ class LoginSmokeAccountsDockerTest {
     }
 
     private static Connection open() throws Exception {
-        return DriverManager.getConnection(jdbcUrl, "uaa", "uaa");
+        return DriverManager.getConnection(jdbcUrl, "aaax", "aaax");
     }
 
     private static void exec(String... cmd) throws Exception {
