@@ -14,16 +14,16 @@ WITH_URL="${MISSING_URL}&code_challenge=${CHALLENGE}&code_challenge_method=S256"
 
 dump_auth() {
   local label="$1" hdr="$2" body="$3" code="$4"
-  echo "${label}: HTTP ${code}" >&2
-  echo '--- headers ---' >&2
-  cat "$hdr" >&2 || true
-  echo '--- body ---' >&2
-  head -c 400 "$body" >&2 || true
-  echo >&2
+  echo "${label}: HTTP ${code}"
+  echo '--- headers ---'
+  cat "$hdr" || true
+  echo '--- body ---'
+  head -c 400 "$body" || true
+  echo
 }
 
 loc_from() {
-  grep -i '^location:' "$1" | awk '{print $2}' | tr -d '\r' | head -1
+  grep -i '^location:' "$1" | awk '{print $2}' | tr -d '\r' | head -1 || true
 }
 
 missing_hdr=$(mktemp)
@@ -81,13 +81,14 @@ login_with_hdr=$(mktemp)
 login_with_body=$(mktemp)
 with_code2=$(curl -sS -D "$login_with_hdr" -o "$login_with_body" -w '%{http_code}' -c "$COOKIE" -b "$COOKIE" -H 'Accept: text/html' "$WITH_URL")
 with_loc=$(loc_from "$login_with_hdr")
+echo "DEBUG login+PKCE HTTP=${with_code2} Location=${with_loc}"
 if printf '%s\n%s' "$with_loc" "$(cat "$login_with_body")" | grep -qi 'code_challenge'; then
-  echo "FAIL: logged-in authorize with PKCE still complained about code_challenge (HTTP ${with_code2} Location=${with_loc})" >&2
+  echo "FAIL: logged-in authorize with PKCE still complained about code_challenge (HTTP ${with_code2} Location=${with_loc})"
   dump_auth 'login with PKCE' "$login_with_hdr" "$login_with_body" "$with_code2"
   exit 1
 fi
 if ! printf '%s' "$with_loc" | grep -q 'code='; then
-  echo "FAIL: logged-in authorize with PKCE did not return a code (HTTP ${with_code2} Location=${with_loc})" >&2
+  echo "FAIL: logged-in authorize with PKCE did not return a code (HTTP ${with_code2} Location=${with_loc})"
   dump_auth 'login with PKCE' "$login_with_hdr" "$login_with_body" "$with_code2"
   exit 1
 fi
