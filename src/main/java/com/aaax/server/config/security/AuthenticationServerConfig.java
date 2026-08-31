@@ -112,10 +112,10 @@ public class AuthenticationServerConfig {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServer = new OAuth2AuthorizationServerConfigurer();
-        http.securityMatcher(authorizationServer.getEndpointsMatcher())
+        http.securityMatcher("/oauth2/**", "/.well-known/**")
                 .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
+                        .requestMatchers("/.well-known/**", "/oauth2/jwks", "/oauth2/token").permitAll()
                         .anyRequest().authenticated());
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
