@@ -88,8 +88,8 @@ jobs:
               curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
                 && echo 'OK: OIDC discovery' || { echo 'FAIL: OIDC discovery'; tail -n 80 /tmp/aaax.log; exit 1; }
               chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh
-              scripts/pkce-smoke.sh
-              scripts/hosted-authorize-smoke.sh
+              scripts/pkce-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
+              scripts/hosted-authorize-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi

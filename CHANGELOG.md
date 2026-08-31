@@ -6,6 +6,7 @@
 - Loopback PKCE: SAS allows any port on seed `127.0.0.1` / `[::1]` redirect hosts (RFC 8252 §7.3). Not claimed HTTPS
 - `scripts/hosted-authorize-smoke.sh` exchanges `authorization_code` + RFC 7636 appendix `code_verifier` as public client `aaax-pkce`
 - `scripts/pkce-smoke.sh`: SAS checks `code_challenge` **before** login. Unauthenticated *with* PKCE → `/login`; missing PKCE → `invalid_request`
+- Authorization codes (no access token yet) skip qs Redis JWT mapping; held in-memory for token exchange
 
 ### Wave 8
 - Authorization-server filter chain uses `securityMatcher(getEndpointsMatcher())` so Security 7 does not treat it as “any request” (jar would not start)
