@@ -34,7 +34,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -112,10 +111,10 @@ public class AuthenticationServerConfig {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServer = new OAuth2AuthorizationServerConfigurer();
-        http.securityMatcher(authorizationServer.getEndpointsMatcher())
+        http.securityMatcher("/oauth2/**", "/.well-known/**")
                 .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
+                        .requestMatchers("/.well-known/**", "/oauth2/jwks", "/oauth2/token").permitAll()
                         .anyRequest().authenticated());
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
@@ -345,13 +344,6 @@ public class AuthenticationServerConfig {
         CustomOAuth2TokenGenerator accessTokenGenerator = new CustomOAuth2TokenGenerator(new NimbusJwtEncoder(jwkSource()), request);
         CustomOAuth2RefreshTokenGenerator customOAuth2RefreshTokenGenerator = new CustomOAuth2RefreshTokenGenerator();
         return new DelegatingOAuth2TokenGenerator(accessTokenGenerator, customOAuth2RefreshTokenGenerator);
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, DaoAuthenticationProvider authenticationProvider) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(authenticationProvider);
-        return authenticationManagerBuilder.build();
     }
 
     @Bean

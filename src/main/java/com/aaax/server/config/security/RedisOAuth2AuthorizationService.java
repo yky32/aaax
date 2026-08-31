@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -43,8 +44,15 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
     @Autowired
     private UserTokenRepository userTokenRepository;
 
+    /** Authorization codes have no access token yet — qs Redis JWT mapping cannot store them. */
+    private final OAuth2AuthorizationService authorizationCodes = new InMemoryOAuth2AuthorizationService();
+
     @Override
     public void save(OAuth2Authorization authorization) {
+        if (authorization.getAccessToken() == null) {
+            authorizationCodes.save(authorization);
+            return;
+        }
         RegisteredClientMetadata registeredClientMetadata = convertAuthorizationToRegisteredClientClass(authorization);
         if (authorization.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
             ClientCredentialsJwt jwt = this.convertAuthorizationToClientCredentialsJwtClass(authorization);
@@ -74,6 +82,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public void remove(OAuth2Authorization authorization) {
+        authorizationCodes.remove(authorization);
+        if (authorization.getAccessToken() == null) {
+            return;
+        }
         Jwt jwt = convertAuthorizationToJwtClass(authorization);
         redisUtil.delete(getTokenKeyPerUser(jwt.getPayload().getSub()));
         log.info("-- RedisOAuth2AuthorizationService.remove : {}", jwt);
@@ -81,6 +93,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public OAuth2Authorization findById(String userId) {
+        OAuth2Authorization pending = authorizationCodes.findById(userId);
+        if (pending != null) {
+            return pending;
+        }
         try {
             String tokenKeyPerUser = this.getTokenKeyPerUser(userId);
             log.info("-- RedisOAuth2AuthorizationService.findById : {}", tokenKeyPerUser);
@@ -111,6 +127,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public OAuth2Authorization findByToken(String refreshToken, OAuth2TokenType tokenType) {
+        OAuth2Authorization pending = authorizationCodes.findByToken(refreshToken, tokenType);
+        if (pending != null) {
+            return pending;
+        }
         try {
             log.info("-- RedisOAuth2AuthorizationService.findByToken : {} - {}", refreshToken, tokenType);
             String refreshTokenInRedis = getRefreshTokenInRedis(refreshToken);
