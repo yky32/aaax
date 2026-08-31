@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Proves seed public client aaax-pkce requires PKCE (RFC 7636) after hosted login.
-# Unauthenticated authorize redirects to /login (not a PKCE error). Token exchange is hosted-authorize-smoke.sh.
+# Proves seed public client aaax-pkce requires PKCE (RFC 7636).
+# SAS validates code_challenge before login. Unauthenticated *with* PKCE → /login.
+# Token exchange is hosted-authorize-smoke.sh.
 set -euo pipefail
 BASE="${AAAX_BASE:-http://localhost:8081}"
 CLIENT="${AAAX_PKCE_CLIENT_ID:-aaax-pkce}"
@@ -11,12 +12,19 @@ MISSING_URL="${BASE}/oauth2/authorize?response_type=code&client_id=${CLIENT}&red
 CHALLENGE="E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
 WITH_URL="${MISSING_URL}&code_challenge=${CHALLENGE}&code_challenge_method=S256"
 
-loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -H 'Accept: text/html' "$MISSING_URL")
-if ! printf '%s' "$loc" | grep -q '/login'; then
-  echo "FAIL: unauthenticated authorize without PKCE did not go to /login (Location=${loc})" >&2
+missing_unauth=$(curl -sS -o /dev/null -w '%{redirect_url}' -H 'Accept: text/html' "$MISSING_URL")
+if ! printf '%s' "$missing_unauth" | grep -qi 'code_challenge'; then
+  echo "FAIL: unauthenticated authorize without PKCE did not mention code_challenge (Location=${missing_unauth})" >&2
   exit 1
 fi
-echo "OK: unauthenticated authorize goes to /login"
+echo "OK: missing PKCE rejected before login"
+
+loc=$(curl -sS -o /dev/null -w '%{redirect_url}' -H 'Accept: text/html' "$WITH_URL")
+if ! printf '%s' "$loc" | grep -q '/login'; then
+  echo "FAIL: unauthenticated authorize with PKCE did not go to /login (Location=${loc})" >&2
+  exit 1
+fi
+echo "OK: unauthenticated authorize with PKCE goes to /login"
 
 COOKIE=$(mktemp)
 trap 'rm -f "$COOKIE"' EXIT
