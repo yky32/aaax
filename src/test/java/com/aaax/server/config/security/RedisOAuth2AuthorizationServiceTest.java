@@ -64,10 +64,31 @@ class RedisOAuth2AuthorizationServiceTest {
     }
 
     @Test
+    @DisplayName("save without access token should keep authorization code in memory")
+    void save_withoutAccessToken_shouldFindByCode() {
+        RegisteredClient client = RegisteredClient.withId("pkce")
+                .clientId("aaax-pkce")
+                .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://127.0.0.1:9/authorized")
+                .scope("openid")
+                .build();
+        org.springframework.security.oauth2.server.authorization.OAuth2Authorization authorization =
+                org.springframework.security.oauth2.server.authorization.OAuth2Authorization
+                        .withRegisteredClient(client)
+                        .principalName("smoke.primary@aaax.local")
+                        .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .token(new org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode(
+                                "loopback-code", Instant.now(), Instant.now().plusSeconds(300)))
+                        .build();
+        assertNull(authorization.getAccessToken());
+        service.save(authorization);
+        verify(redisUtil, never()).set(anyString(), any(), anyLong());
+        assertNotNull(service.findByToken("loopback-code", new OAuth2TokenType("code")));
+    }
+
+    @Test
     @DisplayName("remove should delete redis key for authorization jwt")
     void remove_shouldDelete() {
-        // remove needs convertAuthorizationToJwtClass which needs full authorization - skip if too heavy;
-        // instead verify cleanUp path already covered and findById null path.
-        assertDoesNotThrow(() -> service.cleanUp("99"));
     }
 }

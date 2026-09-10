@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -43,37 +44,67 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
     @Autowired
     private UserTokenRepository userTokenRepository;
 
+    /** Authorization codes have no access token yet — qs Redis JWT mapping cannot store them. */
+    private final OAuth2AuthorizationService authorizationCodes = new InMemoryOAuth2AuthorizationService();
+
     @Override
     public void save(OAuth2Authorization authorization) {
-        RegisteredClientMetadata registeredClientMetadata = convertAuthorizationToRegisteredClientClass(authorization);
-        if (authorization.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
-            ClientCredentialsJwt jwt = this.convertAuthorizationToClientCredentialsJwtClass(authorization);
-            redisUtil.set(this.getClientCredentialsKey(authorization.getPrincipalName()), jwt, serverTokenExpiryTime);
-        } else {
-            Jwt jwt = this.convertAuthorizationToJwtClass(authorization);
-            jwt.setRegisteredClientMetadata(registeredClientMetadata);
-            log.info("-- RedisOAuth2AuthorizationService.jwt.convertAuthorizationToJwtClass : {}", jwt);
-            String expiredRefreshToken = authorization.getAttribute("refresh-token");
-            if (expiredRefreshToken != null) {
-                this.expireRefreshToken(expiredRefreshToken, jwt);
+        if (authorization.getAccessToken() == null) {
+            authorizationCodes.save(authorization);
+            return;
+        }
+        try {
+            RegisteredClientMetadata registeredClientMetadata = convertAuthorizationToRegisteredClientClass(authorization);
+            if (authorization.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+                ClientCredentialsJwt jwt = this.convertAuthorizationToClientCredentialsJwtClass(authorization);
+                redisUtil.set(this.getClientCredentialsKey(authorization.getPrincipalName()), jwt, serverTokenExpiryTime);
+            } else {
+                if (authorization.getAccessToken().getClaims() == null) {
+                    log.warn("access token has no claims; skip Redis JWT mapping");
+                    authorizationCodes.save(authorization);
+                    return;
+                }
+                Jwt jwt = this.convertAuthorizationToJwtClass(authorization);
+                jwt.setRegisteredClientMetadata(registeredClientMetadata);
+                log.info("-- RedisOAuth2AuthorizationService.jwt.convertAuthorizationToJwtClass : {}", jwt);
+                String expiredRefreshToken = authorization.getAttribute("refresh-token");
+                if (expiredRefreshToken != null) {
+                    this.expireRefreshToken(expiredRefreshToken, jwt);
+                }
+                RegisteredClient client = registeredClientRepository.findById(registeredClientMetadata.getId());
+                if (client == null) {
+                    log.warn("registered client {} missing; skip Redis JWT mapping", registeredClientMetadata.getId());
+                    authorizationCodes.save(authorization);
+                    return;
+                }
+                this.__doTokenStorageInRedis(jwt, client.getTokenSettings());
             }
-            RegisteredClient client = registeredClientRepository.findById(registeredClientMetadata.getId());
-            assert client != null;
-            this.__doTokenStorageInRedis(jwt, client.getTokenSettings());
+        } catch (RuntimeException ex) {
+            log.warn("Redis JWT mapping failed; keeping authorization in memory: {}", ex.toString(), ex);
+            authorizationCodes.save(authorization);
         }
     }
 
     private void __doTokenStorageInRedis(Jwt jwt, TokenSettings tokenSettings) {
         redisUtil.set(this.getTokenKeyPerUser(jwt.getPayload().getSub()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
-        redisUtil.set(this.getRefreshTokenInRedis(jwt.getRefreshToken()), jwt, tokenSettings.getRefreshTokenTimeToLive().getSeconds());
+        if (jwt.getRefreshToken() != null) {
+            redisUtil.set(this.getRefreshTokenInRedis(jwt.getRefreshToken()), jwt, tokenSettings.getRefreshTokenTimeToLive().getSeconds());
+        }
         log.info("-- RedisOAuth2AuthorizationService.setWsHash : {}", jwt);
-        redisUtil.set(this.wsHash(jwt.getPayload().getMetadata().getSessionId()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
+        if (jwt.getPayload() != null && jwt.getPayload().getMetadata() != null
+                && jwt.getPayload().getMetadata().getSessionId() != null) {
+            redisUtil.set(this.wsHash(jwt.getPayload().getMetadata().getSessionId()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
+        }
         log.info("-- RedisOAuth2AuthorizationService.setWsHash end: {}", jwt);
         log.info("-- RedisOAuth2AuthorizationService.save : {}", jwt);
     }
 
     @Override
     public void remove(OAuth2Authorization authorization) {
+        authorizationCodes.remove(authorization);
+        if (authorization.getAccessToken() == null) {
+            return;
+        }
         Jwt jwt = convertAuthorizationToJwtClass(authorization);
         redisUtil.delete(getTokenKeyPerUser(jwt.getPayload().getSub()));
         log.info("-- RedisOAuth2AuthorizationService.remove : {}", jwt);
@@ -81,6 +112,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public OAuth2Authorization findById(String userId) {
+        OAuth2Authorization pending = authorizationCodes.findById(userId);
+        if (pending != null) {
+            return pending;
+        }
         try {
             String tokenKeyPerUser = this.getTokenKeyPerUser(userId);
             log.info("-- RedisOAuth2AuthorizationService.findById : {}", tokenKeyPerUser);
@@ -111,6 +146,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public OAuth2Authorization findByToken(String refreshToken, OAuth2TokenType tokenType) {
+        OAuth2Authorization pending = authorizationCodes.findByToken(refreshToken, tokenType);
+        if (pending != null) {
+            return pending;
+        }
         try {
             log.info("-- RedisOAuth2AuthorizationService.findByToken : {} - {}", refreshToken, tokenType);
             String refreshTokenInRedis = getRefreshTokenInRedis(refreshToken);
@@ -135,23 +174,27 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
         JwtPayload jwtPayload = JSONUtil.convertValue(Objects.requireNonNull(accessToken.getClaims()), JwtPayload.class); //__ jwt payload in jwt.io
         RegisteredClientMetadata client = RegisteredClientMetadata.builder()
-                .id(authorization.getId())
+                .id(authorization.getRegisteredClientId())
                 .build();
-        return Jwt.builder()
+        var jwtBuilder = Jwt.builder()
                 .accessToken(Objects.requireNonNull(accessToken.getToken().getTokenValue()))
                 .accessTokenIssuedAt(accessToken.getToken().getIssuedAt())
                 .accessTokenExpiresAt(accessToken.getToken().getExpiresAt())
-                .refreshToken(Objects.requireNonNull(refreshToken.getToken().getTokenValue()))
-                .refreshTokenIssuedAt(refreshToken.getToken().getIssuedAt())
-                .refreshTokenExpiresAt(refreshToken.getToken().getExpiresAt())
                 .principalName(Objects.requireNonNull(authorization.getPrincipalName()))
-                .idToken(Objects.requireNonNull(token).getToken().getTokenValue())
                 .payload(jwtPayload)
                 .authorizationGrantType(authorization.getAuthorizationGrantType().getValue())
                 .scopes(authorization.getAuthorizedScopes())
                 .expiresIn(Objects.requireNonNull(authorization.getAccessToken().getToken().getExpiresAt()).getEpochSecond())
-                .registeredClientMetadata(client)
-                .build();
+                .registeredClientMetadata(client);
+        if (refreshToken != null && refreshToken.getToken() != null) {
+            jwtBuilder.refreshToken(refreshToken.getToken().getTokenValue())
+                    .refreshTokenIssuedAt(refreshToken.getToken().getIssuedAt())
+                    .refreshTokenExpiresAt(refreshToken.getToken().getExpiresAt());
+        }
+        if (token != null && token.getToken() != null) {
+            jwtBuilder.idToken(token.getToken().getTokenValue());
+        }
+        return jwtBuilder.build();
     }
 
     private ClientCredentialsJwt convertAuthorizationToClientCredentialsJwtClass(OAuth2Authorization authorization) {
