@@ -2,6 +2,12 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### OSS claims (PR B)
+- `docs/mcp-auth-index.md`: AS-behind-MCP only; drop `aaax-spa`, Event Bus, `v0.7.0`, booklet §14/§15 links
+- `CONTRIBUTING.md`: booklet §3 / §8 anchors; real first issues; no IdentityEvent catalog or `/sign-in` UI
+- Booklet §8: swagger-ui and actuator are public on the resource chain — gate in production
+- GitHub description/topics aligned with booklet §2 (no Event Bus / MCP product claims)
+
 ### Wave 9
 - Loopback PKCE: SAS allows any port on seed `127.0.0.1` / `[::1]` redirect hosts (RFC 8252 §7.3). Not claimed HTTPS
 - `scripts/hosted-authorize-smoke.sh` exchanges `authorization_code` + RFC 7636 appendix `code_verifier` as public client `aaax-pkce`

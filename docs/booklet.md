@@ -9,7 +9,7 @@
 | **Version** | `0.9.0-SNAPSHOT` on `main` |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
-| **Updated** | 2026-08-28 |
+| **Updated** | 2026-09-10 |
 
 > Root `README.md` = shop window (five-minute local).  
 > Other files under `docs/` are stubs that point here.
@@ -154,6 +154,7 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 - CORS: `AAAX_CORS_ORIGINS` (default `http://localhost:*` and `http://127.0.0.1:*`). Wildcard `*` turns credentials off.
 - Passwords: default pattern `.{8,}` (`aaax.security.password-patterns`). Failed logins lock after `aaax.security.max-login-attempts` (5).
 - Private encryption key is **not** exposed over HTTP.
+- **Swagger UI** (`/swagger-ui/**`) and **Actuator** (`/actuator/**`) are **permitAll** on the resource chain for local dev. Gate or disable them in production deployments.
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
 
 ---

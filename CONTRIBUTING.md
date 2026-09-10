@@ -7,12 +7,13 @@ Thanks for interest. AAAX is a small Spring Boot OIDC product — **structure an
 - JDK **21+**, Maven **3.9+**
 - `mvn test` must pass
 - No private Maven deps (`com.quinsic`, `app-core` banned by enforcer)
+- Runtime smoke (optional): `./scripts/quickstart-smoke.sh` with seed on — see README
 
 ## Read first
 
 1. **[docs/booklet.md](./docs/booklet.md)** — single product/eng SoT  
-2. **[§7 Architecture](./docs/booklet.md#7-architecture)** — **layer-first** layout + PO/DTO rules  
-3. **[§8 Code map](./docs/booklet.md#8-code-map-clone-tour)** — where to start reading  
+2. **[§3 Layout](./docs/booklet.md#3-layout)** — package tree + layering  
+3. **[§8 Security posture](./docs/booklet.md#8-security-posture)** — CSRF split, JWK, public routes  
 
 ## Layout (do not invent a parallel tree)
 
@@ -33,26 +34,29 @@ core/                         → AuditEntity · BaseResponseDto · BizException
 3. PO: bare `@Entity` / `@Column` (**no `name=`**) · extend `AuditEntity` / `AuditEntityWithIsActive`
 4. DTO: **one type per file** · suffix `RequestDto` / `ResponseDto` · **no bag classes**
 5. Non-JPA types → `entity/model`, never `entity/po`
-6. Identity events: `IdentityEvent.Types` + catalog v1.0 (additive OK; renames need catalog bump)
-7. Behavior change → update **`docs/booklet.md`** (+ `CHANGELOG.md`)
-8. Do not commit secrets
+6. Behavior change → update **`docs/booklet.md`** (+ `CHANGELOG.md`)
+7. Do not commit secrets
+8. Do not claim features absent from booklet §2 (no Event Bus catalog, no `/v1`, no MCP PRM on this jar)
 
 ## PR / push
 
 Solo maintainer may push `main` directly. External contributors: open a PR against `main` with:
 
 - What / why  
-- Test plan (`mvn test` + curl if API)  
+- Test plan (`mvn test` + smoke scripts if OAuth/HTTP changed)  
 - Docs touch when surface changes  
+- **Do not merge** if CI `build` is red
 
 ## Good first issues
 
-Label ideas (open issues on the repo):
+Real starter tasks (file issues on the repo if missing):
 
-1. **docs:** more curl recipes under `examples/curl/`  
-2. **admin:** Events UI filter by `type` / `catalogVersion`  
-3. **dx:** SSO login page — `/oauth2/authorize` unauthenticated → `/sign-in/` then resume  
-4. **example:** minimal webhook consumer README with HMAC verify snippet  
+1. **docs:** more curl recipes under `examples/curl/` (register, OTP, PKCE, token)  
+2. **docs:** production note for swagger-ui / actuator exposure (see booklet §8)  
+3. **dx:** improve hosted `/login` styling or saved-request resume docs  
+4. **test:** extend smoke coverage for refresh_token grant  
+
+**Not in this tree:** hosted `/admin`, `/sign-in` product UI, events catalog HTTP, Identity Event Bus product surface.
 
 ## Security
 
