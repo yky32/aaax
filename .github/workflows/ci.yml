@@ -87,6 +87,13 @@ jobs:
               curl -sf http://localhost:8081/oauth2/jwks | grep -q '"keys"' && echo 'OK: JWKS'
               curl -sf http://localhost:8081/.well-known/openid-configuration | grep -q '"issuer"' \
                 && echo 'OK: OIDC discovery' || { echo 'FAIL: OIDC discovery'; tail -n 80 /tmp/aaax.log; exit 1; }
+              for j in $(seq 1 30); do
+                if grep -qE 'local seed: (inserted OAuth client aaax-pkce|OAuth client aaax-pkce already present)' /tmp/aaax.log; then
+                  echo 'OK: local seed'
+                  break
+                fi
+                sleep 1
+              done
               chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh
               scripts/pkce-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
               scripts/hosted-authorize-smoke.sh || { echo '--- aaax.log (errors) ---'; grep -E 'ERROR |WARN com.aaax|Exception' /tmp/aaax.log | tail -n 50; echo '--- aaax.log (tail) ---'; tail -n 40 /tmp/aaax.log; exit 1; }
