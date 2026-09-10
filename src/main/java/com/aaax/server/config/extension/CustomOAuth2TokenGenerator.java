@@ -2,8 +2,10 @@ package com.aaax.server.config.extension;
 
 import com.aaax.core.utils.RandomHashGenerator;
 import com.aaax.server.config.security.jwt.JwtMetadata;
+import com.aaax.server.entity.po.user.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -90,9 +92,26 @@ public class CustomOAuth2TokenGenerator implements OAuth2TokenGenerator {
             // add subject as client UUID
             claimsBuilder.subject(registeredClient.getId());
         } else {
-            String userId = Objects.requireNonNull(context.get("userId")).toString();
-            String identifier = Objects.requireNonNull(context.get("identifier")).toString();
-            // REMINDER: this is to include JWT content___________________
+            String userId;
+            String identifier;
+            Object contextUserId = context.get("userId");
+            Object contextIdentifier = context.get("identifier");
+            if (contextUserId != null && contextIdentifier != null) {
+                userId = contextUserId.toString();
+                identifier = contextIdentifier.toString();
+            } else {
+                Authentication principal = context.getPrincipal();
+                Object details = principal != null ? principal.getPrincipal() : null;
+                if (details instanceof UserPrincipal user) {
+                    userId = String.valueOf(user.getId());
+                    identifier = user.getUsername();
+                } else if (principal != null && principal.getName() != null) {
+                    userId = principal.getName();
+                    identifier = principal.getName();
+                } else {
+                    throw new IllegalStateException("token context has no userId/identifier (authorization_code needs a UserPrincipal login)");
+                }
+            }
             JwtMetadata jwtMetadata = JwtMetadata.builder()
                     .identifier(identifier)
                     .sessionId(sessionId())

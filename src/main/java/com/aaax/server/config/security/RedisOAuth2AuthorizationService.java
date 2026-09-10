@@ -73,9 +73,14 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     private void __doTokenStorageInRedis(Jwt jwt, TokenSettings tokenSettings) {
         redisUtil.set(this.getTokenKeyPerUser(jwt.getPayload().getSub()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
-        redisUtil.set(this.getRefreshTokenInRedis(jwt.getRefreshToken()), jwt, tokenSettings.getRefreshTokenTimeToLive().getSeconds());
+        if (jwt.getRefreshToken() != null) {
+            redisUtil.set(this.getRefreshTokenInRedis(jwt.getRefreshToken()), jwt, tokenSettings.getRefreshTokenTimeToLive().getSeconds());
+        }
         log.info("-- RedisOAuth2AuthorizationService.setWsHash : {}", jwt);
-        redisUtil.set(this.wsHash(jwt.getPayload().getMetadata().getSessionId()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
+        if (jwt.getPayload() != null && jwt.getPayload().getMetadata() != null
+                && jwt.getPayload().getMetadata().getSessionId() != null) {
+            redisUtil.set(this.wsHash(jwt.getPayload().getMetadata().getSessionId()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
+        }
         log.info("-- RedisOAuth2AuthorizationService.setWsHash end: {}", jwt);
         log.info("-- RedisOAuth2AuthorizationService.save : {}", jwt);
     }
@@ -155,23 +160,27 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
         JwtPayload jwtPayload = JSONUtil.convertValue(Objects.requireNonNull(accessToken.getClaims()), JwtPayload.class); //__ jwt payload in jwt.io
         RegisteredClientMetadata client = RegisteredClientMetadata.builder()
-                .id(authorization.getId())
+                .id(authorization.getRegisteredClientId())
                 .build();
-        return Jwt.builder()
+        var jwtBuilder = Jwt.builder()
                 .accessToken(Objects.requireNonNull(accessToken.getToken().getTokenValue()))
                 .accessTokenIssuedAt(accessToken.getToken().getIssuedAt())
                 .accessTokenExpiresAt(accessToken.getToken().getExpiresAt())
-                .refreshToken(Objects.requireNonNull(refreshToken.getToken().getTokenValue()))
-                .refreshTokenIssuedAt(refreshToken.getToken().getIssuedAt())
-                .refreshTokenExpiresAt(refreshToken.getToken().getExpiresAt())
                 .principalName(Objects.requireNonNull(authorization.getPrincipalName()))
-                .idToken(Objects.requireNonNull(token).getToken().getTokenValue())
                 .payload(jwtPayload)
                 .authorizationGrantType(authorization.getAuthorizationGrantType().getValue())
                 .scopes(authorization.getAuthorizedScopes())
                 .expiresIn(Objects.requireNonNull(authorization.getAccessToken().getToken().getExpiresAt()).getEpochSecond())
-                .registeredClientMetadata(client)
-                .build();
+                .registeredClientMetadata(client);
+        if (refreshToken != null && refreshToken.getToken() != null) {
+            jwtBuilder.refreshToken(refreshToken.getToken().getTokenValue())
+                    .refreshTokenIssuedAt(refreshToken.getToken().getIssuedAt())
+                    .refreshTokenExpiresAt(refreshToken.getToken().getExpiresAt());
+        }
+        if (token != null && token.getToken() != null) {
+            jwtBuilder.idToken(token.getToken().getTokenValue());
+        }
+        return jwtBuilder.build();
     }
 
     private ClientCredentialsJwt convertAuthorizationToClientCredentialsJwtClass(OAuth2Authorization authorization) {

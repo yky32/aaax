@@ -112,7 +112,6 @@ public class AuthenticationServerConfig {
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServer = new OAuth2AuthorizationServerConfigurer();
         http.securityMatcher("/oauth2/**", "/.well-known/**")
-                .csrf(AbstractHttpConfigurer::disable)
                 .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
@@ -172,6 +171,8 @@ public class AuthenticationServerConfig {
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                 )
         );
+        // SAS .with() re-enables CSRF ignored only for getEndpointsMatcher(); this matcher is /oauth2/**
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
