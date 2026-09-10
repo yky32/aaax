@@ -112,9 +112,10 @@ public class AuthenticationServerConfig {
     public SecurityFilterChain authorizationServerFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServer = new OAuth2AuthorizationServerConfigurer();
         http.securityMatcher("/oauth2/**", "/.well-known/**")
+                .csrf(AbstractHttpConfigurer::disable)
                 .with(authorizationServer, as -> as.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/.well-known/**", "/oauth2/jwks", "/oauth2/token").permitAll()
+                        .requestMatchers("/.well-known/**", "/oauth2/jwks").permitAll()
                         .anyRequest().authenticated());
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
@@ -209,10 +210,11 @@ public class AuthenticationServerConfig {
     @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
-        http.csrf(AbstractHttpConfigurer::disable); // API-only. Login CSRF is on hostedLoginFilterChain.
+        http.csrf(AbstractHttpConfigurer::disable); // API-only. Login CSRF is on hostedLoginFilterChain. Token POST is on the AS chain (also CSRF-off).
 
         http.authorizeHttpRequests(az -> az
                         .requestMatchers(byPassUris).permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/ext/users").permitAll() // # for register-user external no-otp
 
                         // # for forgot-password
