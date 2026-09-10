@@ -89,7 +89,7 @@ jobs:
                 && echo 'OK: OIDC discovery' || { echo 'FAIL: OIDC discovery'; tail -n 80 /tmp/aaax.log; exit 1; }
               chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh
               scripts/pkce-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
-              scripts/hosted-authorize-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
+              scripts/hosted-authorize-smoke.sh || { echo '--- aaax.log (errors) ---'; grep -E 'ERROR |WARN com.aaax|Exception' /tmp/aaax.log | tail -n 50; echo '--- aaax.log (tail) ---'; tail -n 40 /tmp/aaax.log; exit 1; }
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi

@@ -53,21 +53,35 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
             authorizationCodes.save(authorization);
             return;
         }
-        RegisteredClientMetadata registeredClientMetadata = convertAuthorizationToRegisteredClientClass(authorization);
-        if (authorization.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
-            ClientCredentialsJwt jwt = this.convertAuthorizationToClientCredentialsJwtClass(authorization);
-            redisUtil.set(this.getClientCredentialsKey(authorization.getPrincipalName()), jwt, serverTokenExpiryTime);
-        } else {
-            Jwt jwt = this.convertAuthorizationToJwtClass(authorization);
-            jwt.setRegisteredClientMetadata(registeredClientMetadata);
-            log.info("-- RedisOAuth2AuthorizationService.jwt.convertAuthorizationToJwtClass : {}", jwt);
-            String expiredRefreshToken = authorization.getAttribute("refresh-token");
-            if (expiredRefreshToken != null) {
-                this.expireRefreshToken(expiredRefreshToken, jwt);
+        try {
+            RegisteredClientMetadata registeredClientMetadata = convertAuthorizationToRegisteredClientClass(authorization);
+            if (authorization.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+                ClientCredentialsJwt jwt = this.convertAuthorizationToClientCredentialsJwtClass(authorization);
+                redisUtil.set(this.getClientCredentialsKey(authorization.getPrincipalName()), jwt, serverTokenExpiryTime);
+            } else {
+                if (authorization.getAccessToken().getClaims() == null) {
+                    log.warn("access token has no claims; skip Redis JWT mapping");
+                    authorizationCodes.save(authorization);
+                    return;
+                }
+                Jwt jwt = this.convertAuthorizationToJwtClass(authorization);
+                jwt.setRegisteredClientMetadata(registeredClientMetadata);
+                log.info("-- RedisOAuth2AuthorizationService.jwt.convertAuthorizationToJwtClass : {}", jwt);
+                String expiredRefreshToken = authorization.getAttribute("refresh-token");
+                if (expiredRefreshToken != null) {
+                    this.expireRefreshToken(expiredRefreshToken, jwt);
+                }
+                RegisteredClient client = registeredClientRepository.findById(registeredClientMetadata.getId());
+                if (client == null) {
+                    log.warn("registered client {} missing; skip Redis JWT mapping", registeredClientMetadata.getId());
+                    authorizationCodes.save(authorization);
+                    return;
+                }
+                this.__doTokenStorageInRedis(jwt, client.getTokenSettings());
             }
-            RegisteredClient client = registeredClientRepository.findById(registeredClientMetadata.getId());
-            assert client != null;
-            this.__doTokenStorageInRedis(jwt, client.getTokenSettings());
+        } catch (RuntimeException ex) {
+            log.warn("Redis JWT mapping failed; keeping authorization in memory: {}", ex.toString(), ex);
+            authorizationCodes.save(authorization);
         }
     }
 

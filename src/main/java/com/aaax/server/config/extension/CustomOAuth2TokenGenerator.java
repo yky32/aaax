@@ -102,6 +102,9 @@ public class CustomOAuth2TokenGenerator implements OAuth2TokenGenerator {
             } else {
                 Authentication principal = context.getPrincipal();
                 Object details = principal != null ? principal.getPrincipal() : null;
+                if (details instanceof Authentication nested) {
+                    details = nested.getPrincipal();
+                }
                 if (details instanceof UserPrincipal user) {
                     userId = String.valueOf(user.getId());
                     identifier = user.getUsername();
@@ -133,12 +136,15 @@ public class CustomOAuth2TokenGenerator implements OAuth2TokenGenerator {
 
         } else if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
             claimsBuilder.claim(IdTokenClaimNames.AZP, registeredClient.getClientId());
-            if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(context.getAuthorizationGrantType())) {
+            if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(context.getAuthorizationGrantType())
+                    && context.getAuthorization() != null) {
                 OAuth2AuthorizationRequest authorizationRequest = context.getAuthorization().getAttribute(
                         OAuth2AuthorizationRequest.class.getName());
-                String nonce = (String) authorizationRequest.getAdditionalParameters().get(OidcParameterNames.NONCE);
-                if (StringUtils.hasText(nonce)) {
-                    claimsBuilder.claim(IdTokenClaimNames.NONCE, nonce);
+                if (authorizationRequest != null && authorizationRequest.getAdditionalParameters() != null) {
+                    String nonce = (String) authorizationRequest.getAdditionalParameters().get(OidcParameterNames.NONCE);
+                    if (StringUtils.hasText(nonce)) {
+                        claimsBuilder.claim(IdTokenClaimNames.NONCE, nonce);
+                    }
                 }
             }
             SessionInformation sessionInformation = context.get(SessionInformation.class);
