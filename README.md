@@ -110,6 +110,39 @@ More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/cu
 
 ---
 
+## Use as an OAuth 2.0 authorization server
+
+AAAX is a **Spring Authorization Server** plus qs/uaa user APIs. Point a resource server at this issuer. It is **not** Keycloak, Authentik, or Clerk.
+
+| | |
+|--|--|
+| Issuer | `http://localhost:8081` (`AS_ISSUER`) |
+| RFC 8414 | `GET /.well-known/oauth-authorization-server` |
+| OIDC discovery | `GET /.well-known/openid-configuration` |
+| JWKS | `GET /oauth2/jwks` |
+| Token | `POST /oauth2/token` — RFC 6749 JSON (`access_token`) |
+| Authorize | `GET /oauth2/authorize` → hosted `/login` |
+| User API | `/users/me` still uses the `R` / `Result` envelope (not RFC token JSON) |
+
+**Confidential (first-party / machine):** seed client `client` / `secret`. Password grant field is **`credentials`**, not `password`.
+
+```bash
+curl -sS -u client:secret -X POST http://localhost:8081/oauth2/token \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -d 'grant_type=custom-password-grant' \
+  -d 'username=smoke.primary@aaax.local' \
+  -d 'credentials=SmokePrimary!1'
+# → {"access_token":"…","token_type":"Bearer",…}
+```
+
+**Public (SPA / native loopback):** seed client `aaax-pkce` (`none`, `requireProofKey=true`). SAS checks `code_challenge` **before** login. Missing PKCE → `invalid_request`, not `/login`. Token POST is public (no Basic, no CSRF cookie). Script: `./scripts/hosted-authorize-smoke.sh`.
+
+**Resource server:** validate JWT against this JWKS. Do not treat `/users/**` as OIDC UserInfo.
+
+**Local only:** unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (tokens die on restart). Seed credentials are not for production. Loopback any-port on `127.0.0.1` / `[::1]` is RFC 8252 §7.3 — **not** claimed HTTPS.
+
+---
+
 ## Layout
 
 | Package | Role |

@@ -2,6 +2,9 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Docs
+- README: how to use AAAX as an OAuth 2.0 authorization server (discovery, password grant, PKCE, JWKS). Not Keycloak/Clerk.
+
 ### Wave 9
 - Loopback PKCE: SAS allows any port on seed `127.0.0.1` / `[::1]` redirect hosts (RFC 8252 §7.3). Not claimed HTTPS
 - `scripts/hosted-authorize-smoke.sh` exchanges `authorization_code` + RFC 7636 appendix `code_verifier` as public client `aaax-pkce`
