@@ -61,3 +61,7 @@ Real starter tasks (file issues on the repo if missing):
 ## Security
 
 Report vulnerabilities via [GitHub Security Advisories](https://github.com/yky32/aaax/security) — do not open public issues for secrets/vulns.
+
+## Code of conduct
+
+See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).

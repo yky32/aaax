@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### OSS hygiene
+- GitHub: issue templates (bug + enhancement), PR template, Dependabot (Actions + Maven)
+- `pom.xml`: `url`, `scm`, Apache-2.0 `licenses` (Central-shaped metadata)
+- `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1)
+
 ### OSS claims
 - `docs/mcp-auth-index.md`: AS-behind-MCP only; drop `aaax-spa`, Event Bus, `v0.7.0`, booklet §14/§15 links
 - `CONTRIBUTING.md`: booklet §3 / §8 anchors; real first issues; no IdentityEvent catalog or `/sign-in` UI
