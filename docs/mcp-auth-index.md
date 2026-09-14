@@ -1,32 +1,32 @@
 # MCP Auth Index
 
-**Traffic / discovery page for Model Context Protocol authentication.**  
-AAAX is a **self-host OIDC Authorization Server** you can put *behind* MCP resource servers — not an MCP tool host itself.
+**Discovery page for people wiring Model Context Protocol OAuth.**  
+AAAX is a **self-host OIDC Authorization Server** you can put *behind* MCP resource servers — not an MCP tool host, not an MCP gateway, and **not** RFC 9728 Protected Resource Metadata on this jar.
 
 | | |
 |--|--|
 | **Product** | [yky32/aaax](https://github.com/yky32/aaax) |
 | **Site** | https://aaax-www.vercel.app/ |
 | **This index** | https://github.com/yky32/aaax/blob/main/docs/mcp-auth-index.md |
-| **Landing mirror** | https://aaax-www.vercel.app/mcp-auth |
+| **Eng SoT** | [booklet.md](./booklet.md) (code wins if it drifts) |
 
 ---
 
 ## Why this page exists
 
-People search: `mcp auth`, `mcp oauth`, `mcp oidc`, `keycloak mcp`, `self-host mcp authorization server`.
+People search: `mcp auth`, `mcp oauth`, `mcp oidc`, `self-host mcp authorization server`.
 
 MCP remote servers are **OAuth Resource Servers**. Clients discover an **Authorization Server**, run OAuth 2.1 (+ PKCE), then call tools with a Bearer token.
 
-AAAX already ships:
+**What AAAX ships today** (see [booklet §2](./booklet.md#2-honest-status-09)):
 
 - OIDC discovery + JWKS  
-- Auth code + **PKCE** (public SPA client `aaax-spa`)  
-- Confidential clients  
-- Layer-first Spring Boot 4 / JDK 21  
-- Identity Event Bus (login/lifecycle → your Kafka/webhook)
+- Auth code + **PKCE** (local seed public client `aaax-pkce`; not production-ready as-is)  
+- Confidential clients + `custom-password-grant` for API login  
+- Hosted `/login` for browser authorize  
+- Spring Boot **4.1.1** / Java **21**
 
-**Gap (honest):** AAAX does **not** yet ship first-class MCP Protected Resource Metadata (RFC 9728) wiring or an MCP gateway. Use AAAX as the **IdP / AS**; put PRM on your MCP HTTP surface (or gateway).
+**Not shipped:** MCP Protected Resource Metadata (RFC 9728) on AAAX, an MCP gateway, an events catalog HTTP API, or Kafka as a required dependency (`AAAX_KAFKA_ENABLED` defaults **off**).
 
 ---
 
@@ -38,12 +38,6 @@ AAAX already ships:
 | [MCP Authorization tutorial](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/authorization) | Practical OAuth 2.1 flow |
 | [Auth0: MCP auth June 2025](https://auth0.com/blog/mcp-specs-update-all-about-auth/) | MCP as OAuth RS + resource indicators |
 | [Aaron Parecki: OAuth for MCP](https://aaronparecki.com/2025/04/03/15/oauth-for-model-context-protocol) | Why AS ≠ MCP server |
-| [Descope: MCP auth spec](https://www.descope.com/blog/post/mcp-auth-spec) | PRM + ASM overview |
-| [WorkOS: MCP auth providers](https://workos.com/blog/best-mcp-server-authentication-providers) | Vendor landscape (incl. Keycloak) |
-
-### Keywords this index targets
-
-`mcp oauth` · `mcp oidc` · `mcp authorization server` · `mcp protected resource metadata` · `rfc9728 mcp` · `self-host mcp idp` · `spring boot mcp auth` · `oidc for mcp servers`
 
 ---
 
@@ -65,13 +59,12 @@ tools / resources
 
 ### Minimal wiring checklist
 
-1. Run AAAX (`v0.7.0+`): issuer = public URL of AAAX.  
-2. Register an OAuth client (admin UI or seed) — prefer **public + PKCE** for desktop agents when possible; confidential for gateways.  
-3. On the **MCP HTTP host**, publish Protected Resource Metadata pointing `authorization_servers` at AAAX issuer.  
-4. Validate access tokens against AAAX JWKS (`{issuer}/oauth2/jwks`).  
-5. Optional: subscribe to AAAX Identity Event Bus for login/audit side effects (not required for MCP).
+1. Run AAAX on `main` (`0.9.0-SNAPSHOT`): issuer = public URL of AAAX (`AS_ISSUER`).  
+2. Register an OAuth client (JDBC / seed for local only) — **public + PKCE** for desktop agents when possible; confidential for gateways.  
+3. On the **MCP HTTP host**, publish Protected Resource Metadata pointing `authorization_servers` at AAAX issuer (AAAX does not publish PRM for your MCP surface).  
+4. Validate access tokens against AAAX JWKS (`{issuer}/oauth2/jwks`).
 
-See product docs: [booklet §14 OAuth2/OIDC](./booklet.md#14-oauth2--oidc) · [§15 Event Bus](./booklet.md#15-identity-event-bus).
+Product docs: [booklet §4 HTTP](./booklet.md#4-http) · [§5 Grants](./booklet.md#5-grants) · [README](../README.md) five-minute local.
 
 ---
 
@@ -79,23 +72,25 @@ See product docs: [booklet §14 OAuth2/OIDC](./booklet.md#14-oauth2--oidc) · [�
 
 | Piece | Role vs AAAX |
 |-------|----------------|
-| **Keycloak** | Full IdP + realms; heavier. AAAX = lean Spring AS + events. |
+| **Keycloak** | Full IdP + realms; heavier. AAAX = lean Spring AS jar. |
 | **Auth0 / WorkOS / Descope** | Hosted AS / enterprise IdP. AAAX = you run the jar. |
-| **MCP gateways** (e.g. community gateways) | Terminate OAuth once, mint short-lived tool tokens. AAAX can be the upstream IdP. |
-| **Keycloak MCP *management* servers** | NL admin of Keycloak — different problem (manage IdP, not *be* AS for tools). |
+| **MCP gateways** | Terminate OAuth once, mint short-lived tool tokens. AAAX can be the upstream IdP. |
 
 ---
 
-## Clone AAAX
+## Clone AAAX (local)
 
 ```bash
 git clone https://github.com/yky32/aaax.git && cd aaax
-git checkout v0.7.0
-mvn test && mvn spring-boot:run
+docker compose up -d
+cp .env.example .env && set -a && source .env && set +a
+mvn -Dmaven.test.skip=true package
+java -jar target/aaax-0.9.0-SNAPSHOT.jar
 # issuer default http://localhost:8081
+./scripts/quickstart-smoke.sh
 ```
 
-Site: https://aaax-www.vercel.app/ · Issues/PRs welcome on MCP PRM / audience examples.
+Site: https://aaax-www.vercel.app/ · Issues/PRs welcome on honest docs and MCP wiring examples (PRM on *your* MCP host).
 
 ---
 
@@ -103,6 +98,7 @@ Site: https://aaax-www.vercel.app/ · Issues/PRs welcome on MCP PRM / audience e
 
 | Date | Note |
 |------|------|
+| 2026-09-10 | Align with booklet §2 — drop Event Bus, aaax-spa, v0.7, fake booklet §14/§15 |
 | 2026-08-24 | First publish — discovery + AS pattern, honest gap list |
 
 Apache-2.0 · Maintained with AAAX · Not affiliated with Anthropic / MCP org.

@@ -2,6 +2,12 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### OSS claims
+- `docs/mcp-auth-index.md`: AS-behind-MCP only; drop `aaax-spa`, Event Bus, `v0.7.0`, booklet §14/§15 links
+- `CONTRIBUTING.md`: booklet §3 / §8 anchors; real first issues; no IdentityEvent catalog or `/sign-in` UI
+- Booklet §8: swagger-ui and actuator are public on the resource chain — gate in production
+- GitHub description/topics aligned with booklet §2 (no Event Bus / MCP product claims)
+
 ### Docs
 - README: how to use AAAX as an OAuth 2.0 authorization server (discovery, password grant, PKCE, JWKS). Not Keycloak/Clerk.
 
