@@ -86,6 +86,8 @@ There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-
 
 Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events catalog endpoint.
 
+**Use as an AS:** README section *Use as an OAuth 2.0 authorization server*. Two token paths — confidential `custom-password-grant` (`client`/`secret`) and public PKCE (`aaax-pkce`). Resource servers consume JWKS; `/users/me` is still `R`.
+
 ---
 
 ## 5. Grants
