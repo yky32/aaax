@@ -141,6 +141,11 @@ curl -sS -u client:secret -X POST http://localhost:8081/oauth2/token \
 
 **Local only:** unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (tokens die on restart). Seed credentials are not for production. Loopback any-port on `127.0.0.1` / `[::1]` is RFC 8252 §7.3 — **not** claimed HTTPS.
 
+### Production
+
+- Set **`AAAX_JWK_KEYSTORE`** (+ password + alias) and **`AAAX_ENCRYPTION_KEYSTORE`**. Turn **`AAAX_LOCAL_SEED=false`**.
+- **`/swagger-ui/**`**, **`/v3/api-docs/**`**, and **`/actuator/**`** are **unauthenticated** on the API chain (local-dev convenience). Gate them at your reverse proxy, disable springdoc, and restrict Actuator exposure — see **`docs/booklet.md` §8.1**. There is no built-in admin UI.
+
 ---
 
 ## Layout

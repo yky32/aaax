@@ -156,8 +156,46 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 - CORS: `AAAX_CORS_ORIGINS` (default `http://localhost:*` and `http://127.0.0.1:*`). Wildcard `*` turns credentials off.
 - Passwords: default pattern `.{8,}` (`aaax.security.password-patterns`). Failed logins lock after `aaax.security.max-login-attempts` (5).
 - Private encryption key is **not** exposed over HTTP.
-- **Swagger UI** (`/swagger-ui/**`) and **Actuator** (`/actuator/**`) are **permitAll** on the resource chain for local dev. Gate or disable them in production deployments.
+- **Swagger UI** (`/swagger-ui/**`) and **Actuator** (`/actuator/**`) are **permitAll** on the resource chain for local dev. Gate or disable them in production deployments (see below).
 - Report vulns via GitHub Security Advisories (`SECURITY.md`).
+
+### 8.1 Swagger UI and Actuator in production
+
+**What is public today (no JWT):**
+
+| Path | Source | Notes |
+|------|--------|-------|
+| `/swagger-ui/**` | springdoc OpenAPI UI | Interactive API browser |
+| `/v3/api-docs/**` | springdoc | OpenAPI JSON |
+| `/actuator/**` | Spring Boot Actuator | Web exposure follows Boot defaults (typically **`health` only** unless you widen `management.endpoints.web.exposure.include`) |
+
+These sit on the **resource** security chain (`AuthenticationServerConfig.byPassUris`) — same as register/OTP routes. There is **no** built-in admin console for users, clients, or RBAC.
+
+**Recommended for production (pick one or combine):**
+
+1. **Reverse proxy / ingress** — deny or IP-restrict `/swagger-ui`, `/v3/api-docs`, and `/actuator` on the public listener. Allow `/actuator/health` only on an internal network or dedicated probe port if your platform needs it.
+2. **Disable springdoc** — e.g. profile or env:
+   ```yaml
+   springdoc:
+     api-docs:
+       enabled: false
+     swagger-ui:
+       enabled: false
+   ```
+3. **Tighten Actuator** — e.g. expose only what you need:
+   ```yaml
+   management:
+     endpoints:
+       web:
+         exposure:
+           include: health
+     endpoint:
+       health:
+         show-details: never
+   ```
+   For stricter isolation, bind management to another port (`management.server.port`) and firewall it; AAAX does not ship a separate management profile — operators add one.
+
+**Not in scope:** a first-party “ops UI” in this jar. Production operators gate docs/metrics themselves or run AAAX on a private network.
 
 ---
 

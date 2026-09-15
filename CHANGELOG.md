@@ -19,6 +19,7 @@
 - GitHub description/topics aligned with booklet §2 (no Event Bus / MCP product claims)
 
 ### Docs
+- Booklet §8.1 + README production note: swagger-ui / actuator exposure and gating (no built-in admin UI)
 - `examples/curl/`: refresh-token script; PKCE authorize + token pointers in README
 - README: how to use AAAX as an OAuth 2.0 authorization server (discovery, password grant, PKCE, JWKS). Not Keycloak/Clerk.
 
