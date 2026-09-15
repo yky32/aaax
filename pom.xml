@@ -13,7 +13,7 @@
 
   <groupId>com.aaax</groupId>
   <artifactId>aaax</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>aaax</name>
   <description>AAAX — self-host OpenID Connect authentication server (com.aaax.core + com.aaax.server)</description>

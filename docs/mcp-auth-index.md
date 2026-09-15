@@ -85,7 +85,7 @@ git clone https://github.com/yky32/aaax.git && cd aaax
 docker compose up -d
 cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
-java -jar target/aaax-0.9.0.jar
+java -jar target/aaax-0.9.1-SNAPSHOT.jar
 # issuer default http://localhost:8081
 ./scripts/quickstart-smoke.sh
 ```
