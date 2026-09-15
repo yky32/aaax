@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Authorization — AAAX</title>
+  <link rel="stylesheet" th:href="@{/css/aaax-hosted.css}"/>
+</head>
+<body>
+<main class="card">
+  <p class="brand">AAAX</p>
+  <p class="tagline">Accounts · Authentication · Authorization · eXperiences</p>
+
+  <div th:if="${error != null and !#strings.isEmpty(error)}">
+    <h1>Authorization failed</h1>
+    <div class="alert alert-error" role="alert">
+      <strong th:text="${error}">error</strong>
+      <span th:if="${errorDescription != null and !#strings.isEmpty(errorDescription)}">
+        — <span th:text="${errorDescription}">description</span>
+      </span>
+    </div>
+    <p class="lead">Return to your app and retry <code>/oauth2/authorize</code> with PKCE.</p>
+  </div>
+
+  <div th:if="${(error == null or #strings.isEmpty(error)) and code != null and !#strings.isEmpty(code)}">
+    <h1>Authorization code</h1>
+    <p class="lead">Copy the code below, then <code>POST /oauth2/token</code> with <code>grant_type=authorization_code</code> and your <code>code_verifier</code>.</p>
+    <pre class="code-block" th:text="${code}">code</pre>
+    <div class="alert alert-info" role="status">
+      Local loopback only (RFC 8252 §7.3). Native apps should capture the redirect URL programmatically.
+    </div>
+  </div>
+
+  <div th:if="${(error == null or #strings.isEmpty(error)) and (code == null or #strings.isEmpty(code))}">
+    <h1>No authorization code</h1>
+    <p class="lead">Complete <code>GET /oauth2/authorize</code> with PKCE first. This page expects a <code>code</code> query parameter.</p>
+  </div>
+
+  <p class="foot">
+    Loopback redirect for PKCE dev smoke.
+    Docs: <a href="https://github.com/yky32/aaax/blob/main/examples/curl/README.md#pkce-authorize--token-pointers">PKCE curl pointers</a>.
+  </p>
+</main>
+</body>
+</html>

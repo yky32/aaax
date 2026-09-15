@@ -51,7 +51,7 @@ Solo maintainer may push `main` directly. External contributors: open a PR again
 
 File issues on the repo for starter tasks. **Not in this tree:** hosted `/admin`, `/sign-in` product UI, events catalog HTTP, Identity Event Bus product surface.
 
-**Hosted `/login`:** Thymeleaf template at `src/main/resources/templates/login.html`; `HostedLoginEndpoint` serves GET `/login`. POST `/login` + CSRF on `hostedLoginFilterChain`. After sign-in, Spring Security resumes the saved `/oauth2/authorize` request.
+**Hosted browser pages:** Thymeleaf + `static/css/aaax-hosted.css`. `HostedLoginEndpoint` → GET `/login`; `OAuthLoopbackEndpoint` → GET `/authorized`. POST `/login` + CSRF on `hostedLoginFilterChain`. After sign-in, Spring Security resumes the saved `/oauth2/authorize` request.
 
 ## Security
 
