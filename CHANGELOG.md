@@ -19,7 +19,11 @@
 - GitHub description/topics aligned with booklet §2 (no Event Bus / MCP product claims)
 
 ### Docs
+- `examples/curl/`: refresh-token script; PKCE authorize + token pointers in README
 - README: how to use AAAX as an OAuth 2.0 authorization server (discovery, password grant, PKCE, JWKS). Not Keycloak/Clerk.
+
+### Dependencies
+- commons-csv 1.14.1, testcontainers 1.21.4, logstash-logback-encoder 9.0, nimbus-jose-jwt 10.9.1, retrofit 3.0.0
 
 ### Wave 9
 - Loopback PKCE: SAS allows any port on seed `127.0.0.1` / `[::1]` redirect hosts (RFC 8252 §7.3). Not claimed HTTPS
