@@ -2,6 +2,9 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### Build
+- Maven Central Portal: `central-publishing-maven-plugin`, `-Prelease` (sources, javadoc, GPG), `release.yml` workflow
+
 ### DX
 - Hosted `/login`: branded Thymeleaf page (AAAX palette, CSRF form, saved-request resume unchanged)
 - Loopback `/authorized`: matching Thymeleaf page; shared `static/css/aaax-hosted.css`

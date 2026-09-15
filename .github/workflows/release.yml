@@ -1,0 +1,84 @@
+name: Release to Maven Central
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v0.9.0)"
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', github.event.inputs.tag) || github.ref }}
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Verify tag matches pom version
+        env:
+          REF_NAME: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${REF_NAME#v}"
+          if [[ "$VERSION" == *SNAPSHOT* ]]; then
+            echo "FAIL: release tags must not contain SNAPSHOT ($REF_NAME)" >&2
+            exit 1
+          fi
+          POM_VERSION="$(mvn -B -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          if [ "$POM_VERSION" != "$VERSION" ]; then
+            echo "FAIL: pom version '$POM_VERSION' != tag version '$VERSION'" >&2
+            exit 1
+          fi
+          echo "OK: publishing com.aaax:aaax:$VERSION"
+
+      - name: Test
+        run: mvn -B test
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GPG_PRIVATE_KEY:-}" ]; then
+            echo "FAIL: GPG_PRIVATE_KEY secret is not set" >&2
+            exit 1
+          fi
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Publish to Maven Central
+        env:
+          CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CENTRAL_TOKEN_USERNAME:-}" ] || [ -z "${CENTRAL_TOKEN_PASSWORD:-}" ]; then
+            echo "FAIL: CENTRAL_TOKEN_USERNAME / CENTRAL_TOKEN_PASSWORD secrets are not set" >&2
+            exit 1
+          fi
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${CENTRAL_TOKEN_USERNAME}</username>
+                <password>${CENTRAL_TOKEN_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+          mvn -B -Prelease deploy -DskipTests -Dgpg.passphrase="${GPG_PASSPHRASE}"

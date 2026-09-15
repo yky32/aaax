@@ -37,7 +37,8 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 
 | | |
 |--|--|
-| Single jar, Central Maven, no private `app-core` | ✅ |
+| Single jar, Central-only deps, no private `app-core` | ✅ |
+| Maven Central artifact `com.aaax:aaax` | 🔶 Portal publish configured — first sync via release workflow (see CONTRIBUTING) |
 | Postgres + Redis local (compose) | ✅ |
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |

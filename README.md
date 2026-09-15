@@ -12,6 +12,7 @@ One Maven project: packages `com.aaax.core` · `com.aaax.server`.
 | **Stack** | Spring Boot **4.1.1** · Java **21** |
 | **Needs** | Postgres · Redis |
 | **License** | Apache-2.0 |
+| **Maven** | `com.aaax:aaax` (Central publish via tag — see [CONTRIBUTING](./CONTRIBUTING.md#maven-central-maintainers)) |
 
 ```text
 src/main/java/com/aaax/
