@@ -4,6 +4,7 @@
 
 ### DX
 - Hosted `/login`: branded Thymeleaf page (AAAX palette, CSRF form, saved-request resume unchanged)
+- Loopback `/authorized`: matching Thymeleaf page; shared `static/css/aaax-hosted.css`
 
 ### Docs
 - Product site (aaax-www) aligned with booklet §2 for v0.9.0
