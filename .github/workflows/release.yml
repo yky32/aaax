@@ -25,6 +25,18 @@ jobs:
           java-version: "21"
           cache: maven
 
+      - name: Apply Maven Central POM overlay from main
+        env:
+          REF_NAME: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${REF_NAME#v}"
+          git fetch origin main
+          git checkout origin/main -- pom.xml
+          mvn -B -q org.codehaus.mojo:versions-maven-plugin:2.18.0:set \
+            -DnewVersion="${VERSION}" -DgenerateBackupPom=false
+          echo "OK: pom overlay for com.aaax:aaax:${VERSION}"
+
       - name: Verify tag matches pom version
         env:
           REF_NAME: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
