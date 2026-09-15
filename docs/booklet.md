@@ -42,7 +42,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
 | PKCE (`aaax-pkce` seed client) | ✅ required on authorize after login |
-| Hosted `/login` for `/oauth2/authorize` | ✅ form login + loopback `/authorized` |
+| Hosted `/login` for `/oauth2/authorize` | ✅ branded Thymeleaf sign-in + loopback `/authorized` |
 | Native-app loopback (RFC 8252 §7.3) | ✅ any port on `127.0.0.1` / `[::1]`; public-client token + PKCE. Not claimed HTTPS |
 | Custom grants wired (see §5) | ✅ |
 | Google + Apple idToken (verify / link, not a token grant) | ✅ |
