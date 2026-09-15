@@ -202,7 +202,7 @@ public class AuthenticationServerConfig {
     public SecurityFilterChain hostedLoginFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/login", "/logout", "/authorized")
                 .authorizeHttpRequests(az -> az.anyRequest().permitAll())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/login"))
                 .logout(Customizer.withDefaults());
         return http.build();
     }

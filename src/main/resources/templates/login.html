@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sign in — AAAX</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --ink: #1a1814;
+      --muted: #6b6560;
+      --line: #ddd6c8;
+      --panel: #fffcf7;
+      --accent: #c45c26;
+      --accent-hover: #a84d1f;
+      --error-bg: #fce8e4;
+      --error-ink: #8b2e1f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      width: 100%;
+      max-width: 22rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 1.75rem 1.5rem 1.5rem;
+      box-shadow: 0 1px 2px rgba(26, 24, 20, 0.06);
+    }
+    .brand {
+      margin: 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tagline {
+      margin: 0.25rem 0 0;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+    h1 {
+      margin: 1.25rem 0 0.35rem;
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    .lead {
+      margin: 0 0 1.25rem;
+      font-size: 0.9375rem;
+      color: var(--muted);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: #fff;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+    button {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.6875rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: var(--accent-hover); }
+    button:focus {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+    .alert {
+      margin-bottom: 1rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .alert-error {
+      background: var(--error-bg);
+      color: var(--error-ink);
+      border: 1px solid #e8b4a8;
+    }
+    .alert-info {
+      background: #eef4e8;
+      color: #3d4f32;
+      border: 1px solid #c8d9bc;
+    }
+    .foot {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .foot a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+<main class="card">
+  <p class="brand">AAAX</p>
+  <p class="tagline">Accounts · Authentication · Authorization · eXperiences</p>
+  <h1>Sign in</h1>
+  <p class="lead">Continue OAuth2 authorization or use your AAAX account.</p>
+
+  <div th:if="${param.error}" class="alert alert-error" role="alert">
+    Invalid username or password.
+  </div>
+  <div th:if="${param.logout}" class="alert alert-info" role="status">
+    You have been signed out.
+  </div>
+
+  <form th:action="@{/login}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" required autofocus/>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required/>
+    <button type="submit">Sign in</button>
+  </form>
+
+  <p class="foot">
+    Hosted browser login for <code>/oauth2/authorize</code>.
+    Machine clients: <a href="https://github.com/yky32/aaax/blob/main/README.md#oauth-20-as">POST /oauth2/token</a>.
+  </p>
+</main>
+</body>
+</html>

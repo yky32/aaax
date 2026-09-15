@@ -2,6 +2,9 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### DX
+- Hosted `/login`: branded Thymeleaf page (AAAX palette, CSRF form, saved-request resume unchanged)
+
 ### Docs
 - Product site (aaax-www) aligned with booklet §2 for v0.9.0
 
