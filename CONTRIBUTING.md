@@ -53,6 +53,25 @@ File issues on the repo for starter tasks. **Not in this tree:** hosted `/admin`
 
 **Hosted browser pages:** Thymeleaf + `static/css/aaax-hosted.css`. `HostedLoginEndpoint` → GET `/login`; `OAuthLoopbackEndpoint` → GET `/authorized`. POST `/login` + CSRF on `hostedLoginFilterChain`. After sign-in, Spring Security resumes the saved `/oauth2/authorize` request.
 
+## Maven Central (maintainers)
+
+Artifact: **`com.aaax:aaax`** (single executable jar). Central Portal publishing is configured; the artifact is **not** on Central until the first successful deploy.
+
+**One-time setup**
+
+1. Register and verify namespace **`com.aaax`** at [central.sonatype.com](https://central.sonatype.com/)
+2. Create a GPG key and publish it to a keyserver
+3. Add GitHub Actions secrets: `CENTRAL_TOKEN_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`
+4. Local credentials template: [`.mvn/settings-central.xml.example`](./.mvn/settings-central.xml.example)
+
+**Publish a release**
+
+1. Ensure `pom.xml` version matches the git tag (no `-SNAPSHOT`), e.g. tag **`v0.9.0`** → version **`0.9.0`**
+2. Push the tag, or run workflow **Release to Maven Central** (`workflow_dispatch`) with that tag
+3. Workflow runs `mvn -Prelease deploy` (sources, javadoc, GPG, Central Portal auto-publish)
+
+To republish **`0.9.0`**: workflow_dispatch with tag `v0.9.0` after secrets are set. For **`0.9.1`**: bump pom, tag `v0.9.1`, push tag.
+
 ## Security
 
 Report vulnerabilities via [GitHub Security Advisories](https://github.com/yky32/aaax/security) — do not open public issues for secrets/vulns.
