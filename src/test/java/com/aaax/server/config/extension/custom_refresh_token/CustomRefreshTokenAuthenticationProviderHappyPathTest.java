@@ -118,4 +118,49 @@ class CustomRefreshTokenAuthenticationProviderHappyPathTest {
         verify(authorizationService).save(any());
         verify(kafkaUtil).send(anyString(), any());
     }
+
+    @Test
+    @DisplayName("authenticate should fall back to principalName when username attribute is absent")
+    void authenticate_shouldUsePrincipalNameWhenUsernameAttributeMissing() {
+        when(clientPrincipal.isAuthenticated()).thenReturn(true);
+        when(clientPrincipal.getRegisteredClient()).thenReturn(registeredClient);
+        when(clientPrincipal.getClientAuthenticationMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+
+        Instant now = Instant.now();
+        OAuth2RefreshToken existingRt = new OAuth2RefreshToken("rt-old", now.minusSeconds(10), now.plusSeconds(3600));
+        OAuth2AccessToken existingAt = new OAuth2AccessToken(
+                OAuth2AccessToken.TokenType.BEARER, "old-access", now.minusSeconds(10), now.plusSeconds(60));
+        OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(registeredClient)
+                .id("1")
+                .principalName("user@test.com")
+                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
+                .accessToken(existingAt)
+                .refreshToken(existingRt)
+                .build();
+        when(authorizationService.findByToken("rt-old", OAuth2TokenType.REFRESH_TOKEN)).thenReturn(authorization);
+
+        Authentication userAuth = Authentication.builder()
+                .identifier("user@test.com")
+                .user(User.builder().id(5L).username("user@test.com").build())
+                .build();
+        when(authenticationService.findValidRecordsByDynamicIdentifier("user@test.com")).thenReturn(userAuth);
+
+        Jwt accessJwt = Jwt.withTokenValue("new-access")
+                .header("alg", "RS256").issuedAt(now).expiresAt(now.plusSeconds(300)).claim("sub", "5").build();
+        OAuth2RefreshToken newRt = new OAuth2RefreshToken("rt-new", now, now.plusSeconds(3600));
+        Jwt idJwt = Jwt.withTokenValue("id-jwt")
+                .header("alg", "RS256").issuedAt(now).expiresAt(now.plusSeconds(300)).claim("sub", "5").build();
+        when(tokenGenerator.generate(any(OAuth2TokenContext.class))).thenAnswer(inv -> {
+            OAuth2TokenContext ctx = inv.getArgument(0);
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(ctx.getTokenType())) return accessJwt;
+            if (GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey().equals(ctx.getTokenType().getValue())) return newRt;
+            if (OidcParameterNames.ID_TOKEN.equals(ctx.getTokenType().getValue())) return idJwt;
+            return null;
+        });
+
+        CustomRefreshTokenAuthenticationToken auth =
+                new CustomRefreshTokenAuthenticationToken("rt-old", clientPrincipal, null);
+        assertInstanceOf(OAuth2AccessTokenAuthenticationToken.class, provider.authenticate(auth));
+        verify(authenticationService).findValidRecordsByDynamicIdentifier("user@test.com");
+    }
 }

@@ -33,7 +33,7 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -57,7 +57,7 @@ jobs:
             exit 1
           fi
           echo 'OK: no private deps'
-      - name: Runtime smoke (RFC 8414 + JWKS + PKCE + hosted login + loopback token)
+      - name: Runtime smoke (RFC 8414 + JWKS + PKCE + hosted login + refresh token)
         env:
           SERVER_PORT: "8081"
           AS_ISSUER: http://localhost:8081
@@ -94,9 +94,10 @@ jobs:
                 fi
                 sleep 1
               done
-              chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh
+              chmod +x scripts/pkce-smoke.sh scripts/hosted-authorize-smoke.sh scripts/refresh-smoke.sh
               scripts/pkce-smoke.sh || { echo '--- aaax.log ---'; tail -n 120 /tmp/aaax.log; exit 1; }
               scripts/hosted-authorize-smoke.sh || { echo '--- aaax.log (errors) ---'; grep -E 'ERROR |WARN com.aaax|Exception' /tmp/aaax.log | tail -n 50; echo '--- aaax.log (tail) ---'; tail -n 40 /tmp/aaax.log; exit 1; }
+              scripts/refresh-smoke.sh || { echo '--- aaax.log ---'; tail -n 80 /tmp/aaax.log; exit 1; }
               kill "$(cat /tmp/aaax.pid)" || true
               exit 0
             fi

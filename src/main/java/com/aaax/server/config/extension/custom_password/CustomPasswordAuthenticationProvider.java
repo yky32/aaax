@@ -165,6 +165,7 @@ public class CustomPasswordAuthenticationProvider extends BaseAuthenticationProv
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .authorizedScopes(authorizedScopes) // put down the scopes
                 .principalName(authenticate.getName())// the current authorized username
+                .attribute("username", username)
                 .attribute(Principal.class.getName(), authenticate) // set current authorized user info
                 .authorizationGrantType(customCodeGrantAuthentication.getGrantType());
 

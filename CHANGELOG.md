@@ -2,6 +2,11 @@
 
 ## [0.9.0-SNAPSHOT]
 
+### Smoke
+- `scripts/refresh-smoke.sh`: password grant → `grant_type=refresh_token` → new `access_token` (CI + seed client)
+- Refresh grant resolves user from `principalName` when `username` attribute is absent; password grants store `username` on authorization
+- CI: `actions/setup-java@v6` (with `actions/checkout@v7`)
+
 ### OSS hygiene
 - GitHub: issue templates (bug + enhancement), PR template, Dependabot (Actions + Maven)
 - `pom.xml`: `url`, `scm`, Apache-2.0 `licenses` (Central-shaped metadata)
