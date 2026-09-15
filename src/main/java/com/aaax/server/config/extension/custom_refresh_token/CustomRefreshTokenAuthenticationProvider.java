@@ -92,6 +92,9 @@ public class CustomRefreshTokenAuthenticationProvider extends BaseAuthentication
         // == verify scope
         Set<String> scopes = registeredClient.getScopes();
         String identifier = authorization.getAttribute("username");
+        if (!org.springframework.util.StringUtils.hasText(identifier)) {
+            identifier = authorization.getPrincipalName();
+        }
         // === FIXME: hibernate will dead. for one to many relationship. [hibernate session lazy load issue]
         var auth = authenticationService.findValidRecordsByDynamicIdentifier(identifier);
         Long userId = auth.getUser().getId();
