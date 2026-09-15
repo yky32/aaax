@@ -17,6 +17,21 @@
   <packaging>jar</packaging>
   <name>aaax</name>
   <description>AAAX — self-host OpenID Connect authentication server (com.aaax.core + com.aaax.server)</description>
+  <url>https://github.com/yky32/aaax</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git://github.com/yky32/aaax.git</connection>
+    <developerConnection>scm:git:ssh://github.com/yky32/aaax.git</developerConnection>
+    <url>https://github.com/yky32/aaax</url>
+  </scm>
 
   <properties>
     <java.version>21</java.version>

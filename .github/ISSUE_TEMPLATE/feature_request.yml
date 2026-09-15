@@ -1,0 +1,30 @@
+name: Feature / docs request
+description: Enhancement, curl recipe, smoke test, or doc fix (not security)
+title: "[enhancement]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    value: |
+      AAAX is a lean Spring OIDC jar — see [out of scope](https://github.com/yky32/aaax/blob/main/docs/booklet.md#10-out-of-scope-until-asked) before asking for mesh, `/v1`, Event Bus HTTP, or full RFC suites.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or gap
+      description: What are you trying to do? Why is the current tree insufficient?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Concrete scope (file, endpoint, script). Smaller is easier to review.
+    validations:
+      required: true
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: Willing to contribute?
+      options:
+        - label: I can open a PR (mvn test + docs if needed)
+          required: false

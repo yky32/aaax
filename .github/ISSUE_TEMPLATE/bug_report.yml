@@ -1,0 +1,41 @@
+name: Bug report
+description: Something broken in AAAX (runtime, OAuth, tests, docs vs code)
+title: "[bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    value: |
+      Check [booklet §2](https://github.com/yky32/aaax/blob/main/docs/booklet.md#2-honest-status-09) — if the feature is listed as not shipped, it is not a bug.
+      Security issues: use [GitHub Security Advisories](https://github.com/yky32/aaax/security/advisories/new), not this form.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Expected vs actual. Include HTTP status, grant_type, or script name if OAuth-related.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: "Example: docker compose, .env, mvn package, java -jar, ./scripts/…"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      placeholder: main @ abc1234 or 0.9.0-SNAPSHOT
+    validations:
+      required: true
+  - type: dropdown
+    id: env
+    attributes:
+      label: Environment
+      options:
+        - Local (docker compose + seed)
+        - CI
+        - Production/self-host
+    validations:
+      required: true
