@@ -7,7 +7,7 @@ Do not open public issues for active exploits.
 
 | Version | Supported |
 |---------|-----------|
-| `main` (`0.9.0-SNAPSHOT`) | Yes — best effort |
+| `main` / `v0.9.0` | Yes — best effort |
 
 `main` tracks Spring Boot **4.1.1**. Production still needs a file JWK (`AAAX_JWK_KEYSTORE`); do not treat ephemeral local keys as a production baseline.
 

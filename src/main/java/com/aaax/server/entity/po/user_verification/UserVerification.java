@@ -15,7 +15,7 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_verifications", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_key", columnNames = {"extIdentifier", "userId"})
+        @UniqueConstraint(name = "user_verifications_ext_user_unique", columnNames = {"extIdentifier", "userId"})
 })
 @Builder
 public class UserVerification extends AuditEntityWithIsActive {
