@@ -51,7 +51,7 @@
   <properties>
     <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.38</lombok.version>
+    <lombok.version>1.18.48</lombok.version>
     <totp-spring-boot-starter.version>1.7.1</totp-spring-boot-starter.version>
     <springdoc.version>3.1.0</springdoc.version>
     <central-publishing.version>0.11.0</central-publishing.version>
