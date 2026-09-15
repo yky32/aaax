@@ -2,6 +2,10 @@
 
 ## [0.9.1-SNAPSHOT]
 
+## [0.9.1] — 2026-09-15
+
+First Maven Central release (`com.aaax:aaax`).
+
 ### Build
 - Maven Central Portal: `central-publishing-maven-plugin`, `-Prelease` (sources, javadoc, GPG), `release.yml` workflow
 

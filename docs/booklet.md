@@ -6,7 +6,7 @@
 |--|--|
 | **This file** | Product + eng source of truth — **code wins if this drifts** |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.9.1-SNAPSHOT` on `main` · latest release [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
+| **Version** | `0.9.1` · prior [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-09-15 |
@@ -38,7 +38,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | | |
 |--|--|
 | Single jar, Central-only deps, no private `app-core` | ✅ |
-| Maven Central artifact `com.aaax:aaax` | 🔶 Portal publish configured — first sync via release workflow (see CONTRIBUTING) |
+| Maven Central artifact `com.aaax:aaax` | 🔶 publishing `0.9.1` via release workflow (see CONTRIBUTING) |
 | Postgres + Redis local (compose) | ✅ |
 | First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
@@ -117,7 +117,7 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 docker compose up -d
 cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
-java -jar target/aaax-0.9.1-SNAPSHOT.jar
+java -jar target/aaax-0.9.1.jar
 ./scripts/quickstart-smoke.sh
 ./scripts/token-smoke.sh
 ```
