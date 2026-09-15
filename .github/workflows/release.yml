@@ -79,8 +79,9 @@ jobs:
             echo "FAIL: CENTRAL_TOKEN_USERNAME / CENTRAL_TOKEN_PASSWORD secrets are not set" >&2
             exit 1
           fi
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
+          DEPLOY_SETTINGS="${RUNNER_TEMP}/central-settings.xml"
+          cat > "${DEPLOY_SETTINGS}" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
@@ -91,8 +92,40 @@ jobs:
                 <password>${CENTRAL_TOKEN_PASSWORD}</password>
               </server>
             </servers>
+            <profiles>
+              <profile>
+                <id>aaax-public-only</id>
+                <repositories>
+                  <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                  </repository>
+                  <repository>
+                    <id>shibboleth</id>
+                    <url>https://build.shibboleth.net/maven/releases/</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                  </repository>
+                </repositories>
+                <pluginRepositories>
+                  <pluginRepository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                  </pluginRepository>
+                </pluginRepositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>aaax-public-only</activeProfile>
+            </activeProfiles>
           </settings>
           EOF
-          mvn -B -Prelease deploy -DskipTests \
+          if [ -f .mvn/maven.config ]; then mv .mvn/maven.config .mvn/maven.config.bak; fi
+          trap 'if [ -f .mvn/maven.config.bak ]; then mv .mvn/maven.config.bak .mvn/maven.config; fi' EXIT
+          mvn -B -s "${DEPLOY_SETTINGS}" -Prelease deploy -DskipTests \
             -Dgpg.passphrase="${GPG_PASSPHRASE}" \
             -Dmaven.javadoc.failOnError=false
