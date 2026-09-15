@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_devices", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_key", columnNames = {"resourceId", "resourceType", "userId"})
+        @UniqueConstraint(name = "user_devices_resource_user_unique", columnNames = {"resourceId", "resourceType", "userId"})
 })
 @Builder
 public class UserDevice extends AuditEntityWithIsActive {

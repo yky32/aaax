@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.9.0-SNAPSHOT]
+## [0.9.0] — 2026-09-15
+
+First OSS-ready 0.9 release: Boot 4.1.1 / Java 21, PKCE + hosted login + refresh smoke, honest docs.
+
+### Fix
+- Unique constraint names on `user_devices` / `user_verifications` no longer collide in Postgres (`unique_key` → table-specific names)
 
 ### Smoke
 - `scripts/refresh-smoke.sh`: password grant → `grant_type=refresh_token` → new `access_token` (CI + seed client)

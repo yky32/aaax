@@ -59,7 +59,7 @@ tools / resources
 
 ### Minimal wiring checklist
 
-1. Run AAAX on `main` (`0.9.0-SNAPSHOT`): issuer = public URL of AAAX (`AS_ISSUER`).  
+1. Run AAAX on `main` or tag `v0.9.0`: issuer = public URL of AAAX (`AS_ISSUER`).  
 2. Register an OAuth client (JDBC / seed for local only) — **public + PKCE** for desktop agents when possible; confidential for gateways.  
 3. On the **MCP HTTP host**, publish Protected Resource Metadata pointing `authorization_servers` at AAAX issuer (AAAX does not publish PRM for your MCP surface).  
 4. Validate access tokens against AAAX JWKS (`{issuer}/oauth2/jwks`).
@@ -85,7 +85,7 @@ git clone https://github.com/yky32/aaax.git && cd aaax
 docker compose up -d
 cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
-java -jar target/aaax-0.9.0-SNAPSHOT.jar
+java -jar target/aaax-0.9.0.jar
 # issuer default http://localhost:8081
 ./scripts/quickstart-smoke.sh
 ```
