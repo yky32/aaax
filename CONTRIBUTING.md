@@ -51,10 +51,8 @@ Solo maintainer may push `main` directly. External contributors: open a PR again
 
 Real starter tasks (file issues on the repo if missing):
 
-1. **docs:** more curl recipes under `examples/curl/` (register, OTP, PKCE, token)  
-2. **docs:** production note for swagger-ui / actuator exposure (see booklet §8)  
-3. **dx:** improve hosted `/login` styling or saved-request resume docs  
-4. **test:** extend smoke coverage for refresh_token grant  
+1. **docs:** production note for swagger-ui / actuator exposure (see booklet §8)  
+2. **dx:** improve hosted `/login` styling or saved-request resume docs  
 
 **Not in this tree:** hosted `/admin`, `/sign-in` product UI, events catalog HTTP, Identity Event Bus product surface.
 
