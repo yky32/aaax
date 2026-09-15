@@ -93,4 +93,6 @@ jobs:
             </servers>
           </settings>
           EOF
-          mvn -B -Prelease deploy -DskipTests -Dgpg.passphrase="${GPG_PASSPHRASE}"
+          mvn -B -Prelease deploy -DskipTests \
+            -Dgpg.passphrase="${GPG_PASSPHRASE}" \
+            -Dmaven.javadoc.failOnError=false

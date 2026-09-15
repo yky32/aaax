@@ -66,7 +66,7 @@ Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in producti
 
 ```bash
 mvn -Dmaven.test.skip=true package
-java -jar target/aaax-0.9.1-SNAPSHOT.jar
+java -jar target/aaax-0.9.1.jar
 ```
 
 App listens on **http://localhost:8081**  
