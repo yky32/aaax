@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.1-SNAPSHOT]
+
+### Docs
+- Product site (aaax-www) aligned with booklet §2 for v0.9.0
+
 ## [0.9.0] — 2026-09-15
 
 First OSS-ready 0.9 release: Boot 4.1.1 / Java 21, PKCE + hosted login + refresh smoke, honest docs.

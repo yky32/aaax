@@ -6,7 +6,7 @@
 |--|--|
 | **This file** | Product + eng source of truth — **code wins if this drifts** |
 | **Repo** | https://github.com/yky32/aaax |
-| **Version** | `0.9.0` (tag `v0.9.0`); `main` tracks next snapshot |
+| **Version** | `0.9.1-SNAPSHOT` on `main` · latest release [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
 | **Local** | `~/Documents/git/personal/aaax` |
 | **Updated** | 2026-09-15 |
@@ -116,7 +116,7 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 docker compose up -d
 cp .env.example .env && set -a && source .env && set +a
 mvn -Dmaven.test.skip=true package
-java -jar target/aaax-0.9.0.jar
+java -jar target/aaax-0.9.1-SNAPSHOT.jar
 ./scripts/quickstart-smoke.sh
 ./scripts/token-smoke.sh
 ```
