@@ -8,11 +8,23 @@
 | **Repo** | https://github.com/yky32/aaax |
 | **Version** | `0.9.1` · prior [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
-| **Local** | `~/Documents/git/personal/aaax` |
-| **Updated** | 2026-09-15 |
+| **Updated** | 2026-09-17 |
 
-> Root `README.md` = shop window (five-minute local).  
-> Other files under `docs/` are stubs that point here.
+> **Doc index:** [docs/README.md](./README.md) · **Agents:** [AGENTS.md](../AGENTS.md)  
+> Root [README.md](../README.md) = five-minute local clone.
+
+### Contents
+
+1. [What this is](#1-what-this-is)
+2. [Honest status (0.9)](#2-honest-status-09)
+3. [Layout](#3-layout)
+4. [HTTP](#4-http)
+5. [Grants](#5-grants)
+6. [Run locally](#6-run-locally)
+7. [Configuration](#7-configuration)
+8. [Security posture](#8-security-posture) · [8.1 Swagger / Actuator in prod](#81-swagger-ui-and-actuator-in-production)
+9. [OSS strip](#9-oss-strip)
+10. [Out of scope until asked](#10-out-of-scope-until-asked)
 
 ---
 

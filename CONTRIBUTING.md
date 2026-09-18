@@ -11,9 +11,10 @@ Thanks for interest. AAAX is a small Spring Boot OIDC product — **structure an
 
 ## Read first
 
-1. **[docs/booklet.md](./docs/booklet.md)** — single product/eng SoT  
-2. **[§3 Layout](./docs/booklet.md#3-layout)** — package tree + layering  
-3. **[§8 Security posture](./docs/booklet.md#8-security-posture)** — CSRF split, JWK, public routes  
+1. **[docs/README.md](./docs/README.md)** — doc index (humans + agents)  
+2. **[docs/booklet.md](./docs/booklet.md)** — single product/eng SoT  
+3. **[§3 Layout](./docs/booklet.md#3-layout)** — package tree + layering  
+4. **[§8 Security posture](./docs/booklet.md#8-security-posture)** — CSRF split, JWK, public routes  
 
 ## Layout (do not invent a parallel tree)
 

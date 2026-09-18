@@ -166,8 +166,10 @@ Classpath demo JKS is **not** shipped. Unset `AAAX_JWK_KEYSTORE` → ephemeral R
 
 ## Docs
 
+- **[docs/README.md](docs/README.md)** — start here (human + agent index)  
+- **[docs/booklet.md](docs/booklet.md)** — product + eng SoT (code wins if it drifts)  
+- **[AGENTS.md](AGENTS.md)** — instructions for AI coding agents  
 - Product site: https://aaax-www.vercel.app/  
-- Eng SoT: `docs/booklet.md` (code wins if it drifts)  
 - Security: `SECURITY.md`
 
 ---
