@@ -8,6 +8,7 @@ AAAX is a **self-host OIDC Authorization Server** you can put *behind* MCP resou
 | **Product** | [yky32/aaax](https://github.com/yky32/aaax) |
 | **Site** | https://aaax-www.vercel.app/ |
 | **This index** | https://github.com/yky32/aaax/blob/main/docs/mcp-auth-index.md |
+| **Doc index** | [README.md](./README.md) |
 | **Eng SoT** | [booklet.md](./booklet.md) (code wins if it drifts) |
 
 ---

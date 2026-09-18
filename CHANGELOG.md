@@ -2,6 +2,10 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### Docs
+- `docs/`: remove 15 duplicate stub files; add [docs/README.md](docs/README.md) index and root [AGENTS.md](AGENTS.md) for agents
+- [booklet.md](docs/booklet.md): table of contents + links to doc index
+
 ## [0.9.1] — 2026-09-15
 
 First Maven Central release (`com.aaax:aaax`).
