@@ -57,7 +57,7 @@ set -a && source .env && set +a
 
 - **`JPA_DDL_AUTO=update`** — Hibernate creates domain tables on empty Postgres  
 - **`LIQUIBASE_ENABLED=true`** — creates `oauth2_registered_client`  
-- **`AAAX_LOCAL_SEED=true`** — inserts confidential `client`/`secret`, public PKCE client `aaax-pkce`, and user `smoke.primary@aaax.local` / `SmokePrimary!1`
+- **`AAAX_LOCAL_SEED=true`** — inserts confidential `client`/`secret`, public PKCE clients `aaax-pkce` + `aaax-portal`, and user `smoke.primary@aaax.local` / `SmokePrimary!1`
 - **`AAAX_KAFKA_ENABLED=false`** — Kafka is optional; first clone only needs Postgres + Redis
 
 Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in production.
@@ -108,6 +108,8 @@ curl -sS -u client:secret \
 Live body is RFC 6749 JSON: `access_token` (not an AAAX `R` envelope). `/users/me` still uses the Result envelope.
 
 More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
+
+Operator portal (separate repo, not in this jar): [yky32/aaax-portal](https://github.com/yky32/aaax-portal). Point it at `http://localhost:8081` with `AAAX_LOCAL_SEED=true`. Seed public client **`aaax-portal`** (PKCE, redirect `:5173/callback`). The jar has no `/admin` UI. Gate `/swagger-ui` in production.
 
 ---
 

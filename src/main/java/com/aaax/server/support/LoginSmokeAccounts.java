@@ -40,6 +40,10 @@ public final class LoginSmokeAccounts {
     public static final String OAUTH_PKCE_REDIRECT_URI = "http://127.0.0.1:8081/authorized";
     /** IPv6 loopback; SAS still allows any port on this host (RFC 8252 §7.3). */
     public static final String OAUTH_PKCE_REDIRECT_URI_V6 = "http://[::1]:8081/authorized";
+    /** Public operator portal (separate repo yky32/aaax-portal). */
+    public static final String OAUTH_PORTAL_CLIENT_ID = "aaax-portal";
+    public static final String OAUTH_PORTAL_REDIRECT_URI = "http://127.0.0.1:5173/callback";
+    public static final String OAUTH_PORTAL_REDIRECT_URI_LOCALHOST = "http://localhost:5173/callback";
     public static final String GRANT_TYPE_CUSTOM_PASSWORD = "custom-password-grant";
 
     public record Account(String email, String password) {

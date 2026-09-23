@@ -47,13 +47,17 @@ class LocalDevSeedTest {
 
         verify(jdbcTemplate).execute(LocalDevSeed.OAUTH2_REGISTERED_CLIENT_DDL);
         ArgumentCaptor<RegisteredClient> clientCaptor = ArgumentCaptor.forClass(RegisteredClient.class);
-        verify(registeredClientRepository, times(2)).save(clientCaptor.capture());
+        verify(registeredClientRepository, times(3)).save(clientCaptor.capture());
         RegisteredClient confidential = clientCaptor.getAllValues().stream()
                 .filter(c -> LoginSmokeAccounts.OAUTH_CLIENT_ID.equals(c.getClientId()))
                 .findFirst()
                 .orElseThrow();
         RegisteredClient pkce = clientCaptor.getAllValues().stream()
                 .filter(c -> LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID.equals(c.getClientId()))
+                .findFirst()
+                .orElseThrow();
+        RegisteredClient portal = clientCaptor.getAllValues().stream()
+                .filter(c -> LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID.equals(c.getClientId()))
                 .findFirst()
                 .orElseThrow();
         assertTrue(confidential.getAuthorizationGrantTypes().stream()
@@ -65,6 +69,11 @@ class LocalDevSeedTest {
         assertTrue(pkce.getRedirectUris().contains(LoginSmokeAccounts.OAUTH_PKCE_REDIRECT_URI_V6));
         assertTrue(pkce.getClientAuthenticationMethods().contains(
                 org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE));
+        assertTrue(portal.getClientSettings().isRequireProofKey());
+        assertTrue(portal.getClientAuthenticationMethods().contains(
+                org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE));
+        assertTrue(portal.getRedirectUris().contains(LoginSmokeAccounts.OAUTH_PORTAL_REDIRECT_URI));
+        assertTrue(portal.getRedirectUris().contains(LoginSmokeAccounts.OAUTH_PORTAL_REDIRECT_URI_LOCALHOST));
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).saveAndFlush(userCaptor.capture());
@@ -88,6 +97,12 @@ class LocalDevSeedTest {
                 .thenReturn(RegisteredClient.withId("p")
                         .clientId(LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID)
                         .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS)
+                        .build());
+        when(registeredClientRepository.findByClientId(LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID))
+                .thenReturn(RegisteredClient.withId("o")
+                        .clientId(LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID)
+                        .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .redirectUri(LoginSmokeAccounts.OAUTH_PORTAL_REDIRECT_URI)
                         .build());
         when(userRepository.findByUsernameIgnoreCase(LoginSmokeAccounts.PRIMARY.canonicalEmail()))
                 .thenReturn(Optional.of(User.builder().username(LoginSmokeAccounts.PRIMARY.canonicalEmail()).build()));

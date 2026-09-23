@@ -2,9 +2,12 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### DX
+- Local seed public PKCE client `aaax-portal` (redirect `http://127.0.0.1:5173/callback` + localhost) for the operator portal repo
+
 ### Docs
 - `docs/`: remove 15 duplicate stub files; add [docs/README.md](docs/README.md) index and root [AGENTS.md](AGENTS.md) for agents
-- [booklet.md](docs/booklet.md): table of contents + links to doc index
+- [booklet.md](docs/booklet.md): table of contents + links to doc index; operator portal is a separate repo (not in-jar `/admin`)
 
 ## [0.9.1] — 2026-09-15
 

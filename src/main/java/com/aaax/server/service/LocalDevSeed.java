@@ -41,6 +41,7 @@ public class LocalDevSeed implements CommandLineRunner {
 
     static final String LOCAL_CLIENT_ROW_ID = "760cc5ca-b513-4ce9-9e89-185ccbe1a403";
     static final String LOCAL_PKCE_CLIENT_ROW_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+    static final String LOCAL_PORTAL_CLIENT_ROW_ID = "b2c3d4e5-f6a7-8901-bcde-f23456789012";
 
     static final String OAUTH2_REGISTERED_CLIENT_DDL = """
             CREATE TABLE IF NOT EXISTS oauth2_registered_client (
@@ -75,6 +76,7 @@ public class LocalDevSeed implements CommandLineRunner {
         jdbcTemplate.execute(OAUTH2_REGISTERED_CLIENT_DDL);
         seedClient();
         seedPkceClient();
+        seedPortalClient();
         seedPrimaryUser();
     }
 
@@ -134,6 +136,35 @@ public class LocalDevSeed implements CommandLineRunner {
                 .build();
         registeredClientRepository.save(client);
         log.info("local seed: inserted OAuth client {}", LoginSmokeAccounts.OAUTH_PKCE_CLIENT_ID);
+    }
+
+    private void seedPortalClient() {
+        if (registeredClientRepository.findByClientId(LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID) != null) {
+            log.info("local seed: OAuth client {} already present", LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID);
+            return;
+        }
+        RegisteredClient client = RegisteredClient
+                .withId(LOCAL_PORTAL_CLIENT_ROW_ID)
+                .clientId(LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID)
+                .clientName("AAAX operator portal")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri(LoginSmokeAccounts.OAUTH_PORTAL_REDIRECT_URI)
+                .redirectUri(LoginSmokeAccounts.OAUTH_PORTAL_REDIRECT_URI_LOCALHOST)
+                .scope(OidcScopes.OPENID)
+                .clientSettings(ClientSettings.builder()
+                        .requireProofKey(true)
+                        .requireAuthorizationConsent(false)
+                        .build())
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofHours(1))
+                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .reuseRefreshTokens(false)
+                        .build())
+                .build();
+        registeredClientRepository.save(client);
+        log.info("local seed: inserted OAuth client {}", LoginSmokeAccounts.OAUTH_PORTAL_CLIENT_ID);
     }
 
     private void seedPrimaryUser() {

@@ -52,7 +52,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Single jar, Central-only deps, no private `app-core` | ✅ |
 | Maven Central artifact `com.aaax:aaax` | 🔶 publishing `0.9.1` via release workflow (see CONTRIBUTING) |
 | Postgres + Redis local (compose) | ✅ |
-| First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
+| First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` + `aaax-portal` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
 | PKCE (`aaax-pkce` seed client) | ✅ required on authorize after login |
 | Hosted `/login` for `/oauth2/authorize` | ✅ branded Thymeleaf sign-in + loopback `/authorized` |
@@ -66,6 +66,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Password policy (min 8 unless system config) + login lockout (5) | ✅ |
 | Device binding on login | ❌ OFF — register path only |
 | Hosted `/admin` · `/sign-in` product UI · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
+| Operator portal | separate repo [yky32/aaax-portal](https://github.com/yky32/aaax-portal) — not served from this jar |
 | Passkeys · SAML · orgs | ❌ |
 | Boot **4.1.1** | ✅ parent BOM; Java **21** |
 | Jackson **3** | ✅ `tools.jackson` (`JSONUtil`, Redis, Retrofit factory). Annotations stay `com.fasterxml.jackson.annotation` |
@@ -99,7 +100,7 @@ There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-
 
 Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events catalog endpoint.
 
-**Use as an AS:** README section *Use as an OAuth 2.0 authorization server*. Two token paths — confidential `custom-password-grant` (`client`/`secret`) and public PKCE (`aaax-pkce`). Resource servers consume JWKS; `/users/me` is still `R`.
+**Use as an AS:** README section *Use as an OAuth 2.0 authorization server*. Two token paths — confidential `custom-password-grant` (`client`/`secret`) and public PKCE (`aaax-pkce`). Operator UI is **`aaax-portal`** (PKCE client `aaax-portal`). Resource servers consume JWKS; `/users/me` is still `R`.
 
 ---
 
