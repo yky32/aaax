@@ -125,6 +125,8 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 
 See README **Five minutes**. First empty DB: copy `.env.example` (`JPA_DDL_AUTO=update` + `AAAX_LOCAL_SEED=true`).
 
+Host JDK:
+
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 docker compose up -d
@@ -134,6 +136,14 @@ java -jar target/aaax-0.9.1.jar
 ./scripts/quickstart-smoke.sh
 ./scripts/token-smoke.sh
 ```
+
+Or local Docker stack (jar + Postgres + Redis; seed on; **not** production):
+
+```bash
+docker compose --profile stack up --build
+```
+
+Optional portal (sibling `aaax-portal`): `compose.portal.yml` maps `:5173`.
 
 Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Token JSON: `access_token` (RFC 6749).
 

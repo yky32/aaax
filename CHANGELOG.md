@@ -4,6 +4,8 @@
 
 ### DX
 - Local seed public PKCE client `aaax-portal` (redirect `http://127.0.0.1:5173/callback` + localhost) for the operator portal repo
+- `Dockerfile` + compose `--profile stack` runs the jar with Postgres/Redis (local seed, not production)
+- Optional `compose.portal.yml` builds sibling `aaax-portal` on `:5173`
 
 ### Docs
 - `docs/`: remove 15 duplicate stub files; add [docs/README.md](docs/README.md) index and root [AGENTS.md](AGENTS.md) for agents

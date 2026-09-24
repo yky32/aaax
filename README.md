@@ -46,6 +46,21 @@ docker compose up -d
 # redis    :6379
 ```
 
+IntelliJ / host JDK still uses this (infra only). To run **the jar in Docker** as well (local seed, ephemeral RSA — not production):
+
+```bash
+docker compose --profile stack up --build
+# aaax :8081
+```
+
+Operator portal in Docker (clone the sibling repo first):
+
+```bash
+git clone https://github.com/yky32/aaax-portal.git ../aaax-portal
+docker compose --profile stack -f docker-compose.yml -f compose.portal.yml up --build
+# portal http://127.0.0.1:5173  (PKCE seed redirect)
+```
+
 ### 2. Config
 
 ```bash

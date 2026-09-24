@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+*.iml
+target
+.env
+docs
+examples
+scripts
+**/*Test.java
+**/*IT.java
+src/test
