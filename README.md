@@ -1,148 +1,91 @@
 # AAAX
 
-**Accounts · Authentication · Authorization · eXperiences**
+**A**ccounts · **A**uthentication · **A**uthorization · e**X**periences
 
-Self-host OpenID Connect for Spring teams.  
-One Maven project: packages `com.aaax.core` · `com.aaax.server`.
+Self-host OpenID Connect as **one Spring jar**. Read the code. Own the keys.
+
+> Identity you run. Signals you own.
+
+For Spring/JVM teams. **Not** Keycloak, Authentik, or Clerk.
 
 | | |
 |--|--|
-| **Site** | https://aaax-www.vercel.app/ |
-| **Main** | `com.aaax.server.App` |
-| **Stack** | Spring Boot **4.1.1** · Java **21** |
-| **Needs** | Postgres · Redis |
-| **License** | Apache-2.0 |
-| **Maven** | `com.aaax:aaax` (Central publish via tag — see [CONTRIBUTING](./CONTRIBUTING.md#maven-central-maintainers)) |
+| Site | [aaax-www.vercel.app](https://aaax-www.vercel.app/) |
+| Run | `com.aaax.server.App` · **:8081** |
+| Stack | Boot **4.1.1** · Java **21** · Postgres · Redis |
+| License | Apache-2.0 |
+| Portal | [yky32/aaax-portal](https://github.com/yky32/aaax-portal) (separate UI, not in this jar) |
+| Docs | [booklet](docs/booklet.md) · [index](docs/README.md) |
 
 ```text
-src/main/java/com/aaax/
-├── core/      ← foundation (BizException, R/Result, AuditEntity, …)
-└── server/    ← authentication server (entity, endpoint, usecase, OIDC, …)
+com.aaax.core      foundation — BizException, R/Result, audit
+com.aaax.server    AS — users, OTP, OIDC, devices, RBAC
 ```
-
-Jackson **3** (`tools.jackson`) is the app JSON stack. `@JsonInclude` and friends stay on `com.fasterxml.jackson.annotation`.
 
 ---
 
-## Five minutes (local)
+## Run
 
-### 0. Prerequisites
-
-- Docker  
-- JDK 21  
-- Maven 3.9+
-
-```bash
-export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home   # macOS Homebrew example
-# or: export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-```
-
-### 1. Infra
+**IntelliJ:** Docker for Postgres + Redis, JDK 21 on the host.
 
 ```bash
 git clone https://github.com/yky32/aaax.git && cd aaax
 docker compose up -d
-# postgres :5432  user/pass/db = aaax/aaax/aaax
-# redis    :6379
+cp .env.example .env && set -a && source .env && set +a
+# IntelliJ → com.aaax.server.App
 ```
 
-IntelliJ / host JDK still uses this (infra only). To run **the jar in Docker** as well (local seed, ephemeral RSA — not production):
+**Jar in Docker** (local seed, ephemeral RSA — not production):
 
 ```bash
 docker compose --profile stack up --build
-# aaax :8081
+# http://localhost:8081
 ```
 
-Operator portal in Docker (clone the sibling repo first):
+**Portal too** (clone sibling first):
 
 ```bash
 git clone https://github.com/yky32/aaax-portal.git ../aaax-portal
 docker compose --profile stack -f docker-compose.yml -f compose.portal.yml up --build
-# portal http://127.0.0.1:5173  (PKCE seed redirect)
+# http://127.0.0.1:5173
 ```
 
-### 2. Config
+Host build:
 
 ```bash
-cp .env.example .env
-set -a && source .env && set +a
-```
-
-`.env.example` sets:
-
-- **`JPA_DDL_AUTO=update`** — Hibernate creates domain tables on empty Postgres  
-- **`LIQUIBASE_ENABLED=true`** — creates `oauth2_registered_client`  
-- **`AAAX_LOCAL_SEED=true`** — inserts confidential `client`/`secret`, public PKCE clients `aaax-pkce` + `aaax-portal`, and user `smoke.primary@aaax.local` / `SmokePrimary!1`
-- **`AAAX_KAFKA_ENABLED=false`** — Kafka is optional; first clone only needs Postgres + Redis
-
-Turn seed off with **`AAAX_LOCAL_SEED=false`**. Do not use this seed in production.
-
-### 3. Build & run
-
-```bash
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 mvn -Dmaven.test.skip=true package
 java -jar target/aaax-0.9.1.jar
-```
-
-App listens on **http://localhost:8081**  
-Issuer default: **`http://localhost:8081`** (`AS_ISSUER`).
-
-`-DskipTests` still **compiles** tests (needs testcontainers). Use **`-Dmaven.test.skip=true`**.
-
-### 4. Smoke
-
-```bash
-chmod +x scripts/quickstart-smoke.sh
 ./scripts/quickstart-smoke.sh
-```
-
-Expect RFC 8414 (`/.well-known/oauth-authorization-server`), OIDC discovery, and JWKS when the AS is healthy. With seed on: `./scripts/pkce-smoke.sh` then `./scripts/hosted-authorize-smoke.sh` (hosted `/login` → loopback code → public-client token). Not claimed HTTPS.
-
-### 5. Token
-
-With `.env` loaded (`AAAX_LOCAL_SEED=true`), run:
-
-```bash
-chmod +x scripts/token-smoke.sh
 ./scripts/token-smoke.sh
 ```
 
-Defaults: client `client`/`secret`, user `smoke.primary@aaax.local` / `SmokePrimary!1`. Override with `AAAX_CLIENT_*` / `AAAX_USERNAME` / `AAAX_CREDENTIALS`.
+`-DskipTests` still **compiles** tests. Use `-Dmaven.test.skip=true`. Avoid JDK 26.
 
-Same call by hand:
+Seed (`AAAX_LOCAL_SEED=true`, **not** production):
 
-```bash
-curl -sS -u client:secret \
-  -X POST http://localhost:8081/oauth2/token \
-  -H 'content-type: application/x-www-form-urlencoded' \
-  -d 'grant_type=custom-password-grant' \
-  -d 'username=smoke.primary@aaax.local' \
-  -d 'credentials=SmokePrimary!1'
-```
-
-Live body is RFC 6749 JSON: `access_token` (not an AAAX `R` envelope). `/users/me` still uses the Result envelope.
-
-More HTTP recipes (register / OTP / `/users/me`): [`examples/curl/`](examples/curl/).
-
-Operator portal (separate repo, not in this jar): [yky32/aaax-portal](https://github.com/yky32/aaax-portal). Point it at `http://localhost:8081` with `AAAX_LOCAL_SEED=true`. Seed public client **`aaax-portal`** (PKCE, redirect `:5173/callback`). The jar has no `/admin` UI. Gate `/swagger-ui` in production.
+| | |
+|--|--|
+| Client | `client` / `secret` |
+| PKCE | `aaax-pkce` · `aaax-portal` |
+| User | `smoke.primary@aaax.local` / `SmokePrimary!1` |
 
 ---
 
-## Use as an OAuth 2.0 authorization server
+## Use as an authorization server
 
-AAAX is a **Spring Authorization Server** plus qs/uaa user APIs. Point a resource server at this issuer. It is **not** Keycloak, Authentik, or Clerk.
+Point a resource server at this issuer. Validate JWT against JWKS. `/users/me` is still the `R` envelope — not OIDC UserInfo.
 
 | | |
 |--|--|
 | Issuer | `http://localhost:8081` (`AS_ISSUER`) |
 | RFC 8414 | `GET /.well-known/oauth-authorization-server` |
-| OIDC discovery | `GET /.well-known/openid-configuration` |
+| OIDC | `GET /.well-known/openid-configuration` |
 | JWKS | `GET /oauth2/jwks` |
-| Token | `POST /oauth2/token` — RFC 6749 JSON (`access_token`) |
-| Authorize | `GET /oauth2/authorize` → hosted `/login` |
-| User API | `/users/me` still uses the `R` / `Result` envelope (not RFC token JSON) |
+| Token | `POST /oauth2/token` → RFC `access_token` |
+| Login | `GET /oauth2/authorize` → hosted `/login` |
 
-**Confidential (first-party / machine):** seed client `client` / `secret`. Password grant field is **`credentials`**, not `password`.
+Password grant field is **`credentials`**, not `password`:
 
 ```bash
 curl -sS -u client:secret -X POST http://localhost:8081/oauth2/token \
@@ -150,47 +93,30 @@ curl -sS -u client:secret -X POST http://localhost:8081/oauth2/token \
   -d 'grant_type=custom-password-grant' \
   -d 'username=smoke.primary@aaax.local' \
   -d 'credentials=SmokePrimary!1'
-# → {"access_token":"…","token_type":"Bearer",…}
 ```
 
-**Public (SPA / native loopback):** seed client `aaax-pkce` (`none`, `requireProofKey=true`). SAS checks `code_challenge` **before** login. Missing PKCE → `invalid_request`, not `/login`. Token POST is public (no Basic, no CSRF cookie). Script: `./scripts/hosted-authorize-smoke.sh`.
+Public PKCE: client `aaax-pkce` (`none`, proof key required **before** login). Script: `./scripts/hosted-authorize-smoke.sh`.
 
-**Resource server:** validate JWT against this JWKS. Do not treat `/users/**` as OIDC UserInfo.
-
-**Local only:** unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (tokens die on restart). Seed credentials are not for production. Loopback any-port on `127.0.0.1` / `[::1]` is RFC 8252 §7.3 — **not** claimed HTTPS.
-
-### Production
-
-- Set **`AAAX_JWK_KEYSTORE`** (+ password + alias) and **`AAAX_ENCRYPTION_KEYSTORE`**. Turn **`AAAX_LOCAL_SEED=false`**.
-- **`/swagger-ui/**`**, **`/v3/api-docs/**`**, and **`/actuator/**`** are **unauthenticated** on the API chain (local-dev convenience). Gate them at your reverse proxy, disable springdoc, and restrict Actuator exposure — see **`docs/booklet.md` §8.1**. There is no built-in admin UI.
+More HTTP: [`examples/curl/`](examples/curl/).
 
 ---
 
-## Layout
+## Production
 
-| Package | Role |
-|---------|------|
-| `com.aaax.core` | Response envelope, `BizException`, audit base, shared utils |
-| `com.aaax.server` | Authentication server: users, OTP, OIDC, devices, RBAC templates |
+This compose/seed path is **local**.
 
-Optional leftover clients: **Util** (off unless `AAAX_UTIL_ENABLED=true`) and a loopback Retrofit client (placeholder URL). Discord webhooks no-op when blank.
+- Set `AAAX_JWK_KEYSTORE` + `AAAX_ENCRYPTION_KEYSTORE` (path, password, alias). Unset = ephemeral RSA; tokens die on restart.
+- `AAAX_LOCAL_SEED=false`
+- Gate `/swagger-ui`, `/v3/api-docs`, `/actuator` — they are permitAll today. Booklet §8.1.
+- No in-jar `/admin`. Operator UI is [aaax-portal](https://github.com/yky32/aaax-portal).
 
-Secrets: **env only** — see `.env.example`. Never commit real tokens.
-
-Classpath demo JKS is **not** shipped. Unset `AAAX_JWK_KEYSTORE` → ephemeral RSA (**local clone only**; tokens invalid after restart). Production **must** set `AAAX_JWK_KEYSTORE` + password + alias. Same for `AAAX_ENCRYPTION_KEYSTORE`.
+Secrets: env only (`.env.example`). Never commit tokens.
 
 ---
 
 ## Docs
 
-- **[docs/README.md](docs/README.md)** — start here (human + agent index)  
-- **[docs/booklet.md](docs/booklet.md)** — product + eng SoT (code wins if it drifts)  
-- **[AGENTS.md](AGENTS.md)** — instructions for AI coding agents  
-- Product site: https://aaax-www.vercel.app/  
-- Security: `SECURITY.md`
-
----
-
-## Build note
-
-Avoid JDK **26** with older Lombok; use **21**.
+- [docs/README.md](docs/README.md) — index
+- [docs/booklet.md](docs/booklet.md) — product + eng SoT (code wins if it drifts)
+- [AGENTS.md](AGENTS.md) — for coding agents
+- [SECURITY.md](SECURITY.md)
