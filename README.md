@@ -10,6 +10,12 @@ For Spring/JVM teams. **Not** Keycloak, Authentik, or Clerk.
 
 ![compose → hosted /login → JWT](docs/assets/quickstart.gif)
 
+## Why
+
+Most Spring teams pick a 20-line SAS sample or operate Keycloak. AAAX is a third shape: the authorization server as a **readable Spring tree you clone** — Endpoint → UseCase → Repository — one jar, keys on your metal.
+
+I open-sourced the craft we already run. Not a feature buffet. Not a SaaS console.
+
 | | |
 |--|--|
 | Site | [aaax-www.vercel.app](https://aaax-www.vercel.app/) |
