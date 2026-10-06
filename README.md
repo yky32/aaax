@@ -12,6 +12,7 @@ For Spring/JVM teams. **Not** Keycloak, Authentik, or Clerk.
 |--|--|
 | Site | [aaax-www.vercel.app](https://aaax-www.vercel.app/) |
 | Run | `com.aaax.server.App` · **:8081** |
+| Install | **Clone this repo** — not on Maven Central yet (`com.aaax` namespace pending) |
 | Stack | Boot **4.1.1** · Java **21** · Postgres · Redis |
 | License | Apache-2.0 |
 | Portal | [yky32/aaax-portal](https://github.com/yky32/aaax-portal) (separate UI, not in this jar) |
