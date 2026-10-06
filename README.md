@@ -8,6 +8,8 @@ Self-host OpenID Connect as **one Spring jar**. Read the code. Own the keys.
 
 For Spring/JVM teams. **Not** Keycloak, Authentik, or Clerk.
 
+![compose → hosted /login → JWT](docs/assets/quickstart.gif)
+
 | | |
 |--|--|
 | Site | [aaax-www.vercel.app](https://aaax-www.vercel.app/) |
