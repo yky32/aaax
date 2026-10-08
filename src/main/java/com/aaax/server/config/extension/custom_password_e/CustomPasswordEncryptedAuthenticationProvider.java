@@ -116,26 +116,9 @@ public class CustomPasswordEncryptedAuthenticationProvider extends BaseAuthentic
         // ___ We would like to proceed [upsert concept]
         // ___ Check over the [token is existed] first.
         OAuth2Authorization existedOAuth2Authorization = this.authorizationService.findById(String.valueOf(userId));
-        if (existedOAuth2Authorization != null) {
-            // ___ early return from Redis
-            log.info("""
-                            
-                                >>>>>> Quick Return from [Redis] >>
-                                AT @@ {}
-                                AT issued at [{}] UTC
-                                AT expires at [{}] UTC
-                            
-                                RT @@ {}
-                                RT issued at [{}] UTC
-                                RT expires at [{}] UTC
-                            """,
-                    existedOAuth2Authorization.getAccessToken().getToken().getTokenValue(),
-                    existedOAuth2Authorization.getAccessToken().getToken().getIssuedAt(),
-                    existedOAuth2Authorization.getAccessToken().getToken().getExpiresAt(),
-                    existedOAuth2Authorization.getRefreshToken().getToken().getTokenValue(),
-                    existedOAuth2Authorization.getRefreshToken().getToken().getIssuedAt(),
-                    existedOAuth2Authorization.getRefreshToken().getToken().getExpiresAt()
-            );
+        if (existedOAuth2Authorization != null
+                && registeredClient.getId().equals(existedOAuth2Authorization.getRegisteredClientId())) {
+            log.debug("encrypted password grant reuses session userId={} clientId={}", userId, registeredClient.getClientId());
             OAuth2AccessTokenAuthenticationToken token = new OAuth2AccessTokenAuthenticationToken(
                     registeredClient,
                     clientPrincipal,

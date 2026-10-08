@@ -64,7 +64,7 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
      * @param whereFrom where this generate method is called from.
      */
     public OtpMetadata generate(CreateOtpRequestDto dto, String whereFrom) {
-        log.info("-- Calling from {}, generate OTP => {}", whereFrom, dto);
+        log.info("-- Calling from {}, generate OTP to={}", whereFrom, dto.getTo());
 
         // === assumption ===
         dto.setIsPush(Optional.ofNullable(dto.getIsPush()).orElse(true));
@@ -221,15 +221,12 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
 
     @Override
     public void triggerNotification(BaseNotificationEvent event) {
-        log.info("-- doTriggerNotification => {}", event);
-        // Dev-friendly: always log OTP / notify payload when present
         if (event != null) {
             log.info(
-                    "AAAX notify [dev] to={} template={} channels={} params={}",
+                    "AAAX notify to={} template={} channels={}",
                     event.getTo(),
                     event.getNotificationTemplateName(),
-                    event.getChannels(),
-                    event.getParameterMap());
+                    event.getChannels());
         }
         try {
             kafkaUtil.send(KafkaTopic.NOTIFICATION_MASS, event);
@@ -238,7 +235,7 @@ public class OtpUseCase implements OtpHandler<OtpMetadata, CreateOtpRequestDto> 
                     "-- doTriggerNotification kafka skipped/failed (standalone OK): {}",
                     exception.getMessage());
         }
-        log.info("-- doTriggerNotification END => {}", event);
+        log.info("-- doTriggerNotification END to={}", event == null ? null : event.getTo());
     }
 
     @Override

@@ -102,4 +102,35 @@ class CustomRefreshTokenAuthenticationProviderTest {
 
         assertThrows(OAuth2AuthenticationException.class, () -> provider.authenticate(auth));
     }
+
+    @Test
+    @DisplayName("authenticate should reject a refresh token issued to another client")
+    void authenticate_shouldRejectRefreshFromAnotherClient() {
+        when(clientPrincipal.isAuthenticated()).thenReturn(true);
+        when(clientPrincipal.getRegisteredClient()).thenReturn(registeredClient);
+
+        RegisteredClient other = RegisteredClient.withId("rc-other")
+                .clientId("other")
+                .clientSecret("secret")
+                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
+                .build();
+        OAuth2RefreshToken existing = new OAuth2RefreshToken(
+                "rt-old", Instant.now().minusSeconds(10), Instant.now().plusSeconds(3600));
+        OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(other)
+                .id("1")
+                .principalName("user@test.com")
+                .authorizationGrantType(new AuthorizationGrantType(GrantTypeExtension.CUSTOM_REFRESH_TOKEN.getKey()))
+                .refreshToken(existing)
+                .attribute("username", "user@test.com")
+                .build();
+        when(authorizationService.findByToken(eq("rt-old"), eq(OAuth2TokenType.REFRESH_TOKEN)))
+                .thenReturn(authorization);
+
+        CustomRefreshTokenAuthenticationToken auth =
+                new CustomRefreshTokenAuthenticationToken("rt-old", clientPrincipal, null);
+
+        OAuth2AuthenticationException ex =
+                assertThrows(OAuth2AuthenticationException.class, () -> provider.authenticate(auth));
+        assertEquals("invalid_grant", ex.getError().getErrorCode());
+    }
 }
