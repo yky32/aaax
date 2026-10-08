@@ -2,6 +2,9 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### Fix
+- Exclude `javafaker`'s SnakeYAML 1.23 Android jar so Boot startup uses SnakeYAML 2.x
+
 ### Security
 - Stop logging client secrets, access tokens, refresh tokens, and OTP codes
 - Bind refresh-token exchange and password-grant session reuse to the issuing client; revoke the previous refresh token on rotation
