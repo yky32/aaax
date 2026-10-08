@@ -11,16 +11,12 @@ import com.aaax.server.exception.response.AuthenticationErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.service.AaaxService;
-import com.aaax.server.validation.PasswordPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -38,25 +34,24 @@ class UserAuthenticationUseCaseTest {
     @Mock
     private AaaxService aaaxService;
     @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private PasswordPolicy passwordPolicy;
-    @Mock
     private SocialAuthenticationUseCase socialAuthenticationUseCase;
 
     @InjectMocks
     private UserAuthenticationUseCase userAuthenticationUseCase;
 
     @Test
-    @DisplayName("authenticate should check password for matching login type")
+    @DisplayName("authenticate should check password only for the current user's login")
     void authenticate_shouldCheckPassword() {
+        User user = User.builder().id(1L).username("user@test.com").build();
         Authentication auth = Authentication.builder()
                 .identifier("user@test.com")
                 .loginType(LoginType.EMAIL)
                 .credentials("encoded")
+                .user(user)
                 .build();
-        when(authenticationRepository.findAllByIdentifierIgnoreCase("user@test.com")).thenReturn(List.of(auth));
-        when(authenticationService.check_password(auth, "plain")).thenReturn(true);
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of(auth));
+        when(authenticationService.check(auth, "plain")).thenReturn(true);
 
         UserAuthenticationCheckRequestDto dto = UserAuthenticationCheckRequestDto.builder()
                 .username("User@test.com")
@@ -64,19 +59,23 @@ class UserAuthenticationUseCaseTest {
                 .isEncrypted(false)
                 .build();
 
-        assertTrue(userAuthenticationUseCase.authenticate(dto));
+        assertTrue(userAuthenticationUseCase.authenticate("u_1", dto));
+        verify(authenticationService).post_check(auth, true);
     }
 
     @Test
     @DisplayName("authenticate should decrypt credentials when encrypted")
     void authenticate_shouldDecryptWhenEncrypted() {
+        User user = User.builder().id(1L).username("user@test.com").build();
         Authentication auth = Authentication.builder()
                 .identifier("user@test.com")
                 .loginType(LoginType.EMAIL)
+                .user(user)
                 .build();
-        when(authenticationRepository.findAllByIdentifierIgnoreCase("user@test.com")).thenReturn(List.of(auth));
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of(auth));
         when(authenticationService.decrypt("cipher")).thenReturn("plain");
-        when(authenticationService.check_password(auth, "plain")).thenReturn(true);
+        when(authenticationService.check(auth, "plain")).thenReturn(true);
 
         UserAuthenticationCheckRequestDto dto = UserAuthenticationCheckRequestDto.builder()
                 .username("user@test.com")
@@ -84,54 +83,75 @@ class UserAuthenticationUseCaseTest {
                 .isEncrypted(true)
                 .build();
 
-        assertTrue(userAuthenticationUseCase.authenticate(dto));
+        assertTrue(userAuthenticationUseCase.authenticate("u_1", dto));
     }
 
     @Test
-    @DisplayName("authenticate should throw when username missing")
+    @DisplayName("authenticate should reject a password check for another account")
+    void authenticate_shouldRejectOtherAccount() {
+        User user = User.builder().id(1L).username("user@test.com").build();
+        Authentication own = Authentication.builder()
+                .identifier("user@test.com")
+                .loginType(LoginType.EMAIL)
+                .user(user)
+                .build();
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of(own));
+        UserAuthenticationCheckRequestDto dto = UserAuthenticationCheckRequestDto.builder()
+                .username("victim@test.com")
+                .credentials("guess")
+                .build();
+        assertThrows(BizException.class, () -> userAuthenticationUseCase.authenticate("u_1", dto));
+        verify(authenticationService, never()).check(any(), any());
+    }
+
+    @Test
+    @DisplayName("authenticate should throw when username missing on this user")
     void authenticate_shouldThrowWhenMissing() {
-        when(authenticationRepository.findAllByIdentifierIgnoreCase("missing@test.com")).thenReturn(List.of());
+        User user = User.builder().id(1L).username("user@test.com").build();
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of());
         UserAuthenticationCheckRequestDto dto = UserAuthenticationCheckRequestDto.builder()
                 .username("missing@test.com")
                 .credentials("x")
                 .build();
-        assertThrows(BizException.class, () -> userAuthenticationUseCase.authenticate(dto));
+        assertThrows(BizException.class, () -> userAuthenticationUseCase.authenticate("u_1", dto));
     }
 
     @Test
     @DisplayName("authenticate should throw when no password-based login type")
     void authenticate_shouldThrowWhenNoPasswordLoginType() {
+        User user = User.builder().id(1L).username("user@test.com").build();
         Authentication auth = Authentication.builder()
                 .identifier("sub-123")
                 .loginType(LoginType.GOOGLE)
+                .user(user)
                 .build();
-        when(authenticationRepository.findAllByIdentifierIgnoreCase("sub-123")).thenReturn(List.of(auth));
+        when(aaaxService.getById("u_1")).thenReturn(user);
+        when(authenticationRepository.findByUser_Id(1L)).thenReturn(List.of(auth));
         UserAuthenticationCheckRequestDto dto = UserAuthenticationCheckRequestDto.builder()
                 .username("sub-123")
                 .credentials("x")
                 .build();
-        assertThrows(BizException.class, () -> userAuthenticationUseCase.authenticate(dto));
+        assertThrows(BizException.class, () -> userAuthenticationUseCase.authenticate("u_1", dto));
     }
 
     @Test
-    @DisplayName("addLinkedAuthentications password-style should save new authentication")
-    void addLinkedAuthentications_passwordStyle_shouldSave() {
+    @DisplayName("addLinkedAuthentications password-style cannot claim a new identifier")
+    void addLinkedAuthentications_passwordStyle_shouldRejectNewIdentifier() {
         User user = User.builder().id(1L).username("user@test.com").build();
         when(aaaxService.getById("u_1")).thenReturn(user);
-        when(passwordPolicy.encode(passwordEncoder, "Password1")).thenReturn("encoded");
         when(authenticationRepository.findByLoginTypeAndIdentifierIgnoreCase(any(), anyString()))
                 .thenReturn(Optional.empty());
 
-        userAuthenticationUseCase.addLinkedAuthentications("u_1",
-                AddLinkedAuthenticationRequestDto.builder()
-                        .username("91234567")
-                        .credentials("Password1")
-                        .build());
-
-        verify(authenticationRepository).saveAndFlush(argThat(a ->
-                a.getLoginType() == LoginType.MOBILE
-                        && "91234567".equals(a.getIdentifier())
-                        && "encoded".equals(a.getCredentials())));
+        BizException ex = assertThrows(BizException.class, () ->
+                userAuthenticationUseCase.addLinkedAuthentications("u_1",
+                        AddLinkedAuthenticationRequestDto.builder()
+                                .username("91234567")
+                                .credentials("Password1")
+                                .build()));
+        assertEquals(AuthenticationErrorResponse.ATH0004, ex.getResponse());
+        verify(authenticationRepository, never()).saveAndFlush(any());
     }
 
     @Test

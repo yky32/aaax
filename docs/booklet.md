@@ -8,7 +8,7 @@
 | **Repo** | https://github.com/yky32/aaax |
 | **Version** | `0.9.1` · prior [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
-| **Updated** | 2026-09-17 |
+| **Updated** | 2026-10-08 |
 
 > **Doc index:** [docs/README.md](./README.md) · **Agents:** [AGENTS.md](../AGENTS.md)  
 > Root [README.md](../README.md) = five-minute local clone.
@@ -173,6 +173,9 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 8. Security posture
 
+- Token values, client secrets, and OTP codes are not written to logs.
+- A refresh token can be exchanged only by the client it was issued to. Password-grant session reuse is per client. Rotating a refresh token revokes the previous value in Redis and in `user_tokens`.
+- `POST /users/my-authentication-checks` checks a password only for a login method owned by the caller. `POST /users/my-linked-authentications` cannot claim a new password identifier with username + credentials; link Google or Apple with a verified `idToken`.
 - No demo JKS in the classpath. Unset env = ephemeral keys for **local clone only**.
 - Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.
