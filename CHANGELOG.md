@@ -2,9 +2,19 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### Security
+- Stop logging client secrets, access tokens, refresh tokens, and OTP codes
+- Bind refresh-token exchange and password-grant session reuse to the issuing client; revoke the previous refresh token on rotation
+- Password re-check is limited to the caller's own login methods; username + credentials can no longer claim a new linked identifier
+
+### DX
+- Local seed public PKCE client `aaax-portal` (redirect `http://127.0.0.1:5173/callback` + localhost) for the operator portal repo
+- `Dockerfile` + compose `--profile stack` runs the jar with Postgres/Redis (local seed, not production)
+- Optional `compose.portal.yml` builds sibling `aaax-portal` on `:5173`
+
 ### Docs
 - `docs/`: remove 15 duplicate stub files; add [docs/README.md](docs/README.md) index and root [AGENTS.md](AGENTS.md) for agents
-- [booklet.md](docs/booklet.md): table of contents + links to doc index
+- [booklet.md](docs/booklet.md): table of contents + links to doc index; operator portal is a separate repo (not in-jar `/admin`)
 
 ## [0.9.1] — 2026-09-15
 

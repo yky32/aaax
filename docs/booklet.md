@@ -8,7 +8,7 @@
 | **Repo** | https://github.com/yky32/aaax |
 | **Version** | `0.9.1` · prior [`v0.9.0`](https://github.com/yky32/aaax/releases/tag/v0.9.0) |
 | **Stack** | JDK **21** · Spring Boot **4.1.1** · Apache-2.0 |
-| **Updated** | 2026-09-17 |
+| **Updated** | 2026-10-08 |
 
 > **Doc index:** [docs/README.md](./README.md) · **Agents:** [AGENTS.md](../AGENTS.md)  
 > Root [README.md](../README.md) = five-minute local clone.
@@ -52,7 +52,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Single jar, Central-only deps, no private `app-core` | ✅ |
 | Maven Central artifact `com.aaax:aaax` | 🔶 publishing `0.9.1` via release workflow (see CONTRIBUTING) |
 | Postgres + Redis local (compose) | ✅ |
-| First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` | ✅ |
+| First clone: `.env` + `AAAX_LOCAL_SEED` client/user + `aaax-pkce` + `aaax-portal` | ✅ |
 | RFC 8414 + OIDC discovery / JWKS / `/oauth2/token` | ✅ 8414 + RFC `access_token` JSON |
 | PKCE (`aaax-pkce` seed client) | ✅ required on authorize after login |
 | Hosted `/login` for `/oauth2/authorize` | ✅ branded Thymeleaf sign-in + loopback `/authorized` |
@@ -66,6 +66,7 @@ It is **not** a Clerk/Logto clone, **not** a Keycloak fork, **not** the official
 | Password policy (min 8 unless system config) + login lockout (5) | ✅ |
 | Device binding on login | ❌ OFF — register path only |
 | Hosted `/admin` · `/sign-in` product UI · Event Bus catalog · `/v1/accounts` | ❌ stale greenfield — **not in this tree** |
+| Operator portal | separate repo [yky32/aaax-portal](https://github.com/yky32/aaax-portal) — not served from this jar |
 | Passkeys · SAML · orgs | ❌ |
 | Boot **4.1.1** | ✅ parent BOM; Java **21** |
 | Jackson **3** | ✅ `tools.jackson` (`JSONUtil`, Redis, Retrofit factory). Annotations stay `com.fasterxml.jackson.annotation` |
@@ -99,7 +100,7 @@ There is **no** `/v1/accounts` API on this tree. There is **no** `/keys/private-
 
 Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events catalog endpoint.
 
-**Use as an AS:** README section *Use as an OAuth 2.0 authorization server*. Two token paths — confidential `custom-password-grant` (`client`/`secret`) and public PKCE (`aaax-pkce`). Resource servers consume JWKS; `/users/me` is still `R`.
+**Use as an AS:** README section *Use as an OAuth 2.0 authorization server*. Two token paths — confidential `custom-password-grant` (`client`/`secret`) and public PKCE (`aaax-pkce`). Operator UI is **`aaax-portal`** (PKCE client `aaax-portal`). Resource servers consume JWKS; `/users/me` is still `R`.
 
 ---
 
@@ -124,6 +125,8 @@ Curl recipes (register / OTP / login / me): `examples/curl/`. **No** events cata
 
 See README **Five minutes**. First empty DB: copy `.env.example` (`JPA_DDL_AUTO=update` + `AAAX_LOCAL_SEED=true`).
 
+Host JDK:
+
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 docker compose up -d
@@ -133,6 +136,14 @@ java -jar target/aaax-0.9.1.jar
 ./scripts/quickstart-smoke.sh
 ./scripts/token-smoke.sh
 ```
+
+Or local Docker stack (jar + Postgres + Redis; seed on; **not** production):
+
+```bash
+docker compose --profile stack up --build
+```
+
+Optional portal (sibling `aaax-portal`): `compose.portal.yml` maps `:5173`.
 
 Local seed (not production): client `client`/`secret` · user `smoke.primary@aaax.local` / `SmokePrimary!1`. Token grant: `custom-password-grant` + form field `credentials` (not `password`). Token JSON: `access_token` (RFC 6749).
 
@@ -162,6 +173,9 @@ File keystores: set path **and** password **and** alias. Nothing ships in the ja
 
 ## 8. Security posture
 
+- Token values, client secrets, and OTP codes are not written to logs.
+- A refresh token can be exchanged only by the client it was issued to. Password-grant session reuse is per client. Rotating a refresh token revokes the previous value in Redis and in `user_tokens`.
+- `POST /users/my-authentication-checks` checks a password only for a login method owned by the caller. `POST /users/my-linked-authentications` cannot claim a new password identifier with username + credentials; link Google or Apple with a verified `idToken`.
 - No demo JKS in the classpath. Unset env = ephemeral keys for **local clone only**.
 - Production: `AAAX_JWK_KEYSTORE` (+ password/alias) pointing at a file you control.
 - Discord / ELK webhooks no-op when id/token blank.

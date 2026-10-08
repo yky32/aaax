@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -66,10 +67,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
                 }
                 Jwt jwt = this.convertAuthorizationToJwtClass(authorization);
                 jwt.setRegisteredClientMetadata(registeredClientMetadata);
-                log.info("-- RedisOAuth2AuthorizationService.jwt.convertAuthorizationToJwtClass : {}", jwt);
+                log.debug("stored oauth session sub={}", jwt.getPayload() == null ? null : jwt.getPayload().getSub());
                 String expiredRefreshToken = authorization.getAttribute("refresh-token");
                 if (expiredRefreshToken != null) {
-                    this.expireRefreshToken(expiredRefreshToken, jwt);
+                    this.expireRefreshToken(expiredRefreshToken);
                 }
                 RegisteredClient client = registeredClientRepository.findById(registeredClientMetadata.getId());
                 if (client == null) {
@@ -90,13 +91,11 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         if (jwt.getRefreshToken() != null) {
             redisUtil.set(this.getRefreshTokenInRedis(jwt.getRefreshToken()), jwt, tokenSettings.getRefreshTokenTimeToLive().getSeconds());
         }
-        log.info("-- RedisOAuth2AuthorizationService.setWsHash : {}", jwt);
         if (jwt.getPayload() != null && jwt.getPayload().getMetadata() != null
                 && jwt.getPayload().getMetadata().getSessionId() != null) {
             redisUtil.set(this.wsHash(jwt.getPayload().getMetadata().getSessionId()), jwt, tokenSettings.getAccessTokenTimeToLive().getSeconds());
         }
-        log.info("-- RedisOAuth2AuthorizationService.setWsHash end: {}", jwt);
-        log.info("-- RedisOAuth2AuthorizationService.save : {}", jwt);
+        log.debug("saved oauth session sub={}", jwt.getPayload() == null ? null : jwt.getPayload().getSub());
     }
 
     @Override
@@ -107,7 +106,10 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         }
         Jwt jwt = convertAuthorizationToJwtClass(authorization);
         redisUtil.delete(getTokenKeyPerUser(jwt.getPayload().getSub()));
-        log.info("-- RedisOAuth2AuthorizationService.remove : {}", jwt);
+        if (jwt.getRefreshToken() != null) {
+            redisUtil.delete(getRefreshTokenInRedis(jwt.getRefreshToken()));
+        }
+        log.debug("removed oauth session sub={}", jwt.getPayload() == null ? null : jwt.getPayload().getSub());
     }
 
     @Override
@@ -118,7 +120,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         }
         try {
             String tokenKeyPerUser = this.getTokenKeyPerUser(userId);
-            log.info("-- RedisOAuth2AuthorizationService.findById : {}", tokenKeyPerUser);
+            log.debug("findById key={}", tokenKeyPerUser);
             Jwt jwt = JSONUtil.convertFromObject(redisUtil.getOrElseThrow(tokenKeyPerUser), Jwt.class);
             return this.__transformJwtToOAuth2Authorization(jwt);
         } catch (Exception ex) {
@@ -151,9 +153,8 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
             return pending;
         }
         try {
-            log.info("-- RedisOAuth2AuthorizationService.findByToken : {} - {}", refreshToken, tokenType);
+            log.debug("findByToken type={}", tokenType == null ? null : tokenType.getValue());
             String refreshTokenInRedis = getRefreshTokenInRedis(refreshToken);
-            log.info("-- refreshTokenInRedis : {} - {}", refreshToken, tokenType);
             return this.__transformJwtToOAuth2Authorization(JSONUtil.convertFromObject(redisUtil.getOrElseThrow(refreshTokenInRedis), Jwt.class));
         } catch (Exception ex) {
             log.info("-- RedisOAuth2AuthorizationService.findByToken exception : {}", ex.getMessage());
@@ -221,7 +222,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
     private OAuth2Authorization __transformJwtToOAuth2Authorization(Jwt jwt) {
         // __ client
         RegisteredClient client = registeredClientRepository.findById(jwt.getRegisteredClientMetadata().getId());
-        log.info("-- RedisOAuth2AuthorizationService.registeredClientRepository.findById : {}", client);
+        log.debug("loaded registered client id={}", client == null ? null : client.getId());
         assert client != null;
 
         OAuth2AccessToken accessToken = new OAuth2AccessToken(
@@ -232,7 +233,6 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
                 client.getScopes()
         );
 
-        log.info("-- RedisOAuth2AuthorizationService.accessToke .findById");
         // __ refreshToken
         OAuth2RefreshToken refreshToken = new OAuth2RefreshToken(
                 jwt.getRefreshToken(),
@@ -240,8 +240,6 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
                 jwt.getRefreshTokenExpiresAt()
         );
 
-        // __ final result
-        log.info("-- RedisOAuth2AuthorizationService.oauth2Authorization .findById");
         OAuth2Authorization oauth2Authorization = OAuth2Authorization
                 .withRegisteredClient(Objects.requireNonNull(client))
                 .principalName(jwt.getPrincipalName())
@@ -251,7 +249,6 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
                 .attribute("username", jwt.getPrincipalName())
                 .attribute("refresh-token", jwt.getRefreshToken())    // for get old refresh token
                 .build();
-        log.info("-- RedisOAuth2AuthorizationService.findById => oauth2Authorization : {}", oauth2Authorization);
         return oauth2Authorization;
     }
 
@@ -270,8 +267,14 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         return RedisKey.USER_WS_HASH.getKey().concat(wsHash);
     }
 
-    private void expireRefreshToken(String oldRefreshToken, Jwt jwt) {
-        redisUtil.set(getRefreshTokenInRedis(oldRefreshToken), jwt, 5);// ___ delete the refresh token.
+    private void expireRefreshToken(String oldRefreshToken) {
+        redisUtil.delete(getRefreshTokenInRedis(oldRefreshToken));
+        userTokenRepository.findByTokenValueAndTokenType(oldRefreshToken, UserTokenType.REFRESH_TOKEN.name())
+                .ifPresent(row -> {
+                    row.setIsActive(false);
+                    row.setExpireAt(Instant.now());
+                    userTokenRepository.save(row);
+                });
     }
 
     @NotNull

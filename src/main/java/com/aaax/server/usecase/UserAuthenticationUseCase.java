@@ -12,16 +12,13 @@ import com.aaax.server.exception.response.AuthenticationErrorResponse;
 import com.aaax.server.repository.AuthenticationRepository;
 import com.aaax.server.service.AuthenticationService;
 import com.aaax.server.service.AaaxService;
-import com.aaax.server.validation.PasswordPolicy;
 import com.aaax.server.validation.AaaxValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -44,29 +41,30 @@ public class UserAuthenticationUseCase {
     private final AuthenticationService authenticationService;
     private final AuthenticationRepository authenticationRepository;
     private final AaaxService aaaxService;
-    private final PasswordEncoder passwordEncoder;
-    private final PasswordPolicy passwordPolicy;
     private final SocialAuthenticationUseCase socialAuthenticationUseCase;
 
-    public boolean authenticate(UserAuthenticationCheckRequestDto dto) {
+    /**
+     * Re-check a password for a login method that already belongs to {@code userId}.
+     * Callers cannot probe another account.
+     */
+    public boolean authenticate(String userId, UserAuthenticationCheckRequestDto dto) {
+        User user = aaaxService.getById(userId);
         String identifier = AaaxValidation.toCanonicalIdentifier(dto.getUsername());
-        List<Authentication> authentications = authenticationRepository.findAllByIdentifierIgnoreCase(identifier);
-        if (authentications.isEmpty()) {
+        Optional<Authentication> foundAuth = authenticationRepository.findByUser_Id(user.getId()).stream()
+                .filter(auth -> PASSWORD_LOGIN_TYPES.contains(auth.getLoginType()))
+                .filter(auth -> identifier.equalsIgnoreCase(auth.getIdentifier()))
+                .findFirst();
+        if (foundAuth.isEmpty()) {
             throw new BizException(AuthenticationErrorResponse.ATH0001);
         }
 
-        Optional<Authentication> foundAuth = authentications.stream()
-                .filter(auth -> PASSWORD_LOGIN_TYPES.contains(auth.getLoginType()))
-                .findAny();
-
-        if (foundAuth.isEmpty()) {
-            throw new BizException(AuthenticationErrorResponse.ATH0001, "Not any match for [auth]");
-        }
-
-        return authenticationService.check_password(
-                foundAuth.get(),
-                dto.isEncrypted() ? authenticationService.decrypt(dto.getCredentials()) : dto.getCredentials()
-        );
+        Authentication authentication = foundAuth.get();
+        String credentials = dto.isEncrypted()
+                ? authenticationService.decrypt(dto.getCredentials())
+                : dto.getCredentials();
+        boolean ok = authenticationService.check(authentication, credentials);
+        authenticationService.post_check(authentication, ok);
+        return ok;
     }
 
     /**
@@ -128,20 +126,8 @@ public class UserAuthenticationUseCase {
             }
             throw new BizException(AuthenticationErrorResponse.ATH0002);
         }
-
-        Authentication authentication = Authentication.builder()
-                .identifier(identifier)
-                .user(user)
-                .credentials(passwordPolicy.encode(passwordEncoder, dto.getCredentials()))
-                .loginType(loginType)
-                .lastLoginDt(Instant.now())
-                .attempts(0)
-                .build();
-        try {
-            authenticationRepository.saveAndFlush(authentication);
-        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
-            throw new BizException(AuthenticationErrorResponse.ATH0002);
-        }
+        throw new BizException(AuthenticationErrorResponse.ATH0004,
+                "A new password login cannot be claimed with username and credentials. Link Google or Apple with a verified idToken.");
     }
 
     public List<GetLinkedAuthenticationResponseDto> fetchLinkedAuthentications(String userId) {

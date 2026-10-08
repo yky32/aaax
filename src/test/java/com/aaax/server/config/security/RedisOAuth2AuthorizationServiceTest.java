@@ -5,6 +5,8 @@ import com.aaax.server.config.security.jwt.Jwt;
 import com.aaax.server.config.security.jwt.JwtPayload;
 import com.aaax.server.config.security.jwt.JwtMetadata;
 import com.aaax.server.config.security.jwt.RegisteredClientMetadata;
+import com.aaax.server.entity.enu.UserTokenType;
+import com.aaax.server.entity.po.user_token.UserToken;
 import com.aaax.server.repository.UserTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +21,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,5 +93,21 @@ class RedisOAuth2AuthorizationServiceTest {
     @Test
     @DisplayName("remove should delete redis key for authorization jwt")
     void remove_shouldDelete() {
+    }
+
+    @Test
+    @DisplayName("refresh rotation deletes the old redis key and revokes the db row")
+    void expireRefreshToken_shouldRevokeStoredToken() {
+        UserToken row = new UserToken();
+        row.setIsActive(true);
+        when(userTokenRepository.findByTokenValueAndTokenType("rt-old", UserTokenType.REFRESH_TOKEN.name()))
+                .thenReturn(Optional.of(row));
+
+        ReflectionTestUtils.invokeMethod(service, "expireRefreshToken", "rt-old");
+
+        verify(redisUtil).delete(contains("rt-old"));
+        assertEquals(Boolean.FALSE, row.getIsActive());
+        assertNotNull(row.getExpireAt());
+        verify(userTokenRepository).save(row);
     }
 }

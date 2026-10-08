@@ -1,0 +1,17 @@
+# Optional operator portal. Requires sibling clone:
+#   git clone https://github.com/yky32/aaax-portal.git ../aaax-portal
+# Then:
+#   docker compose --profile stack -f docker-compose.yml -f compose.portal.yml up --build
+#
+# Browser: http://127.0.0.1:5173  (seed PKCE redirect). Jar: http://localhost:8081
+# Local stack only — ephemeral RSA, AAAX_LOCAL_SEED=true. Not production.
+
+services:
+  portal:
+    build:
+      context: ../aaax-portal
+    container_name: aaax-portal
+    ports:
+      - "5173:80"
+    depends_on:
+      - aaax

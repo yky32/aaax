@@ -29,14 +29,14 @@ public class UserAuthenticationEndpoint {
     public Result<Boolean> myAuthentications(
             @RequestBody UserAuthenticationCheckRequestDto dto
     ) {
-        return R.success(userAuthenticationUseCase.authenticate(dto));
+        return R.success(userAuthenticationUseCase.authenticate(JwtUtil.userId(), dto));
     }
 
     /**
      * Link a login method to the current user.
      * <ul>
      *   <li>Social: {@code { "provider": "google"|"apple", "idToken": "..." }}</li>
-     *   <li>Legacy: {@code { "username": "...", "credentials": "..." }}</li>
+     *   <li>Password-style username + credentials cannot claim a new identifier.</li>
      * </ul>
      */
     @PostMapping("/users/my-linked-authentications")
