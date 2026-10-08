@@ -176,6 +176,13 @@
       <groupId>com.github.javafaker</groupId>
       <artifactId>javafaker</artifactId>
       <version>1.0.2</version>
+      <!-- javafaker pulls snakeyaml 1.23-android, which shadows Boot's SnakeYAML and breaks startup. -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.google.zxing</groupId>
