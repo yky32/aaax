@@ -2,6 +2,11 @@
 
 ## [0.9.1-SNAPSHOT]
 
+### Security
+- Stop logging client secrets, access tokens, refresh tokens, and OTP codes
+- Bind refresh-token exchange and password-grant session reuse to the issuing client; revoke the previous refresh token on rotation
+- Password re-check is limited to the caller's own login methods; username + credentials can no longer claim a new linked identifier
+
 ### DX
 - Local seed public PKCE client `aaax-portal` (redirect `http://127.0.0.1:5173/callback` + localhost) for the operator portal repo
 - `Dockerfile` + compose `--profile stack` runs the jar with Postgres/Redis (local seed, not production)

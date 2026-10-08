@@ -33,22 +33,11 @@ public class CustomOAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
 
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plus(context.getRegisteredClient().getTokenSettings().getRefreshTokenTimeToLive());
-        log.info("""
-                
-                > Client Setting:
-                > name => {}
-                > id => {}
-                > secret => {} 
-               
-                =======START======== CustomOAuth2RefreshTokenGenerator
-                expired at @ [{}] UTC
-                ========END  ======= CustomOAuth2RefreshTokenGenerator
-                """,
-                context.getRegisteredClient().getClientId(),
-                context.getRegisteredClient().getClientName(),
-                context.getRegisteredClient().getClientSecret(),
-                InstantUtil.parse(expiresAt)
-        );
+        if (log.isDebugEnabled()) {
+            log.debug("refresh token issued clientId={} expiresAt={}",
+                    context.getRegisteredClient().getClientId(),
+                    InstantUtil.parse(expiresAt));
+        }
         return new OAuth2RefreshToken(this.refreshTokenGenerator.generateKey(), issuedAt, expiresAt);
     }
 }

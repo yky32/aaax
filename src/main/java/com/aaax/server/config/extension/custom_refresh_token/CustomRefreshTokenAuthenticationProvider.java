@@ -88,6 +88,12 @@ public class CustomRefreshTokenAuthenticationProvider extends BaseAuthentication
             String message = "RT Expired At: ".concat(InstantUtil.parse(Objects.requireNonNull(oAuth2RefreshTokenToken.getToken().getExpiresAt())));
             throw new OAuth2AuthenticationException(oAuth2Error, message);
         }
+        if (!registeredClient.getId().equals(authorization.getRegisteredClientId())) {
+            throw new OAuth2AuthenticationException(new OAuth2Error(
+                    OAuth2ErrorCodes.INVALID_GRANT,
+                    "Refresh token was not issued to this client.",
+                    ERROR_URI));
+        }
 
         // == verify scope
         Set<String> scopes = registeredClient.getScopes();

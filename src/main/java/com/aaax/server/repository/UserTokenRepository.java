@@ -20,6 +20,7 @@ public interface UserTokenRepository extends JpaRepositoryImplementation<UserTok
                 user_tokens ut
             WHERE
                 ut.type = ?2
+            AND ut.is_active = true
             AND (
                     (ut.type = 'REFRESH_TOKEN' AND ut.value ->> 'refreshToken' = ?1) OR
                     (ut.type = 'ACCESS_TOKEN' AND ut.value ->> 'accessToken' = ?1)
